@@ -1,0 +1,36 @@
+import setuptools
+
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
+setuptools.setup(
+    name='mango',
+    version='0.0.1',
+    author='Matthew Duffield',
+    author_email='matt.duffield@gmail.com',
+    description='Web framework for Python',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url='https://github.com/mattduffield/mango',
+    project_urls = {
+        "Bug Tracker": "https://github.com/mattduffield/mango/issues"
+    },
+    license='MIT',
+    packages=['mango'],
+    install_requires=[
+      'aiofiles',
+      'bcrypt',
+      'click',
+      'fastapi-router-controller',
+      'jinja2',
+      'jinja2-simple-tags',
+      'passlib',
+      'pyjwt',
+      'pymongo',
+      'pymongo[srv]',
+      'requests',
+      'starlette-wtf',
+      'FastAPI',
+      'WTForms',
+    ],
+)
