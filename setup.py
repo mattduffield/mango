@@ -1,11 +1,11 @@
-import setuptools
+import setuptools, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name='mango',
-    version='0.0.1',
+    version='0.0.2',
     author='Matthew Duffield',
     author_email='matt.duffield@gmail.com',
     description='Web framework for Python',
@@ -16,7 +16,7 @@ setuptools.setup(
         "Bug Tracker": "https://github.com/mattduffield/mango/issues"
     },
     license='MIT',
-    packages=['mango'],
+    packages=find_packages(),
     install_requires=[
       'aiofiles',
       'bcrypt',
