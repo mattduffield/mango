@@ -4,9 +4,7 @@
     https://michaelabrahamsen.com/posts/jinja2-custom-template-tags/
 '''
 from jinja2_simple_tags import StandaloneTag
-# from settings import templates # We need this since we are rendering dynamic content...
 
-templates = None
 
 class RenderColTag(StandaloneTag):
   tags = {'RenderCol'}
@@ -28,12 +26,9 @@ class RenderColTag(StandaloneTag):
         result = result()
     if html and instance:
       context = {'object': instance}
-      template = templates.env.from_string(html)
+      template = self.environment.from_string(html)
       result = template.render(context)
     return result
 
 def register_tags(templates):
   templates.env.add_extension(RenderColTag)
-  templates = templates
-
-# templates.env.add_extension(RenderColTag)
