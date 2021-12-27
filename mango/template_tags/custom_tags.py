@@ -6,6 +6,8 @@
 from jinja2_simple_tags import StandaloneTag
 # from settings import templates # We need this since we are rendering dynamic content...
 
+templates = None
+
 class RenderColTag(StandaloneTag):
   tags = {'RenderCol'}
 
@@ -31,6 +33,7 @@ class RenderColTag(StandaloneTag):
     return result
 
 def register_tags(templates):
-  templates.env.add_extension(RenderColTag)  
+  templates.env.add_extension(RenderColTag)
+  templates = templates
 
 # templates.env.add_extension(RenderColTag)
