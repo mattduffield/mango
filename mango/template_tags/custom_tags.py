@@ -3,7 +3,15 @@
     https://github.com/dldevinc/jinja2-simple-tags
     https://michaelabrahamsen.com/posts/jinja2-custom-template-tags/
 '''
+from fastapi.templating import Jinja2Templates
 from jinja2_simple_tags import StandaloneTag
+
+templates = None
+
+class CustomJinja2Templates(Jinja2Templates):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.env.add_extension(RenderColTag)
 
 
 class RenderColTag(StandaloneTag):
@@ -30,5 +38,13 @@ class RenderColTag(StandaloneTag):
       result = template.render(context)
     return result
 
+
 def register_tags(templates):
   templates.env.add_extension(RenderColTag)
+
+def configure_templates(directory='templates'):
+  global templates
+  templates = CustomJinja2Templates(directory="templates")
+  register_tags(templates)
+  return templates
+
