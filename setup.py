@@ -1,11 +1,11 @@
-import setuptools, find_packages
+from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-setuptools.setup(
+setup(
     name='mango',
-    version='0.0.2',
+    version='0.0.3',
     author='Matthew Duffield',
     author_email='matt.duffield@gmail.com',
     description='Web framework for Python',
