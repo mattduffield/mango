@@ -5,8 +5,8 @@ import click
 import os
 import requests
 from csv import DictReader
-from api import api
-from models import query
+from mango.db import api
+from mango.db import query
 
 __author__ = "Matt Duffield"
 
