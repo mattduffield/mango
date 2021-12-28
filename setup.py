@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='mango',
-    version='0.0.12',
+    version='0.0.13',
     author='Matthew Duffield',
     author_email='matt.duffield@gmail.com',
     description='Web framework for Python',
@@ -17,6 +17,9 @@ setup(
     },
     license='MIT',
     packages=find_packages(),
+    package_data={
+        'commands': 'templates/*'
+    },
     install_requires=[
       'aiofiles',
       'bcrypt',
