@@ -146,52 +146,35 @@ async def start_app(app_name: str):
   click.echo(f'Creating app: {app_name}')
   os.mkdir(app_name)
   os.chdir(app_name)
-  f = open('forms.py', 'w')
-  f.write('''from typing import Text
-from starlette_wtf import StarletteForm, CSRFProtectMiddleware, csrf_protect
-from wtforms import (
-  StringField, 
-  TextAreaField, 
-  PasswordField, 
-  EmailField, 
-  SelectField,
-  BooleanField,
-)
-from wtforms.validators	import DataRequired
+  with open('templates/forms.py', 'r') as form_file:
+    forms = form_file.read()
+    f = open('forms.py', 'w')
+    f.write(forms)
+    f.close()
+  with open('templates/models.py', 'r') as model_file:
+    models = model_file.read()
+    m = open('models.py', 'w')
+    m.write(models)
+    m.close()
+  with open('templates/views.py', 'r') as view_file:
+    views = view_file.read()
+    v = open('views.py', 'w')
+    v.write(views)
+    v.close()
 
-from core.forms import label_class, chk_class, input_class, select_class, textarea_class
-  
-  ''')
-  f.close()
-  m = open('models.py', 'w')
-  m.write('''from enum import Enum
-from typing import Optional, List
-from pydantic import BaseModel
-from pydantic.types import PositiveInt
-  
-  ''')
-  m.close()
-  v = open('views.py', 'w')
-  v.write('''from fastapi import Request
-from fastapi.responses import HTMLResponse
-from typing import (
-    Deque, Dict, FrozenSet, List, Optional, Sequence, Set, Tuple, Union
-)
-from fastapi_router_controller import Controller
-from core.views import (
-  CreateView,
-  UpdateView,
-  DeleteView, 
-  ListView, 
-  get_controller,
-  GenericListView,
-)
-from models.query import datetime_parser, json_from_mongo, Credentials, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
-from api.api import find, find_one
-from settings import templates, DATABASE_NAME
-  
-  ''')
-  v.close()
+@main.command()
+@coro
+@click.argument('project_name')
+async def start_project(project_name: str):
+  """This creates a new project folder"""
+  click.echo(f'Creating project: {project_name}')
+  # os.mkdir(project_name)
+  # os.chdir(project_name)
+  with open('settings.py', 'r') as form_file:
+    settings = form_file.read()
+    f = open('settings.py', 'w')
+    f.write(settings)
+    f.close()
 
 if __name__ == "__main__":
     main()
