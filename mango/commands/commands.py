@@ -144,9 +144,9 @@ async def bulk_insert_products(file_name: str, database: str, collection: str):
 async def start_app(app_name: str):
   """This creates a new app folder"""
   click.echo(f'Creating app: {app_name}')
-  forms_path = os.path.dirname(__file__), 'templates/forms.template')
-  models_path = os.path.dirname(__file__), 'templates/models.template')
-  views_path = os.path.dirname(__file__), 'templates/views.template')
+  forms_path = os.path.join(os.path.dirname(__file__), 'templates/forms.template')
+  models_path = os.path.join(os.path.dirname(__file__), 'templates/models.template')
+  views_path = os.path.join(os.path.dirname(__file__), 'templates/views.template')
   os.mkdir(app_name)
   os.chdir(app_name)
   with open(forms_path, 'r') as form_file:
@@ -171,7 +171,7 @@ async def start_app(app_name: str):
 async def start_project(project_name: str):
   """This creates a new project folder"""
   click.echo(f'Creating project: {project_name}')
-  settings_path = os.path.dirname(__file__), 'settings.template')
+  settings_path = os.path.join(os.path.dirname(__file__), 'settings.template')
   # os.mkdir(project_name)
   # os.chdir(project_name)
   with open(settings_path, 'r') as form_file:
