@@ -146,19 +146,19 @@ async def start_app(app_name: str):
   click.echo(f'Creating app: {app_name}')
   os.mkdir(app_name)
   os.chdir(app_name)
-  with open('templates/forms.py', 'r') as form_file:
+  with open('templates/forms.template', 'r') as form_file:
     forms = form_file.read()
-    f = open('forms.py', 'w')
+    f = open('forms.template', 'w')
     f.write(forms)
     f.close()
-  with open('templates/models.py', 'r') as model_file:
+  with open('templates/models.template', 'r') as model_file:
     models = model_file.read()
-    m = open('models.py', 'w')
+    m = open('models.template', 'w')
     m.write(models)
     m.close()
-  with open('templates/views.py', 'r') as view_file:
+  with open('templates/views.template', 'r') as view_file:
     views = view_file.read()
-    v = open('views.py', 'w')
+    v = open('views.template', 'w')
     v.write(views)
     v.close()
 
@@ -170,9 +170,9 @@ async def start_project(project_name: str):
   click.echo(f'Creating project: {project_name}')
   # os.mkdir(project_name)
   # os.chdir(project_name)
-  with open('settings.py', 'r') as form_file:
+  with open('settings.template', 'r') as form_file:
     settings = form_file.read()
-    f = open('settings.py', 'w')
+    f = open('settings.template', 'w')
     f.write(settings)
     f.close()
 
