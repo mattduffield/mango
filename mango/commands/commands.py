@@ -144,19 +144,22 @@ async def bulk_insert_products(file_name: str, database: str, collection: str):
 async def start_app(app_name: str):
   """This creates a new app folder"""
   click.echo(f'Creating app: {app_name}')
+  forms_path = os.path.join(os.getcwd(), 'templates/forms.template')
+  models_path = os.path.join(os.getcwd(), 'templates/models.template')
+  views_path = os.path.join(os.getcwd(), 'templates/views.template')
   os.mkdir(app_name)
   os.chdir(app_name)
-  with open(os.path.join(os.getcwd(), 'templates/forms.template'), 'r') as form_file:
+  with open(forms_path, 'r') as form_file:
     forms = form_file.read()
     f = open('forms.py', 'w')
     f.write(forms)
     f.close()
-  with open(os.path.join(os.getcwd(), 'templates/models.template'), 'r') as model_file:
+  with open(models_path, 'r') as model_file:
     models = model_file.read()
     m = open('models.py', 'w')
     m.write(models)
     m.close()
-  with open(os.path.join(os.getcwd(), 'templates/views.template'), 'r') as view_file:
+  with open(views_path, 'r') as view_file:
     views = view_file.read()
     v = open('views.py', 'w')
     v.write(views)
@@ -168,9 +171,10 @@ async def start_app(app_name: str):
 async def start_project(project_name: str):
   """This creates a new project folder"""
   click.echo(f'Creating project: {project_name}')
+  settings_path = os.path.join(os.getcwd(), 'settings.template')
   # os.mkdir(project_name)
   # os.chdir(project_name)
-  with open(os.path.join(os.getcwd(), 'settings.template'), 'r') as form_file:
+  with open(settings_path, 'r') as form_file:
     settings = form_file.read()
     f = open('settings.py', 'w')
     f.write(settings)
