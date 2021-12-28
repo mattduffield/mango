@@ -1,1 +1,1 @@
-__all__ = ['forms', 'models', 'views', 'settings']
+__all__ = ['forms.template', 'models.template', 'views.template', 'settings.template']
