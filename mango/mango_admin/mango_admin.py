@@ -51,6 +51,7 @@ def start_project(project_name: str):
   settings_path = os.path.join(os.path.dirname(__file__), 'templates/settings.template')
   main_path = os.path.join(os.path.dirname(__file__), 'templates/main.template')
   readme_path = os.path.join(os.path.dirname(__file__), 'templates/readme.template')
+  env_path = os.path.join(os.path.dirname(__file__), 'templates/env.template')
   static_path = f'{project_name}/static'
   css_path = f'{project_name}/static/css'
   images_path = f'{project_name}/static/images'
@@ -82,6 +83,11 @@ def start_project(project_name: str):
     readme = readme_file.read()
     f = open('README.md', 'w')
     f.write(readme)
+    f.close()
+  with open(env_path, 'r') as env_file:
+    env = env_file.read()
+    f = open('.env', 'w')
+    f.write(env)
     f.close()
 
 if __name__ == "__main__":

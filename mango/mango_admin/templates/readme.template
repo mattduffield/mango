@@ -52,10 +52,10 @@ Now, freeze all the dependencies into a `requirements.txt` file:
 pip freeze > requirements.txt
 ```
 
-## Adding Environment Variables
-Add a `.env` file to the root
+## Update Environment Variables
+You will need to provide some environment variables prior to starting the server.
 
-Add the following content:
+The `.env` file should contain the following content:
 ```env
 SESSION_SECRET_KEY=
 
