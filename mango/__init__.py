@@ -1,1 +1,1 @@
-__all__ = ['commands', 'db', 'manage']
+__all__ = ['mango', 'commands', 'db', 'manage']
