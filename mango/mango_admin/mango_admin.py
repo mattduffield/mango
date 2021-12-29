@@ -51,10 +51,10 @@ def start_project(project_name: str):
   settings_path = os.path.join(os.path.dirname(__file__), 'templates/settings.template')
   main_path = os.path.join(os.path.dirname(__file__), 'templates/main.template')
   readme_path = os.path.join(os.path.dirname(__file__), 'templates/readme.template')
-  static_path = 'static'
-  css_path = 'static/css'
-  images_path = 'static/images'
-  js_path = 'static/js'
+  static_path = f'{project_name}/static'
+  css_path = f'{project_name}/static/css'
+  images_path = f'{project_name}/static/images'
+  js_path = f'{project_name}/static/js'
 
   os.mkdir(project_name)
   os.mkdir(static_path)
