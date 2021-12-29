@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='mango',
-    version='0.0.31',
+    version='0.0.32',
     author='Matthew Duffield',
     author_email='matt.duffield@gmail.com',
     description='Web framework for Python',
@@ -19,7 +19,10 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     entry_points = {
-        'console_scripts': ['mango_admin=mango.mango_admin.mango_admin:main']
+        'console_scripts': [
+            'mango_admin=mango.mango_admin.mango_admin:main',
+            'manage=mango.commands.commands:main',
+        ]
     },
     install_requires=[
       'aiofiles',

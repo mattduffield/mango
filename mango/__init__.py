@@ -1,1 +1,1 @@
-__all__ = ['mango', 'commands', 'db', 'manage']
+__all__ = ['commands', 'core', 'db', 'mango_admin', 'template_tags', 'utils', 'manage']

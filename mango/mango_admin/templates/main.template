@@ -1,0 +1,71 @@
+from fastapi import FastAPI, APIRouter, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+
+from starlette.middleware.sessions import SessionMiddleware
+
+import os
+import uvicorn
+from mango.db import api
+from settings import (
+    SESSION_SECRET_KEY,
+    DATABASE_CLUSTER,
+    DATABASE_NAME,
+    DATABASE_PASSWORD,
+    DATABASE_USERNAME,
+    MAILGUN_API_KEY,
+    MAILGUN_FROM_BLOCK,
+    MAILGUN_URL,
+)
+
+print(f'DATABASE_CLUSTER: {DATABASE_CLUSTER}')
+print(f'DATABASE_USERNAME: {DATABASE_USERNAME}')
+print(f'DATABASE_PASSWORD: {DATABASE_PASSWORD}')
+print(f'DATABASE_NAME: {DATABASE_NAME}')
+print(f'MAILGUN_API_KEY: {MAILGUN_API_KEY}')
+print(f'MAILGUN_URL: {MAILGUN_URL}')
+print(f'MAILGUN_FROM_BLOCK: {MAILGUN_FROM_BLOCK}')
+
+
+app = FastAPI()
+
+@app.middleware('http')
+async def add_htmx_request(request: Request, call_next):
+    if request.headers.get('hx-request'):
+        request.state.htmx = True
+    else:
+        request.state.htmx = False
+    response = await call_next(request)
+    return response
+
+def main():
+    configure(dev_mode=True)
+    uvicorn.run(app, host='127.0.0.1', port=8010, debug=True)
+
+def configure(dev_mode: bool):
+    cwd = os.getcwd()
+    print(f'cwd: {cwd}')
+    print(f'dev_mode: {dev_mode}')
+    configure_routes()
+
+def configure_routes():
+    app.mount('/static', StaticFiles(directory='static'), name='static')
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=SESSION_SECRET_KEY
+)
+
+
+if __name__ == '__main__':
+    main()
+else:
+    configure(dev_mode=False)
