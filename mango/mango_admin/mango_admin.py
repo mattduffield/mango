@@ -6,16 +6,6 @@ import requests
 __author__ = "Matt Duffield"
 
 
-from functools import wraps
-
-def coro(f):
-  @wraps(f)
-  def wrapper(*args, **kwargs):
-    return asyncio.run(f(*args, **kwargs))
-
-  return wrapper
-
-
 @click.group()
 def main():
   """
@@ -49,11 +39,9 @@ def get(id):
 
   click.echo(response.json())
 
-
 @main.command()
-@coro
 @click.argument('project_name')
-async def start_project(project_name: str):
+def start_project(project_name: str):
   """This creates a new project folder"""
   click.echo(f'Creating project: {project_name}')
   settings_path = os.path.join(os.path.dirname(__file__), 'templates/settings.template')

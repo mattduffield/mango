@@ -139,9 +139,8 @@ async def bulk_insert_products(file_name: str, database: str, collection: str):
   await api.bulk_write(batch)
 
 @main.command()
-@coro
 @click.argument('app_name')
-async def start_app(app_name: str):
+def start_app(app_name: str):
   """This creates a new app folder"""
   click.echo(f'Creating app: {app_name}')
   forms_path = os.path.join(os.path.dirname(__file__), 'templates/forms.template')
