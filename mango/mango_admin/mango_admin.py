@@ -58,8 +58,8 @@ async def start_project(project_name: str):
   click.echo(f'Creating project: {project_name}')
   settings_path = os.path.join(os.path.dirname(__file__), 'templates/settings.template')
   main_path = os.path.join(os.path.dirname(__file__), 'templates/main.template')
-  # os.mkdir(project_name)
-  # os.chdir(project_name)
+  os.mkdir(project_name)
+  os.chdir(project_name)
   with open(settings_path, 'r') as settings_file:
     settings = settings_file.read()
     f = open('settings.py', 'w')
