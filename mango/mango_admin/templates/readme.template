@@ -1,0 +1,60 @@
+# Mango
+
+## Setup
+To create a virtual environment, execute the following command:
+
+``` bash
+python3 -m venv .venv
+```
+
+To activate the virtual environment, execute the following command:
+
+```bash
+source .venv/bin/activate
+```
+
+Ensure that you have the latest version of `pip` by executing the following command:
+
+```bash
+python3 -m pip install --upgrade pip
+```
+
+Now, install the development dependencies:
+
+```bash
+pip install FastAPI
+pip install jinja2
+pip install jinja2-simple-tags
+pip install aiofiles
+pip install uvicorn
+pip install python-dotenv
+pip install python-dateutil
+pip install python-multipart
+pip install python-bsonjs
+pip install pymongo
+pip install 'pymongo[srv]'
+pip install requests
+pip install bcrypt
+pip install pyjwt
+pip install passlib
+pip install python-quickbooks
+pip install itsdangerous
+pip install asana
+pip install fastapi-router-controller
+pip install WTForms
+pip install starlette-wtf
+pip install git+https://github.com/mattduffield/mango.git
+```
+
+Now, freeze all the dependencies into a `requirements.txt` file:
+
+```bash
+pip freeze > requirements.txt
+```
+
+```bash
+manage.py bulk-insert-recyclers raw_data/master_recycler_list.csv falm entities
+manage.py bulk-insert-products raw_data/master_product_list.csv falm products
+
+manage.py start-app app/contacts
+```

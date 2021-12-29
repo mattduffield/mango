@@ -47,6 +47,7 @@ def start_project(project_name: str):
   init_path = os.path.join(os.path.dirname(__file__), 'templates/init.template')
   settings_path = os.path.join(os.path.dirname(__file__), 'templates/settings.template')
   main_path = os.path.join(os.path.dirname(__file__), 'templates/main.template')
+  readme_path = os.path.join(os.path.dirname(__file__), 'templates/readme.template')
   os.mkdir(project_name)
   os.chdir(project_name)
   os.mkdir(project_name)
@@ -64,6 +65,11 @@ def start_project(project_name: str):
     main = main_file.read()
     f = open('main.py', 'w')
     f.write(main)
+    f.close()
+  with open(readme_path, 'r') as readme_file:
+    readme = readme_file.read()
+    f = open('README.md', 'w')
+    f.write(readme)
     f.close()
 
 if __name__ == "__main__":
