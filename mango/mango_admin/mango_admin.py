@@ -43,7 +43,10 @@ def get(id):
 @click.argument('project_name')
 def start_project(project_name: str):
   """This creates a new project folder"""
+  if '_' in project_name or ' ' in project_name:
+    click.UsageError('Invalid project name. Please use only letter, numbers, and underscores.')
   click.echo(f'Creating project: {project_name}')
+
   init_path = os.path.join(os.path.dirname(__file__), 'templates/init.template')
   settings_path = os.path.join(os.path.dirname(__file__), 'templates/settings.template')
   main_path = os.path.join(os.path.dirname(__file__), 'templates/main.template')

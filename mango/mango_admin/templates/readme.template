@@ -52,6 +52,28 @@ Now, freeze all the dependencies into a `requirements.txt` file:
 pip freeze > requirements.txt
 ```
 
+## Adding Environment Variables
+Add a `.env` file to the root
+
+Add the following content:
+```env
+SESSION_SECRET_KEY=
+
+DATABASE_CLUSTER=
+DATABASE_USERNAME=
+DATABASE_PASSWORD=
+DATABASE_NAME=
+
+
+MAILGUN_API_KEY=
+MAILGUN_URL=
+MAILGUN_FROM_BLOCK=
+
+```
+
+
+## Interacting with the CLI
+
 ```bash
 manage.py bulk-insert-recyclers raw_data/master_recycler_list.csv falm entities
 manage.py bulk-insert-products raw_data/master_product_list.csv falm products
