@@ -18,7 +18,7 @@ setup(
     license='MIT',
     packages=find_packages(),
     include_package_data=True,
-    scripts=['bin/mango-admin']
+    scripts=['bin/mango-admin'],
     install_requires=[
       'aiofiles',
       'bcrypt',
