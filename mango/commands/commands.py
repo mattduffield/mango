@@ -165,20 +165,5 @@ async def start_app(app_name: str):
     v.write(views)
     v.close()
 
-@main.command()
-@coro
-@click.argument('project_name')
-async def start_project(project_name: str):
-  """This creates a new project folder"""
-  click.echo(f'Creating project: {project_name}')
-  settings_path = os.path.join(os.path.dirname(__file__), 'settings.template')
-  # os.mkdir(project_name)
-  # os.chdir(project_name)
-  with open(settings_path, 'r') as form_file:
-    settings = form_file.read()
-    f = open('settings.py', 'w')
-    f.write(settings)
-    f.close()
-
 if __name__ == "__main__":
     main()
