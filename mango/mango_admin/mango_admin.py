@@ -43,7 +43,7 @@ def get(id):
 @click.argument('project_name')
 def start_project(project_name: str):
   """This creates a new project folder"""
-  if '_' in project_name or ' ' in project_name:
+  if '-' in project_name or ' ' in project_name:
     raise click.UsageError('Invalid project name. Please use only letter, numbers, and underscores.')
   click.echo(f'Creating project: {project_name}')
 
