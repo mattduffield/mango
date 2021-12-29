@@ -50,7 +50,7 @@ def configure(dev_mode: bool):
 
 def configure_routes():
     app.mount('/static', StaticFiles(directory='static'), name='static')
-
+    app.include_router(api.router)
 
 app.add_middleware(
     CORSMiddleware,
