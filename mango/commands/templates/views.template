@@ -12,6 +12,6 @@ from mango.core.views import (
   get_controller,
   GenericListView,
 )
-from mango.db.query import datetime_parser, json_from_mongo, Credentials, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
+from mango.db.models import datetime_parser, json_from_mongo, Credentials, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
 from mango.db.api import find, find_one
 from settings import templates, DATABASE_NAME

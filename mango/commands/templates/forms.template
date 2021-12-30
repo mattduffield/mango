@@ -1,3 +1,4 @@
+import markupsafe
 from typing import Text
 from starlette_wtf import StarletteForm, CSRFProtectMiddleware, csrf_protect
 from wtforms import (
@@ -7,8 +8,16 @@ from wtforms import (
   EmailField, 
   SelectField,
   BooleanField,
+  FormField,
+  Form,
 )
-from wtforms.validators	import DataRequired
-
-from core.forms import label_class, chk_class, input_class, select_class, textarea_class
+from wtforms.validators	import DataRequired, NoneOf
+from mango.core.forms import (
+  label_class, 
+  chk_class, 
+  input_class, 
+  select_class, 
+  textarea_class, 
+  QuerySelectField
+)
 
