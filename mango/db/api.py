@@ -11,7 +11,7 @@ DATABASE_USERNAME = os.environ.get('DATABASE_USERNAME')
 DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD')
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
-from mango.auth.auth import AuthHandler, Credentials
+# from mango.auth.auth import AuthHandler, Credentials
 from mango.db.query import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
 
 uri = f'mongodb+srv://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_CLUSTER}.mongodb.net/{DATABASE_NAME}?retryWrites=true&w=majority'
@@ -20,7 +20,7 @@ db = client.test
 
 print(uri)
 
-auth_handler = AuthHandler()
+# auth_handler = AuthHandler()
 
 router = APIRouter(
   prefix = '/api',
