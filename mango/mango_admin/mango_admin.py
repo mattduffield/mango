@@ -60,7 +60,7 @@ def start_project(project_name: str):
   main_path = os.path.join(os.path.dirname(__file__), 'templates/main.template')
   readme_path = os.path.join(os.path.dirname(__file__), 'templates/readme.template')
   env_path = os.path.join(os.path.dirname(__file__), 'templates/env.template')
-  templates_src_path = os.path.join(os.path.dirname(__file__), '../templates')
+  templates_src_path = os.path.join(os.path.dirname(__file__), '..', 'templates')
   static_path = f'{project_name}/static'
   css_path = f'{project_name}/static/css'
   images_path = f'{project_name}/static/images'
