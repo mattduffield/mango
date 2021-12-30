@@ -62,7 +62,7 @@ def start_project(project_name: str):
   os.mkdir(css_path)
   os.mkdir(images_path)
   os.mkdir(js_path)
-  # os.chdir(project_name)
+  os.chdir(project_name)
   # os.mkdir(project_name)
   # with open(init_path, 'r') as init_file:
   #   init = init_file.read()
