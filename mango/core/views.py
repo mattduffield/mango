@@ -6,7 +6,7 @@ from typing import (
     Deque, Dict, FrozenSet, List, Optional, Sequence, Set, Tuple, Union
 )
 from mango.auth.models import Credentials
-from mango.db.query import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
+from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
 from mango.db.api import find, find_one, run_pipeline, delete, update_one, insert_one
 from settings import templates, DATABASE_NAME
 

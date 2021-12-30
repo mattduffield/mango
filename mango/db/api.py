@@ -11,8 +11,8 @@ DATABASE_USERNAME = os.environ.get('DATABASE_USERNAME')
 DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD')
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
-# from mango.auth.auth import AuthHandler, Credentials
-from mango.db.query import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
+# from mango.auth.models import AuthHandler, Credentials
+from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
 
 uri = f'mongodb+srv://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_CLUSTER}.mongodb.net/{DATABASE_NAME}?retryWrites=true&w=majority'
 client = MongoClient(uri)
@@ -26,54 +26,6 @@ router = APIRouter(
   prefix = '/api',
   tags = ['Mongodon']
 )
-
-# @router.post('/register', status_code=201)
-# async def register(credentials: Credentials):
-#   hashed_password = auth_handler.get_password_hash(credentials.password)
-#   #
-#   # TODO: NEED TO MAKE THIS PART GENERIC BY PASSING IN THE REQUEST DATA...
-#   #
-#   result = {
-#     'collection': 'users', 
-#     'data': {
-#       'email': credentials.email,
-#       'password': hashed_password
-#     }, 
-#     'database': DATABASE_NAME
-#   }
-#   query = InsertOne.parse_obj(result)
-#   try:
-#     resp = await insert_one(query)
-#     return resp
-#   except:
-#     raise HTTPException(status_code=404, detail='User already exists')
-
-# @router.post('/server-signin')
-# async def server_signin():
-#   serverEmail = 'server@server.com'
-#   token = auth_handler.encode_token(serverEmail)
-#   return {'token': token, 'database': None, 'user': serverEmail}
-
-# @router.post('/signin')
-# async def signin(credentials: Credentials):
-#   result = {
-#     'collection': 'users', 
-#     'query': {
-#       'email': credentials.email
-#     }, 
-#     'database': DATABASE_NAME
-#   }
-#   query = QueryOne.parse_obj(result)
-#   found = await find_one(query)
-#   if (found) and (auth_handler.verify_password(credentials.password, found['password'])):
-#     user_id = found['_id']
-#     # email = credentials.email
-#     # username = found['username']    
-#     # {user_id: _id, email, username, database}
-#     token = auth_handler.encode_token(user_id)
-#     return {'token': token, 'database': DATABASE_NAME, 'user': found}
-#   else:
-#     raise HTTPException(status_code=404, detail='Invalid credentials')
 
 @router.post('/find')
 # async def find(query: Query, user_id=Depends(auth_handler.auth_wrapper)):

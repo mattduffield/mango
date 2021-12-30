@@ -6,7 +6,7 @@ import os
 import requests
 from csv import DictReader
 from mango.db import api
-from mango.db import query
+from mango.db import models
 
 __author__ = "Matt Duffield"
 
@@ -69,11 +69,11 @@ async def bulk_insert_recyclers(file_name: str, database: str, collection: str):
     "collection": collection,
     "batch": []
   }
-  batch = query.BulkWrite(**data)
+  batch = models.BulkWrite(**data)
   with open(file_name, 'r') as csv_file:
     csv_reader = DictReader(csv_file)
     for row in csv_reader:
-      bulk_insert = query.BulkInsert(**{
+      bulk_insert = models.BulkInsert(**{
         "bulk_type": "insert_one",
         "data": {
           'name': row['display_name'], 
@@ -107,11 +107,11 @@ async def bulk_insert_products(file_name: str, database: str, collection: str):
     "collection": collection,
     "batch": []
   }
-  batch = query.BulkWrite(**data)
+  batch = models.BulkWrite(**data)
   with open(file_name, 'r') as csv_file:
     csv_reader = DictReader(csv_file)
     for row in csv_reader:
-      bulk_insert = query.BulkInsert(**{
+      bulk_insert = models.BulkInsert(**{
         "bulk_type": "insert_one",
         "data": {
           'business_key': row['id'],
