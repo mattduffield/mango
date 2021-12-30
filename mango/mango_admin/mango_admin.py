@@ -55,7 +55,6 @@ def start_project(project_name: str):
     raise click.UsageError('Invalid project name. Please use only letter, numbers, and underscores.')
   click.echo(f'Creating project: {project_name}')
 
-  # init_path = os.path.join(os.path.dirname(__file__), 'templates/init.template')
   settings_path = os.path.join(os.path.dirname(__file__), 'templates/settings.template')
   main_path = os.path.join(os.path.dirname(__file__), 'templates/main.template')
   readme_path = os.path.join(os.path.dirname(__file__), 'templates/readme.template')
@@ -63,27 +62,15 @@ def start_project(project_name: str):
   static_src_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static')
   templates_src_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates')
   static_path = f'{project_name}/static'
-  css_path = f'{project_name}/static/css'
-  images_path = f'{project_name}/static/images'
-  js_path = f'{project_name}/static/js'
   templates_path = f'{project_name}/templates'
 
   os.mkdir(project_name)
-  # os.mkdir(static_path)
-  # os.mkdir(css_path)
-  # os.mkdir(images_path)
-  # os.mkdir(js_path)
 
   shutil.copytree(static_src_path, static_path)
   shutil.copytree(templates_src_path, templates_path)
 
   os.chdir(project_name)
-  # os.mkdir(project_name)
-  # with open(init_path, 'r') as init_file:
-  #   init = init_file.read()
-  #   f = open(f'{project_name}/__init__.py', 'w')
-  #   f.write(init)
-  #   f.close()
+
   write_file(settings_path, 'settings.py')
   write_file(main_path, 'main.py')
   write_file(readme_path, 'README.md')

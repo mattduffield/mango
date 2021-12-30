@@ -78,9 +78,9 @@ def as_form(cls: Type[BaseModel]):
     setattr(cls, "as_form", _as_form)
     return cls
 
-class Credentials(BaseModel):
-  email: str
-  password: str
+# class Credentials(BaseModel):
+#   email: str
+#   password: str
 
 class BaseMongo(BaseModel):
   database: str 
