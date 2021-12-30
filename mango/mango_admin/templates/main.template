@@ -52,6 +52,7 @@ def configure(dev_mode: bool):
 def configure_routes():
     app.mount('/static', StaticFiles(directory='static'), name='static')
     app.include_router(api.router)
+    app.include_router(LandingView.router())
 
 app.add_middleware(
     CORSMiddleware,
@@ -66,18 +67,38 @@ app.add_middleware(
 )
 
 # Remove this once you have your own routes developed
-@app.get('/', response_class=HTMLResponse)
-def index():
-    return """
-    <html>
-        <head>
-            <title>Mango</title>
-        </head>
-        <body>
-            <h1>Congratulations! Your server is ready...</h1>
-        </body>
-    </html>
-    """
+# @app.get('/', response_class=HTMLResponse)
+# def index():
+#     return """
+#     <html>
+#         <head>
+#             <title>Mango</title>
+#         </head>
+#         <body>
+#             <h1>Congratulations! Your server is ready...</h1>
+#         </body>
+#     </html>
+#     """
+
+from mango.core.views import get_controller, StaticView
+
+landing_controller = get_controller()
+
+@landing_controller.resource()
+class LandingView(StaticView):
+
+  @landing_controller.route.get('/', response_class=HTMLResponse, name='landing-page')
+  async def get(self, request: Request):
+    return await super().get(request=request)
+
+  def get_template_name(self):
+    if self.request.state.htmx:
+      return 'partials/landing.html'
+    else:
+      return 'landing.html'
+
+
+
 
 if __name__ == '__main__':
     main()

@@ -60,6 +60,7 @@ def start_project(project_name: str):
   main_path = os.path.join(os.path.dirname(__file__), 'templates/main.template')
   readme_path = os.path.join(os.path.dirname(__file__), 'templates/readme.template')
   env_path = os.path.join(os.path.dirname(__file__), 'templates/env.template')
+  static_src_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static')
   templates_src_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates')
   static_path = f'{project_name}/static'
   css_path = f'{project_name}/static/css'
@@ -68,11 +69,12 @@ def start_project(project_name: str):
   templates_path = f'{project_name}/templates'
 
   os.mkdir(project_name)
-  os.mkdir(static_path)
-  os.mkdir(css_path)
-  os.mkdir(images_path)
-  os.mkdir(js_path)
+  # os.mkdir(static_path)
+  # os.mkdir(css_path)
+  # os.mkdir(images_path)
+  # os.mkdir(js_path)
 
+  shutil.copytree(static_src_path, static_path)
   shutil.copytree(templates_src_path, templates_path)
 
   os.chdir(project_name)
