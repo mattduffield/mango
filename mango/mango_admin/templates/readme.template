@@ -79,6 +79,7 @@ The following steps assume you are using VS Code:
  3. Select `FastAPI` for the web server selection
  4. Open your browser to `http://localhost:8000`
 
+Optionally, you can also browse to `http://localhost:8000/docs` to see the existing routes already configured by the server.
 
 ## Interacting with the CLI
 

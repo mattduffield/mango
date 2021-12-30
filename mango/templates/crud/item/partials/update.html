@@ -1,0 +1,38 @@
+{% from 'macros/macros.html' import crispy %}
+{% from 'macros/macros.html' import crispy2 %}
+
+<div class="p-6 mx-auto w-full md:w-5/6 xl:w-4/5 xmax-w-xl">
+  <h4 class="text-xl mt-3 mb-2">Update {{MODEL_NAME|capitalize}}</h4>
+  <div class="w-full">
+    <form id="frmUpdate" method="POST"
+      class="flex flex-1 flex-col xbg-white xshadow-md xrounded px-8 pt-6 pb-8 mb-4 w-full"
+      hx-enctype="text/x-www-form-urlencoded"
+      hx-post="/{{MODEL_NAME_PLURAL}}/{{object._id}}" 
+      hx-target="#viewport"
+      hx-swap="innerHTML"
+      hx-push-url="true"
+      hx-indicator="#content-loader"
+      >
+      {# {{ crispy(form) }} #}
+      {{ crispy2(form.layout_fields()) }}
+      <div class="flex justify-end gap-3">
+        <a hx-get="{{url_for(name=list_url)}}"
+          hx-target="#viewport"
+          hx-swap="innerHTML"
+          hx-push-url="true"
+          hx-indicator="#content-loader"
+          class="intro-x px-3 py-2 cursor-pointer">
+          Cancel
+        </a>
+        <button class="intro-x text-white bg-blue-500 hover:bt-blue-600 px-3 py-2 rounded-md"
+          type="submit"
+          form="frmUpdate">
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% if request.state.htmx %}
+  {% include 'crud/item/partials/item_breadcrumbs.html' %}
+{% endif %}

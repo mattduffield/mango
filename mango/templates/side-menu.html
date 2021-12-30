@@ -1,0 +1,59 @@
+<nav class="side-nav">
+  {% set  url = 'landing-page' %}
+  <a hx-get="{{url_for(name=url)}}"
+    hx-target="#viewport"
+    hx-swap="innerHTML"
+    hx-push-url="true"
+    hx-indicator="#content-loader"
+    _="on click take .{'side-menu--active'} from <a/> in #side-menu for #dashboard"
+    class="cursor-pointer intro-x flex items-center pl-5 pt-4">
+    <img alt="Logo" class="w-6" src="{{ url_for('static', path='/images/logo.svg') }}">
+    <span class="hidden xl:block text-white text-lg ml-3"> Fa<span class="font-medium">lm</span> </span>
+  </a>
+  <div class="side-nav__devider my-6"></div>
+  <ul id="side-menu"
+    _="on click take .{'side-menu--active'} from <a/> in me for the event's target">
+    <li>
+      <a id="dashboard"
+        hx-get="{{url_for(name=url)}}"
+        hx-target="#viewport"
+        hx-swap="innerHTML"
+        hx-push-url="true"
+        hx-indicator="#content-loader"
+        class="side-menu cursor-pointer {% if request.path == url %}side-menu--active{% endif %}">
+        <div class="side-menu__icon pointer-events-none"> <i data-feather="home"></i> </div>
+        <div class="side-menu__title pointer-events-none">
+          Dashboard 
+        </div>
+      </a>
+    </li>
+    <li>
+      <a id="products" 
+        hx-get="{{url_for(name='product-list')}}"
+        hx-target="#viewport"
+        hx-swap="innerHTML"
+        hx-push-url="true"
+        hx-indicator="#content-loader"
+        class="side-menu cursor-pointer {% if 'products' in request.path %}side-menu--active{% endif %}">
+        <div class="side-menu__icon pointer-events-none"> <i data-feather="box"></i> </div>
+        <div class="side-menu__title pointer-events-none">
+          Products 
+        </div>
+      </a>
+    </li>
+    <li>
+      <a id="entities" 
+        hx-get="{{url_for(name='entity-list')}}"
+        hx-target="#viewport"
+        hx-swap="innerHTML"
+        hx-push-url="true"
+        hx-indicator="#content-loader"
+        class="side-menu cursor-pointer {% if 'entities' in request.path %}side-menu--active{% endif %}">
+        <div class="side-menu__icon pointer-events-none"> <i data-feather="truck"></i> </div>
+        <div class="side-menu__title pointer-events-none">
+          Entities
+        </div>
+      </a>
+    </li>
+  </ul>
+</nav>

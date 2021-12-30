@@ -1,2 +1,3 @@
 include mango/commands/templates/*.template
 include mango/mango_admin/templates/*.template
+include mango/templates/*.template

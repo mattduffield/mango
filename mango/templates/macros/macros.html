@@ -1,0 +1,51 @@
+{% macro crispy(form) -%}
+  {% for field in form %}
+    <div class="mb-4">
+      {{ field.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+      {{ field(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+    </div>
+  {% endfor %}
+{%- endmacro %}
+
+{% macro crispy2(fields) -%}
+  {% for field in fields %}
+    {% if field.get('type') %}
+      <div class="{{field.get('css_class')}}">
+      {% if field.get('content') %}
+        {{ field.get('content') }}
+      {% endif %}
+      {% if field.get('fields') %}
+        {{ crispy2(field.get('fields')) }}
+      {% endif %}
+      {% if field.get('type') == 'form_field' %}
+        {# {{ field.get('field').label(class=field.get('label_class')) }} #}
+        {{ crispy2(field.get('field').form.fields) }}
+      {% endif %}
+      </div>
+    {% else %}
+      {% if field.get('field') %}
+        <div class="mb-4 {% if field.get('wrapper_class') %}{{ field.get('wrapper_class') }}  {% else %}flex-1{% endif %}">
+          {% if field.get('field').label is defined %}
+            {% if field.get('label_orientation') != 'after' %}
+              {{ field.get('field').label(class=field.get('label_class')) }}
+            {% endif %}
+            {{ field.get('field')(class=field.get('css_class')) }}
+            {% if field.get('label_orientation') == 'after' %}
+              {{ field.get('field').label(class=field.get('label_class')) }}
+            {% endif %}
+          {% endif %}
+          {% if field.get('field').errors %}
+            <span>{{ field.get('field').errors[0] }}</span>
+          {% endif %}          
+        </div>
+      {% elif field.get('html') %}
+        {{ field.get('html') }}
+      {% else %}
+        <div class="mb-4 flex-1">
+          {# {{ field.get('field').label(class=field.get('label_class')) }} #}
+          {# {{ field.get('field')(class=field.get('css_class')) }} #}
+        </div>
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{%- endmacro %}

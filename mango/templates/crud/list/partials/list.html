@@ -1,0 +1,91 @@
+<section id="list-section" class="text-gray-600 body-font  p-6 mx-auto w-full md:w-5/6 xl:w-4/5 xmax-w-xl">
+  <div class="container px-5 pt-4 pb-10 xpy-24 mx-auto flex flex-wrap">
+    <div class="w-full mb-6 py-6 flex justify-between items-center border-b border-gray-300 gap-4">
+      <div>
+        <h1 class="-intro-x text-3xl text-gray-800">{{MODEL_NAME_PLURAL|capitalize}}</h1>
+      </div>
+
+      <div class="intro-x flex-1 flex items-center justify-end px-2">
+        <div class="max-w-lg w-full lg:max-w-xs">
+          <label for="search" class="sr-only">Search</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg id="heroicon-solid-search" class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <input id="search" name="search" 
+              class="block w-full pl-10 pr-3 py-2 textinput border border-gray-300 rounded-md leading-5 bg-white focus:outline-none sm:text-sm"
+              placeholder="Search"
+              type="search"
+              value="{{search}}"
+              autofocus
+              hx-get="{{MODEL_NAME_PLURAL}}"
+              hx-trigger="keyup changed delay:750ms" 
+              hx-target="#viewport"
+              hx-push-url="true">
+          </div>
+        </div>
+      </div>    
+
+      <div class="intro-x">
+        <a hx-get="{{url_for(name=create_url)}}" 
+          hx-target="#viewport"
+          hx-swap="innerHTML"
+          hx-push-url="true"
+          hx-indicator="#content-loader"
+          class="intro-x flex flex-row text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg>
+          <span class="ml-2">New {{MODEL_NAME|capitalize}}</span>
+        </a>
+      </div>
+    </div>
+    <div class="flex-1 flex flex-col">
+      <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+          <div id="search-results"
+            class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+            <table hx-indicator=".htmx-indicator"
+              class="min-w-full divide-y divide-gray-200 shadow-md">
+              <thead class="bg-gray-50">
+                <tr>
+                  {% for col in table_header %}
+                    <th scope="col" class="{{col.class}}">
+                      {{col.name|capitalize}}
+                    </th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                {% if object_list %}
+                  {% for object in object_list %}
+                    <tr class="intro-y">
+                      {% for col in table_body %}
+                        <td class="{{col.class}}">
+                          {% RenderCol col=col, instance=object %}
+                        </td>
+                      {% endfor %}
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr class="intro-y">
+                    <td colspan="100%" class="px-6 py-4 text-center h-36">
+                      No Data
+                    </td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+            {# {% include 'crud/list/partials/pagination.html' with page_obj=page_obj %} #}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if request.state.htmx %}
+  {% include 'crud/list/partials/list_breadcrumbs.html' %}
+{% endif %}

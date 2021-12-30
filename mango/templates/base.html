@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+  <!-- BEGIN: Head -->
+  <head>
+    <meta charset="utf-8">
+    <link href="{{ url_for('static', path='/images/logo.svg') }}" rel="shortcut icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FALM</title>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', path='/css/midone.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='/css/styles.css') }}" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@1.6.1"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.1"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+  </head>
+  <!-- END: Head -->
+  <body class="main"
+    _="on keydown[key=='Escape'] add .hidden to #user-menu
+        on click
+          if not ['user-menu-button', 'user-menu-item-0', 'user-menu-item-1', 'user-menu-item-2'].includes(target.id)
+            add .hidden to #user-menu
+          end">
+    <div id="content-loader" class="flex justify-end -mr-6 -mt-3 htmx-indicator">
+      <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    </div>
+    <!-- BEGIN: Mobile Menu -->
+    {# {% include 'mobile-menu.html' %} #}
+    <!-- END: Mobile Menu -->
+    <div class="flex">
+      <!-- BEGIN: Side Menu -->
+      {% include 'side-menu.html' %}
+      <!-- END: Side Menu -->
+      <!-- BEGIN: Content -->
+      <div class="content">
+        <!-- BEGIN: Top Bar -->
+        <div class="top-bar">
+          <!-- BEGIN: Breadcrumb -->
+          {% block breadcrumb %}
+          <div id="breadcrumbs">
+          </div>
+          {% endblock breadcrumb %}
+          <!-- END: Breadcrumb -->
+          <!-- BEGIN: Account Menu -->
+          {% include 'account-menu.html' %}
+          <!-- END: Account Menu -->
+        </div>
+        <!-- END: Top Bar -->
+        <div class="grid">
+          {# {% include 'messages.html' %} #}
+          <div id="viewport">
+            {% block content %}
+            {% endblock content %}
+          </div>
+        </div>
+      </div>
+      <!-- END: Content -->
+    </div>
+    {# {% django_htmx_script %} #}
+    {# {% include 'scripts.html' %}         #}
+  </body>
+</html>

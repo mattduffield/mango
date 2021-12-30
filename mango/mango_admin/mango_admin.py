@@ -2,9 +2,17 @@
 import click
 import os
 import requests
+import shutil
 
 __author__ = "Matt Duffield"
 
+
+def write_file(target_path, file_name):
+  with open(target_path, 'r') as target_file:
+    content = target_file.read()
+    f = open(file_name, 'w')
+    f.write(content)
+    f.close()
 
 @click.group()
 def main():
@@ -52,16 +60,19 @@ def start_project(project_name: str):
   main_path = os.path.join(os.path.dirname(__file__), 'templates/main.template')
   readme_path = os.path.join(os.path.dirname(__file__), 'templates/readme.template')
   env_path = os.path.join(os.path.dirname(__file__), 'templates/env.template')
+  templates_src_path = os.path.join(os.path.dirname(__file__), '../templates')
   static_path = f'{project_name}/static'
   css_path = f'{project_name}/static/css'
   images_path = f'{project_name}/static/images'
   js_path = f'{project_name}/static/js'
+  templates_path = f'{project_name}/templates'
 
   os.mkdir(project_name)
   os.mkdir(static_path)
   os.mkdir(css_path)
   os.mkdir(images_path)
   os.mkdir(js_path)
+  # os.mkdir(templates_path)
   os.chdir(project_name)
   # os.mkdir(project_name)
   # with open(init_path, 'r') as init_file:
@@ -69,27 +80,41 @@ def start_project(project_name: str):
   #   f = open(f'{project_name}/__init__.py', 'w')
   #   f.write(init)
   #   f.close()
-  with open(settings_path, 'r') as settings_file:
-    settings = settings_file.read()
-    # f = open(f'{project_name}/settings.py', 'w')
-    f = open('settings.py', 'w')
-    f.write(settings)
-    f.close()
-  with open(main_path, 'r') as main_file:
-    main = main_file.read()
-    f = open('main.py', 'w')
-    f.write(main)
-    f.close()
-  with open(readme_path, 'r') as readme_file:
-    readme = readme_file.read()
-    f = open('README.md', 'w')
-    f.write(readme)
-    f.close()
-  with open(env_path, 'r') as env_file:
-    env = env_file.read()
-    f = open('.env', 'w')
-    f.write(env)
-    f.close()
+  write_file(settings_path, 'settings.py')
+  write_file(main_path, 'main.py')
+  write_file(readme_path, 'README.md')
+  write_file(env_path, '.env')
+
+  shutil.copytree(templates_src_path, templates_path)
+
+
+  # with open(settings_path, 'r') as settings_file:
+  #   settings = settings_file.read()
+  #   # f = open(f'{project_name}/settings.py', 'w')
+  #   f = open('settings.py', 'w')
+  #   f.write(settings)
+  #   f.close()
+  
+  # with open(main_path, 'r') as main_file:
+  #   main = main_file.read()
+  #   f = open('main.py', 'w')
+  #   f.write(main)
+  #   f.close()
+  
+  # with open(readme_path, 'r') as readme_file:
+  #   readme = readme_file.read()
+  #   f = open('README.md', 'w')
+  #   f.write(readme)
+  #   f.close()
+  
+  # with open(env_path, 'r') as env_file:
+  #   env = env_file.read()
+  #   f = open('.env', 'w')
+  #   f.write(env)
+  #   f.close()
+
+
+
 
 if __name__ == "__main__":
     main()

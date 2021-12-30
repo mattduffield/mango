@@ -1,0 +1,31 @@
+<div class="intro-y p-6 mx-auto max-w-md">
+  <h4 class="intro-x text-xl mt-5">Are you sure you want to delete this {{MODEL_NAME|capitalize}}?</h4>
+  <form id="frmDelete" method="POST"
+    hx-enctype="text/x-www-form-urlencoded"
+    hx-post="{{delete_url(MODEL_NAME_PLURAL, _id)}}" 
+    hx-target="#viewport"
+    hx-swap="innerHTML"
+    hx-push-url="true"
+    hx-indicator="#content-loader"
+    >
+    <div class="flex justify-end mt-3 gap-3">
+      <a hx-get="{{url_for(name=list_url)}}" 
+        hx-target="#viewport"
+        hx-swap="innerHTML"
+        hx-push-url="true"
+        hx-indicator="#content-loader"
+        class="cursor-pointer intro-x px-3 py-2 cursor-pointer">
+        Cancel
+      </a>
+      <button class="intro-x text-white bg-red-500 hover:bt-red-600 px-3 py-2 rounded-md"
+        type="submit"
+        form="frmDelete">
+        Delete
+      </button>
+    </div>
+  </form>
+</div>
+
+{% if request.state.htmx %}
+  {% include 'crud/item/partials/item_breadcrumbs.html' %}
+{% endif %}
