@@ -5,12 +5,12 @@ from typing import (
 from fastapi import APIRouter, Depends, HTTPException
 from pymongo import MongoClient
 from bson import json_util, ObjectId
-from settings import (
-    DATABASE_CLUSTER,
-    DATABASE_NAME,
-    DATABASE_PASSWORD,
-    DATABASE_USERNAME,
-)
+
+DATABASE_CLUSTER = os.environ.get('DATABASE_CLUSTER')
+DATABASE_USERNAME = os.environ.get('DATABASE_USERNAME')
+DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD')
+DATABASE_NAME = os.environ.get('DATABASE_NAME')
+
 # from mango.auth.models import AuthHandler, Credentials
 from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
 
