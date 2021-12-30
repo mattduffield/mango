@@ -71,6 +71,14 @@ MAILGUN_FROM_BLOCK=
 
 ```
 
+## Run server
+The following steps assume you are using VS Code:
+ 
+ 1. Click on the `Run and Debug` icon in the editor
+ 2. Select `Python` for the language selection
+ 3. Select `FastAPI` for the web server selection
+ 4. Open your browser to `http://localhost:8000`
+
 
 ## Interacting with the CLI
 

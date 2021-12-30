@@ -62,16 +62,17 @@ def start_project(project_name: str):
   os.mkdir(css_path)
   os.mkdir(images_path)
   os.mkdir(js_path)
-  os.chdir(project_name)
-  os.mkdir(project_name)
-  with open(init_path, 'r') as init_file:
-    init = init_file.read()
-    f = open(f'{project_name}/__init__.py', 'w')
-    f.write(init)
-    f.close()
+  # os.chdir(project_name)
+  # os.mkdir(project_name)
+  # with open(init_path, 'r') as init_file:
+  #   init = init_file.read()
+  #   f = open(f'{project_name}/__init__.py', 'w')
+  #   f.write(init)
+  #   f.close()
   with open(settings_path, 'r') as settings_file:
     settings = settings_file.read()
-    f = open(f'{project_name}/settings.py', 'w')
+    # f = open(f'{project_name}/settings.py', 'w')
+    f = open('settings.py', 'w')
     f.write(settings)
     f.close()
   with open(main_path, 'r') as main_file:
