@@ -55,7 +55,7 @@ def start_project(project_name: str):
     raise click.UsageError('Invalid project name. Please use only letter, numbers, and underscores.')
   click.echo(f'Creating project: {project_name}')
 
-  # settings_path = os.path.join(os.path.dirname(__file__), 'templates/settings.template')
+  settings_path = os.path.join(os.path.dirname(__file__), 'templates/settings.template')
   main_path = os.path.join(os.path.dirname(__file__), 'templates/main.template')
   readme_path = os.path.join(os.path.dirname(__file__), 'templates/readme.template')
   env_path = os.path.join(os.path.dirname(__file__), 'templates/env.template')
@@ -71,7 +71,7 @@ def start_project(project_name: str):
 
   os.chdir(project_name)
 
-  # write_file(settings_path, 'settings.py')
+  write_file(settings_path, 'settings.py')
   write_file(main_path, 'main.py')
   write_file(readme_path, 'README.md')
   write_file(env_path, '.env')

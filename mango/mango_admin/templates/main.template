@@ -1,10 +1,10 @@
+from dotenv import load_dotenv
+load_dotenv()
 from fastapi import FastAPI, APIRouter, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-
 from starlette.middleware.sessions import SessionMiddleware
-
 import os
 import uvicorn
 from mango.db import api
@@ -19,14 +19,6 @@ from settings import (
     MAILGUN_FROM_BLOCK,
     MAILGUN_URL,
 )
-
-print(f'DATABASE_CLUSTER: {DATABASE_CLUSTER}')
-print(f'DATABASE_USERNAME: {DATABASE_USERNAME}')
-print(f'DATABASE_PASSWORD: {DATABASE_PASSWORD}')
-print(f'DATABASE_NAME: {DATABASE_NAME}')
-print(f'MAILGUN_API_KEY: {MAILGUN_API_KEY}')
-print(f'MAILGUN_URL: {MAILGUN_URL}')
-print(f'MAILGUN_FROM_BLOCK: {MAILGUN_FROM_BLOCK}')
 
 
 app = FastAPI()
