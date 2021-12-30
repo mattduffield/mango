@@ -55,7 +55,7 @@ def start_project(project_name: str):
     raise click.UsageError('Invalid project name. Please use only letter, numbers, and underscores.')
   click.echo(f'Creating project: {project_name}')
 
-  init_path = os.path.join(os.path.dirname(__file__), 'templates/init.template')
+  # init_path = os.path.join(os.path.dirname(__file__), 'templates/init.template')
   settings_path = os.path.join(os.path.dirname(__file__), 'templates/settings.template')
   main_path = os.path.join(os.path.dirname(__file__), 'templates/main.template')
   readme_path = os.path.join(os.path.dirname(__file__), 'templates/readme.template')
@@ -72,7 +72,9 @@ def start_project(project_name: str):
   os.mkdir(css_path)
   os.mkdir(images_path)
   os.mkdir(js_path)
-  # os.mkdir(templates_path)
+
+  shutil.copytree(templates_src_path, templates_path)
+
   os.chdir(project_name)
   # os.mkdir(project_name)
   # with open(init_path, 'r') as init_file:
@@ -84,36 +86,6 @@ def start_project(project_name: str):
   write_file(main_path, 'main.py')
   write_file(readme_path, 'README.md')
   write_file(env_path, '.env')
-
-  shutil.copytree(templates_src_path, templates_path)
-
-
-  # with open(settings_path, 'r') as settings_file:
-  #   settings = settings_file.read()
-  #   # f = open(f'{project_name}/settings.py', 'w')
-  #   f = open('settings.py', 'w')
-  #   f.write(settings)
-  #   f.close()
-  
-  # with open(main_path, 'r') as main_file:
-  #   main = main_file.read()
-  #   f = open('main.py', 'w')
-  #   f.write(main)
-  #   f.close()
-  
-  # with open(readme_path, 'r') as readme_file:
-  #   readme = readme_file.read()
-  #   f = open('README.md', 'w')
-  #   f.write(readme)
-  #   f.close()
-  
-  # with open(env_path, 'r') as env_file:
-  #   env = env_file.read()
-  #   f = open('.env', 'w')
-  #   f.write(env)
-  #   f.close()
-
-
 
 
 if __name__ == "__main__":
