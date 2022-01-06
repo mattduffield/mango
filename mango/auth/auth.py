@@ -1,7 +1,7 @@
 import jwt
 import os
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Request, HTTPException, status
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -45,8 +45,8 @@ def load_user(email:str):
   return found
 
 @router.get('/login', response_class=HTMLResponse)
-def login(credentials: Credentials, next: Optional[str] = None):
-  context = {}
+def login(request: Request, next: Optional[str] = None):
+  context = {'request': request}
   response = templates.TemplateResponse('landing.html', context)
   return response
 
