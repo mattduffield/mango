@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_login import LoginManager
 from fastapi_login.exceptions import InvalidCredentialsException
 
-from mango.auth.models import AuthHandler, Credentials
+from mango.auth.models import AuthHandler, Credentials, NotAuthenticatedException
 from mango.db.models import QueryOne, InsertOne
 from mango.db.api import find_one_sync, find_one, insert_one
 
@@ -25,9 +25,9 @@ router = APIRouter(
 
 auth_handler = AuthHandler()
 
-
 manager = LoginManager(SESSION_SECRET_KEY, token_url='/auth/login', use_cookie=True)
 manager.cookie_name = 'mango-cookie'
+manager.not_authenticated_exception = NotAuthenticatedException
 
 @manager.user_loader
 def load_user(email:str):
