@@ -9,7 +9,7 @@ from fastapi_login.exceptions import InvalidCredentialsException
 
 from mango.auth.models import AuthHandler, Credentials
 from mango.db.models import QueryOne, InsertOne
-from mango.db.api import find_sync, find_one, insert_one
+from mango.db.api import find_one_sync, find_one, insert_one
 
 SESSION_SECRET_KEY = os.environ.get('SESSION_SECRET_KEY')
 # DATABASE_CLUSTER = os.environ.get('DATABASE_CLUSTER')
@@ -39,7 +39,7 @@ def load_user(email:str):
     'database': DATABASE_NAME
   }
   query = QueryOne.parse_obj(result)
-  found = find_sync(query)
+  found = find_one_sync(query)
   return found
 
 @router.post('/login')

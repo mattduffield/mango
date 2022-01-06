@@ -53,6 +53,17 @@ def find_sync(query: Query):
   data = json.loads(json.dumps(results, default=json_from_mongo))
   return data
 
+def find_one_sync(query: Query):
+  database = query.database
+  if not database:
+    database = DATABASE_NAME
+  db = client[database]
+  expr = query.buildExpression()
+  entity = db[query.collection]
+  result = eval(expr)
+  data = json.loads(json.dumps(result, default=json_from_mongo))
+  return data
+
 
 @router.post('/findOne')
 async def find_one(query: QueryOne):
