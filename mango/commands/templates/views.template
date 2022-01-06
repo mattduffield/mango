@@ -1,4 +1,4 @@
-from fastapi import Request
+from fastapi import Depends, Request
 from fastapi.responses import HTMLResponse
 from typing import (
     Deque, Dict, FrozenSet, List, Optional, Sequence, Set, Tuple, Union
@@ -12,7 +12,7 @@ from mango.core.views import (
   get_controller,
   GenericListView,
 )
-from mango.auth.models import Credentials
+from mango.auth.models import AuthHandler, Credentials
 from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
 from mango.db.api import find, find_one
 from settings import templates, DATABASE_NAME

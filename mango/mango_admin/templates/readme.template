@@ -84,8 +84,9 @@ Optionally, you can also browse to `http://localhost:8000/docs` to see the exist
 ## Interacting with the CLI
 
 ```bash
-manage.py bulk-insert-recyclers raw_data/master_recycler_list.csv falm entities
-manage.py bulk-insert-products raw_data/master_product_list.csv falm products
+manage bulk-insert-recyclers raw_data/master_recycler_list.csv falm entities
+manage bulk-insert-products raw_data/master_product_list.csv falm products
 
-manage.py start-app app/contacts
+manage start-app entities
+manage start-app products
 ```
