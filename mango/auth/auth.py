@@ -9,6 +9,7 @@ from fastapi_login import LoginManager
 from fastapi_login.exceptions import InvalidCredentialsException
 
 from mango.auth.models import AuthHandler, Credentials, NotAuthenticatedException
+from mango.auth.forms import LoginForm
 from mango.db.models import QueryOne, InsertOne
 from mango.db.api import find_one_sync, find_one, insert_one
 from settings import templates
@@ -47,8 +48,30 @@ def load_user(email:str):
 @router.get('/login', response_class=HTMLResponse)
 def login(request: Request, next: Optional[str] = None):
   context = {'request': request}
-  response = templates.TemplateResponse('landing.html', context)
+  response = templates.TemplateResponse('auth/login.html', context)
   return response
+
+@router.post('/login')
+# def login(credentials: Credentials):
+# def login(request: Request, email: str = Form(...), password: str = Form(...), next: Optional[str] = None):
+async def login(request: Request, credentials: Credentials, next: Optional[str] = None):
+  form = await LoginForm().from_formdata(request)
+  credentials = Credentials(**form.data)
+  user = load_user(credentials.email)
+  if not user:
+    raise InvalidCredentialsException
+  elif not auth_handler.verify_password(credentials.password, user['password']):
+    raise InvalidCredentialsException
+  if next is None:
+    next = '/'
+  access_token = manager.create_access_token(
+    data={'sub': credentials.email}
+  )
+  # resp = RedirectResponse(url='/private', status_code=status.HTTP_302_FOUND)
+  resp = RedirectResponse(url=next, status_code=status.HTTP_302_FOUND)
+  manager.set_cookie(resp, access_token)
+  return resp
+
 
 @router.post('/login')
 def login(credentials: Credentials, next: Optional[str] = None):

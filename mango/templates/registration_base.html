@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+  <!-- BEGIN: Head -->
+  <head>
+    <meta charset="utf-8">
+
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <link href="{% static 'css/midone.css' %}" rel="stylesheet">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    <link href="{% static 'images/logo.svg' %}" rel="shortcut icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FALM</title>
+  </head>
+  <!-- END: Head -->
+  <body class="login">
+    <div class="container sm:px-10">
+      <div class="block xl:grid grid-cols-2 gap-4">
+        <!-- BEGIN: Login Info -->
+        {% include 'registration/login_info.html' %}
+        <!-- END: Login Info -->
+        <!-- BEGIN: Login Form -->
+        {% block content %}
+        {% endblock content %}
+      </div>
+    </div>
+  </body>
+</html>
