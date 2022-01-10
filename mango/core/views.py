@@ -99,7 +99,6 @@ class BaseView():
   async def get_context_data(self, request, _id: str = ''):
     context = {'request': request, 'MODEL_NAME_PLURAL': self.model_name_plural, 'MODEL_NAME': self.model_name, 'OBJECT_DISPLAY': self.object_display, 'list_url': self.list_url, 'create_url': self.create_url, 'delete_url': self.delete_url}
     form = None
-    form = self.form_class(request)
     if hasattr(self, 'form_class') and self.form_class:
       form = await self.form_class.from_formdata(request)
       context['form'] = form
@@ -292,6 +291,7 @@ class UpdateView(BaseView):
 
 class DeleteView(BaseView):
   template_name = 'crud/item/delete.html'
+  query_type = 'find_one'
   delete_url = lambda self, model_name_plural, _id: f'/{model_name_plural}/{_id}/delete'
   delete_type = 'delete_one'
 
