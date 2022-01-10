@@ -44,7 +44,6 @@ def login(request: Request, next: Optional[str] = None):
   return response
 
 @router.post('/login')
-# def login(request: Request, email: str = Form(...), password: str = Form(...), next: Optional[str] = None):
 async def login(request: Request, next: Optional[str] = None):
   form = await LoginForm.from_formdata(request)
   credentials = Credentials(**form.data)
@@ -58,7 +57,6 @@ async def login(request: Request, next: Optional[str] = None):
   access_token = manager.create_access_token(
     data={'sub': credentials.email}
   )
-  # resp = RedirectResponse(url='/private', status_code=status.HTTP_302_FOUND)
   resp = RedirectResponse(url=next, status_code=status.HTTP_302_FOUND)
   manager.set_cookie(resp, access_token)
   return resp
