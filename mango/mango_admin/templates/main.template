@@ -9,6 +9,8 @@ import os
 import uvicorn
 from mango.db import api
 from mango.auth import auth
+from mango.auth.models import NotAuthenticatedException
+
 from settings import (
     SESSION_SECRET_KEY,
     DATABASE_CLUSTER,
@@ -18,10 +20,20 @@ from settings import (
     MAILGUN_API_KEY,
     MAILGUN_FROM_BLOCK,
     MAILGUN_URL,
+    manager,
 )
 
 
 app = FastAPI()
+manager.useRequest(app)
+
+@app.exception_handler(NotAuthenticatedException)
+def auth_exception_handler(request: Request, exc: NotAuthenticatedException):
+    redirect_from = request.url.path
+    if request.url.query:
+        redirect_from = f'{redirect_from}?{request.url.query}'
+    redirect_to = f'/auth/login?next={redirect_from}'
+    return RedirectResponse(url=redirect_to)
 
 @app.middleware('http')
 async def add_htmx_request(request: Request, call_next):

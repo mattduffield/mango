@@ -5,19 +5,15 @@ from fastapi import APIRouter, Depends, Request, HTTPException, status
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
-from fastapi_login import LoginManager
 from fastapi_login.exceptions import InvalidCredentialsException
 
-from mango.auth.models import AuthHandler, Credentials, NotAuthenticatedException
+from mango.auth.models import AuthHandler, Credentials
 from mango.auth.forms import LoginForm
 from mango.db.models import QueryOne, InsertOne
 from mango.db.api import find_one_sync, find_one, insert_one
 from settings import manager, templates
 
 SESSION_SECRET_KEY = os.environ.get('SESSION_SECRET_KEY')
-# DATABASE_CLUSTER = os.environ.get('DATABASE_CLUSTER')
-# DATABASE_USERNAME = os.environ.get('DATABASE_USERNAME')
-# DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD')
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
 
@@ -28,18 +24,14 @@ router = APIRouter(
 
 auth_handler = AuthHandler()
 
-# manager = LoginManager(SESSION_SECRET_KEY, token_url='/auth/login', use_cookie=True)
-# manager.cookie_name = 'mango-cookie'
-# manager.not_authenticated_exception = NotAuthenticatedException
-
-@manager.user_loader
-def load_user(email:str):
+@manager.user_loader(database=DATABASE_NAME)
+def load_user(email:str, database):
   result = {
     'collection': 'users', 
     'query': {
       'email': email
     }, 
-    'database': DATABASE_NAME
+    'database': database
   }
   query = QueryOne.parse_obj(result)
   found = find_one_sync(query)
@@ -56,7 +48,7 @@ def login(request: Request, next: Optional[str] = None):
 async def login(request: Request, next: Optional[str] = None):
   form = await LoginForm.from_formdata(request)
   credentials = Credentials(**form.data)
-  user = load_user(credentials.email)
+  user = load_user(credentials.email, database=DATABASE_NAME)
   if not user:
     raise InvalidCredentialsException
   elif not auth_handler.verify_password(credentials.password, user['password']):
@@ -71,23 +63,6 @@ async def login(request: Request, next: Optional[str] = None):
   manager.set_cookie(resp, access_token)
   return resp
 
-
-# @router.post('/login')
-# def login(credentials: Credentials, next: Optional[str] = None):
-#   user = load_user(credentials.email)
-#   if not user:
-#     raise InvalidCredentialsException
-#   elif not auth_handler.verify_password(credentials.password, user['password']):
-#     raise InvalidCredentialsException
-#   if next is None:
-#     next = '/'
-#   access_token = manager.create_access_token(
-#     data={'sub': credentials.email}
-#   )
-#   # resp = RedirectResponse(url='/private', status_code=status.HTTP_302_FOUND)
-#   resp = RedirectResponse(url=next, status_code=status.HTTP_302_FOUND)
-#   manager.set_cookie(resp, access_token)
-#   return resp
 
 @router.get('/private')
 def handle_private(_=Depends(manager)):
