@@ -21,5 +21,13 @@ manager = LoginManager(
   token_url='/auth/login', 
   use_cookie=True,
   cookie_name='mango-cookie',
-  custom_exception=NotAuthenticatedException,
 )
+manager.not_authenticated_exception = NotAuthenticatedException
+
+print(f'DATABASE_CLUSTER: {DATABASE_CLUSTER}')
+print(f'DATABASE_USERNAME: {DATABASE_USERNAME}')
+print(f'DATABASE_PASSWORD: {DATABASE_PASSWORD}')
+print(f'DATABASE_NAME: {DATABASE_NAME}')
+print(f'MAILGUN_API_KEY: {MAILGUN_API_KEY}')
+print(f'MAILGUN_URL: {MAILGUN_URL}')
+print(f'MAILGUN_FROM_BLOCK: {MAILGUN_FROM_BLOCK}')
