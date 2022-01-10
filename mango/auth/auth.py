@@ -12,7 +12,7 @@ from mango.auth.models import AuthHandler, Credentials, NotAuthenticatedExceptio
 from mango.auth.forms import LoginForm
 from mango.db.models import QueryOne, InsertOne
 from mango.db.api import find_one_sync, find_one, insert_one
-from settings import templates
+from settings import manager, templates
 
 SESSION_SECRET_KEY = os.environ.get('SESSION_SECRET_KEY')
 # DATABASE_CLUSTER = os.environ.get('DATABASE_CLUSTER')
@@ -28,9 +28,9 @@ router = APIRouter(
 
 auth_handler = AuthHandler()
 
-manager = LoginManager(SESSION_SECRET_KEY, token_url='/auth/login', use_cookie=True)
-manager.cookie_name = 'mango-cookie'
-manager.not_authenticated_exception = NotAuthenticatedException
+# manager = LoginManager(SESSION_SECRET_KEY, token_url='/auth/login', use_cookie=True)
+# manager.cookie_name = 'mango-cookie'
+# manager.not_authenticated_exception = NotAuthenticatedException
 
 @manager.user_loader
 def load_user(email:str):
