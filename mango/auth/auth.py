@@ -64,13 +64,10 @@ async def login(request: Request, next: Optional[str] = None):
   return resp
 
 @router.get('/logout', response_class=HTMLResponse)
-def login(request: Request, next: Optional[str] = None):
-  context = {'request': request}
-  response = templates.TemplateResponse('auth/login.html', context)
-  return response
-  # resp = RedirectResponse(url='auth/login', status_code=status.HTTP_302_FOUND)
-  # manager.set_cookie(resp, access_token)
-  # return resp
+def logout(request: Request, next: Optional[str] = None):
+  resp = RedirectResponse(url='auth/login', status_code=status.HTTP_302_FOUND)
+  manager.set_cookie(resp, '')
+  return resp
 
 
 @router.get('/private')
