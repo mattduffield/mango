@@ -34,12 +34,12 @@ class SignupForm(StarletteForm):
     render_kw={"autofocus": "true"},
     description='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
   )
-  password = StringField(
+  password = PasswordField(
     'Password', 
     validators=[DataRequired()],
     description=markupsafe.Markup(f'Your password can’t be too similar to your other personal information.<br>Your password must contain at least 8 characters.<br>Your password can’t be a commonly used password.<br>Your password can’t be entirely numeric.'),
   )
-  password_confirmation = StringField(
+  password_confirmation = PasswordField(
     'Password confirmation', 
     validators=[DataRequired()],
     description='Enter the same password as before, for verification.',

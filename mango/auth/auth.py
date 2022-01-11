@@ -26,18 +26,22 @@ router = APIRouter(
 auth_handler = AuthHandler()
 
 def add_user(email:str, password:str, database):
+  hashed_password = auth_handler.get_password_hash(password)
   payload = {
     'database': database,
     'collection': 'users', 
     'insert_type': 'insert_one',
     'data': {
       'email': email,
-      'password': password,
+      'password': hashed_password,
     }, 
   }
   query = InsertOne.parse_obj(payload)
-  result = insert_one_sync(query)
-  return result
+  try:
+    resp = insert_one_sync(query)
+    return resp
+  except:
+    raise HTTPException(status_code=404, detail='User already exists')
 
 @manager.user_loader(database=DATABASE_NAME)
 def load_user(email:str, database):
@@ -95,22 +99,13 @@ async def get_signup(request: Request, next: Optional[str] = None):
 
 @router.post('/signup')
 async def post_signup(request: Request, next: Optional[str] = None):
-  form = await LoginForm.from_formdata(request)
+  form = await SignupForm.from_formdata(request)
   credentials = Credentials(**form.data)
-  user = load_user(credentials.email, database=DATABASE_NAME)
-  if not user:
-    raise InvalidCredentialsException
-  elif not auth_handler.verify_password(credentials.password, user['password']):
-    raise InvalidCredentialsException
-  if next is None:
-    next = '/'
-  access_token = manager.create_access_token(
-    data={'sub': credentials.email},
-    expires=timedelta(hours=12),
-  )
-  resp = RedirectResponse(url=next, status_code=status.HTTP_302_FOUND)
-  manager.set_cookie(resp, access_token)
+  result = add_user(credentials.email, credentials.password, database=DATABASE_NAME)
+  resp = RedirectResponse(url='login', status_code=status.HTTP_201_CREATED)
   return resp
+
+
 
 
 
