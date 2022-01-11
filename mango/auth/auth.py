@@ -65,9 +65,37 @@ async def login(request: Request, next: Optional[str] = None):
 
 @router.get('/logout', response_class=HTMLResponse)
 def logout(request: Request, next: Optional[str] = None):
-  resp = RedirectResponse(url='auth/login', status_code=status.HTTP_302_FOUND)
-  manager.set_cookie(resp, '')
+  resp = RedirectResponse(url='login', status_code=status.HTTP_302_FOUND)
+  manager.set_cookie(resp, '') # Need to clear out the cookie
   return resp
+
+@router.get('/signup', response_class=HTMLResponse, name='signup')
+def get_signup(request: Request, next: Optional[str] = None):
+  context = {'request': request}
+  response = templates.TemplateResponse('auth/signup.html', context)
+  return response
+
+@router.post('/signup')
+async def post_signup(request: Request, next: Optional[str] = None):
+  form = await LoginForm.from_formdata(request)
+  credentials = Credentials(**form.data)
+  user = load_user(credentials.email, database=DATABASE_NAME)
+  if not user:
+    raise InvalidCredentialsException
+  elif not auth_handler.verify_password(credentials.password, user['password']):
+    raise InvalidCredentialsException
+  if next is None:
+    next = '/'
+  access_token = manager.create_access_token(
+    data={'sub': credentials.email},
+    expires=timedelta(hours=12),
+  )
+  resp = RedirectResponse(url=next, status_code=status.HTTP_302_FOUND)
+  manager.set_cookie(resp, access_token)
+  return resp
+
+
+
 
 
 @router.get('/private')
