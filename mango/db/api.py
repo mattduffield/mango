@@ -64,6 +64,17 @@ def find_one_sync(query: Query):
   data = json.loads(json.dumps(result, default=json_from_mongo))
   return data
 
+def insert_one_sync(payload: InsertOne):
+  database = payload.database
+  if not database:
+    database = DATABASE_NAME
+  db = client[database]
+  expr = payload.buildExpression()
+  entity = db[payload.collection]
+  result = eval(expr)
+  data = json.loads(json_util.dumps({'acknowledged': result.acknowledged, 'inserted_id': result.inserted_id}))
+  return data
+
 
 @router.post('/findOne')
 async def find_one(query: QueryOne):

@@ -9,9 +9,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_login.exceptions import InvalidCredentialsException
 
 from mango.auth.models import AuthHandler, Credentials
-from mango.auth.forms import LoginForm
+from mango.auth.forms import LoginForm, SignupForm
 from mango.db.models import QueryOne, InsertOne
-from mango.db.api import find_one_sync, find_one, insert_one
+from mango.db.api import find_one_sync, find_one, insert_one_sync, insert_one
 from settings import manager, templates
 
 SESSION_SECRET_KEY = os.environ.get('SESSION_SECRET_KEY')
@@ -25,16 +25,31 @@ router = APIRouter(
 
 auth_handler = AuthHandler()
 
+def add_user(email:str, password:str, database):
+  payload = {
+    'database': database,
+    'collection': 'users', 
+    'insert_type': 'insert_one',
+    'data': {
+      'email': email,
+      'password': password,
+    }, 
+  }
+  query = InsertOne.parse_obj(payload)
+  result = insert_one_sync(query)
+  return result
+
 @manager.user_loader(database=DATABASE_NAME)
 def load_user(email:str, database):
-  result = {
+  payload = {
+    'database': database,
     'collection': 'users', 
+    'query_type': 'find_one',
     'query': {
       'email': email
     }, 
-    'database': database
   }
-  query = QueryOne.parse_obj(result)
+  query = QueryOne.parse_obj(payload)
   found = find_one_sync(query)
   return found
 
@@ -66,12 +81,15 @@ async def login(request: Request, next: Optional[str] = None):
 @router.get('/logout', response_class=HTMLResponse)
 def logout(request: Request, next: Optional[str] = None):
   resp = RedirectResponse(url='login', status_code=status.HTTP_302_FOUND)
-  manager.set_cookie(resp, '') # Need to clear out the cookie
+  resp.delete_cookie('mango-cookie')
+  # manager.set_cookie(resp, '') # Need to clear out the cookie
   return resp
 
 @router.get('/signup', response_class=HTMLResponse, name='signup')
-def get_signup(request: Request, next: Optional[str] = None):
+async def get_signup(request: Request, next: Optional[str] = None):
   context = {'request': request}
+  form = await SignupForm.from_formdata(request)
+  context['form'] = form
   response = templates.TemplateResponse('auth/signup.html', context)
   return response
 

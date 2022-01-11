@@ -21,6 +21,13 @@ from mango.core.forms import (
   QuerySelectField
 )
 
+
 class LoginForm(StarletteForm):
   email = StringField('Email', validators=[DataRequired()], render_kw={"autofocus": "true"})
   password = StringField('Password', validators=[DataRequired()])
+
+
+class SignupForm(StarletteForm):
+  email = StringField('Email', validators=[DataRequired()], render_kw={"autofocus": "true"})
+  password = StringField('Password', validators=[DataRequired()])
+  password_confirmation = StringField('Password confirmation', validators=[DataRequired()])
