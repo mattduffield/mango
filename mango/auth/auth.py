@@ -1,3 +1,4 @@
+from datetime import timedelta
 import jwt
 import os
 from typing import Optional
@@ -55,11 +56,21 @@ async def login(request: Request, next: Optional[str] = None):
   if next is None:
     next = '/'
   access_token = manager.create_access_token(
-    data={'sub': credentials.email}
+    data={'sub': credentials.email},
+    expires=timedelta(hours=12),
   )
   resp = RedirectResponse(url=next, status_code=status.HTTP_302_FOUND)
   manager.set_cookie(resp, access_token)
   return resp
+
+@router.get('/logout', response_class=HTMLResponse)
+def login(request: Request, next: Optional[str] = None):
+  context = {'request': request}
+  response = templates.TemplateResponse('auth/login.html', context)
+  return response
+  # resp = RedirectResponse(url='auth/login', status_code=status.HTTP_302_FOUND)
+  # manager.set_cookie(resp, access_token)
+  # return resp
 
 
 @router.get('/private')

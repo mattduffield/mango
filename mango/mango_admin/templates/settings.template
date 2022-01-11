@@ -1,3 +1,4 @@
+from datetime import timedelta
 from dotenv import load_dotenv
 load_dotenv()
 import os
@@ -21,6 +22,7 @@ manager = LoginManager(
   token_url='/auth/login', 
   use_cookie=True,
   cookie_name='mango-cookie',
+  default_expiry=timedelta(hours=12),
 )
 manager.not_authenticated_exception = NotAuthenticatedException
 
