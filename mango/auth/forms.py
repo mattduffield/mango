@@ -28,6 +28,19 @@ class LoginForm(StarletteForm):
 
 
 class SignupForm(StarletteForm):
-  email = StringField('Email', validators=[DataRequired()], render_kw={"autofocus": "true"})
-  password = StringField('Password', validators=[DataRequired()])
-  password_confirmation = StringField('Password confirmation', validators=[DataRequired()])
+  email = StringField(
+    'Email', 
+    validators=[DataRequired()], 
+    render_kw={"autofocus": "true"},
+    description='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
+  )
+  password = StringField(
+    'Password', 
+    validators=[DataRequired()],
+    description=markupsafe.Markup(f'Your password can’t be too similar to your other personal information.<br>Your password must contain at least 8 characters.<br>Your password can’t be a commonly used password.<br>Your password can’t be entirely numeric.'),
+  )
+  password_confirmation = StringField(
+    'Password confirmation', 
+    validators=[DataRequired()],
+    description='Enter the same password as before, for verification.',
+  )
