@@ -9,6 +9,7 @@ from typing import (
     Deque, Dict, FrozenSet, List, Literal, Optional, Sequence, Set, Tuple, Type, Union
 )
 from pydantic import BaseModel
+from mango.auth.models import AuthHandler
 from mango.db.api import find, find_one, count, bulk_read, insert_one, insert_many, update_one, delete, bulk_write, run_pipeline
 from mango.db.models import json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
 from mango.hooks.models import Email
@@ -22,6 +23,7 @@ MAILGUN_API_KEY = os.environ.get('MAILGUN_API_KEY')
 MAILGUN_URL = os.environ.get('MAILGUN_URL')
 MAILGUN_FROM_BLOCK = os.environ.get('MAILGUN_FROM_BLOCK')
 
+auth_handler = AuthHandler()
 
 async def create_user(database:str, id:str, hookData:dict, data:dict):
   data['is_active'] = False
@@ -51,7 +53,8 @@ async def activate_user(database:str, id:str, hookData:dict, data:dict):
 
 async def update_password(database:str, id:str, hookData:dict, data:dict):
   query = {'email': data['email']}
-  upd = {'$set': {'password': data['password']}}
+  password = auth_handler.get_password_hash(data['password'])
+  upd = {'$set': {'password': password}}
   payload = {
     "database": database,
     "collection": "users",

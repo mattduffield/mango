@@ -27,23 +27,23 @@ router = APIRouter(
 
 auth_handler = AuthHandler()
 
-def add_user(email:str, password:str, database):
-  hashed_password = auth_handler.get_password_hash(password)
-  payload = {
-    'database': database,
-    'collection': 'users', 
-    'insert_type': 'insert_one',
-    'data': {
-      'email': email,
-      'password': hashed_password,
-    }, 
-  }
-  query = InsertOne.parse_obj(payload)
-  try:
-    resp = insert_one_sync(query)
-    return resp
-  except:
-    raise HTTPException(status_code=404, detail='User already exists')
+# def add_user(email:str, password:str, database):
+#   hashed_password = auth_handler.get_password_hash(password)
+#   payload = {
+#     'database': database,
+#     'collection': 'users', 
+#     'insert_type': 'insert_one',
+#     'data': {
+#       'email': email,
+#       'password': hashed_password,
+#     }, 
+#   }
+#   query = InsertOne.parse_obj(payload)
+#   try:
+#     resp = insert_one_sync(query)
+#     return resp
+#   except:
+#     raise HTTPException(status_code=404, detail='User already exists')
 
 @manager.user_loader(database=DATABASE_NAME)
 def load_user(email:str, database):
