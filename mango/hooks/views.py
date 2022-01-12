@@ -1,3 +1,6 @@
+from pathlib import Path
+import json, os
+import requests
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -10,14 +13,13 @@ from quickbooks.objects.customer import Customer
 from quickbooks.objects.payment import Payment
 from quickbooks.objects.invoice import Invoice
 from quickbooks.objects.attachable import Attachable, AttachableRef
+# import asana
 
 from mango.db.api import find, find_one, count, bulk_read, insert_one, insert_many, update_one, delete, bulk_write, run_pipeline
 from mango.db.models import json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
 from mango.wf.models import WorkflowRun
-from pathlib import Path
-import json, os
-import requests
-# import asana
+from settings import manager, templates
+
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 ASANA_CLIENT_ID = os.environ.get('ASANA_CLIENT_ID')
@@ -30,24 +32,22 @@ router = APIRouter(
   tags = ['Hooks']
 )
 
-templates = Jinja2Templates(directory="templates")
-
 @router.get('/approve-user/{database}/{workflow_run_id}', response_class=HTMLResponse)
 async def approve_user(request: Request, database: str, workflow_run_id: str):
   if not database:
     database = DATABASE_NAME
 
   payload = {
-    "database": database,
-    "collection": "workflow-runs",
-    "query_type": "find_one",
-    "projection": {},
-    "query": {"_id": workflow_run_id}
+    'database': database,
+    'collection': 'workflow-runs',
+    'query_type': 'find_one',
+    'projection': {},
+    'query': {'_id': workflow_run_id}
   }
   query = Query(**payload)
   res = await find_one(query)
   wfr = WorkflowRun(**res)
-  return templates.TemplateResponse("hooks/approve_user.html", {"request": request, "database": database, "id": workflow_run_id, "wfr": wfr})
+  return templates.TemplateResponse('hooks/approve_user.html', {'request': request, 'database': database, 'id': workflow_run_id, 'wfr': wfr})
 
 @router.get('/reset-password/{database}/{workflow_run_id}', response_class=HTMLResponse)
 async def reset_password(request: Request, database: str, workflow_run_id: str):
@@ -55,16 +55,16 @@ async def reset_password(request: Request, database: str, workflow_run_id: str):
     database = DATABASE_NAME
 
   payload = {
-    "database": database,
-    "collection": "workflow-runs",
-    "query_type": "find_one",
-    "projection": {},
-    "query": {"_id": workflow_run_id}
+    'database': database,
+    'collection': 'workflow-runs',
+    'query_type': 'find_one',
+    'projection': {},
+    'query': {'_id': workflow_run_id}
   }
   query = Query(**payload)
   res = await find_one(query)
   wfr = WorkflowRun(**res)
-  return templates.TemplateResponse("hooks/reset_password.html", {"request": request, "database": database, "id": workflow_run_id, "wfr": wfr})
+  return templates.TemplateResponse('hooks/reset_password.html', {'request': request, 'database': database, 'id': workflow_run_id, 'wfr': wfr})
 
 @router.get('/asana/callback', response_class=HTMLResponse)
 async def asana_callback(request: Request):

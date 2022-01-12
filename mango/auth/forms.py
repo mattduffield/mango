@@ -97,3 +97,6 @@ class SignupForm(StarletteForm):
     validators=[DataRequired(), EqualTo('password', message='The two password fields did not match.')],
     description='Enter the same password as before, for verification.',
   )
+
+class PasswordResetForm(StarletteForm):
+  email = StringField('Email', validators=[DataRequired()], render_kw={"autofocus": "true"})

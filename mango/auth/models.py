@@ -5,6 +5,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from pydantic import BaseModel
 
+
 class AuthHandler():
   security = HTTPBearer()
   pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -45,10 +46,16 @@ class Credentials(BaseModel):
   email: str
   password: str
 
+
 class Signup(BaseModel):
   username: str
   email: str
   password: str
+
+
+class PasswordReset(BaseModel):
+  email: str
+
 
 class NotAuthenticatedException(Exception):
   pass
