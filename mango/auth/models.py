@@ -45,6 +45,10 @@ class Credentials(BaseModel):
   email: str
   password: str
 
+class Signup(BaseModel):
+  username: str
+  email: str
+  password: str
 
 class NotAuthenticatedException(Exception):
   pass

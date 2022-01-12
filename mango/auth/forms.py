@@ -26,6 +26,19 @@ from mango.db.models import QueryOne
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
+def does_collection_field_exist(collection:str, field_name:str, field_value:str, database:str = DATABASE_NAME):
+  payload = {
+    'database': database,
+    'collection': collection, 
+    'query_type': 'find_one',
+    'query': {
+      field_name: field_value
+    }, 
+  }
+  query = QueryOne.parse_obj(payload)
+  found = find_one_sync(query)
+  return found
+
 def does_email_exist(email:str, database:str = DATABASE_NAME):
   payload = {
     'database': database,
@@ -39,6 +52,11 @@ def does_email_exist(email:str, database:str = DATABASE_NAME):
   found = find_one_sync(query)
   return found
 
+def unique_username_validator(form, field):
+    """ Username must be unique. This validator may NOT be customized."""
+    if does_collection_field_exist(collection='users', field_name='username', field_value=field.data):
+        raise ValidationError('This Username is already in use. Please try another one.')
+
 def unique_email_validator(form, field):
     """ Email must be unique. This validator may NOT be customized."""
     if does_email_exist(field.data):
@@ -50,6 +68,15 @@ class LoginForm(StarletteForm):
 
 
 class SignupForm(StarletteForm):
+  username = StringField(
+    'Username', 
+    validators=[
+      DataRequired('Username is required.'),
+      unique_username_validator,
+    ], 
+    render_kw={"autofocus": "true"},
+    description='Required. 25 characters or fewer.',
+  )
   email = StringField(
     'Email', 
     validators=[

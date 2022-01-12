@@ -8,10 +8,12 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from fastapi_login.exceptions import InvalidCredentialsException
 
-from mango.auth.models import AuthHandler, Credentials
+from mango.auth.models import AuthHandler, Credentials, Signup
 from mango.auth.forms import LoginForm, SignupForm
 from mango.db.models import QueryOne, InsertOne
 from mango.db.api import find_one_sync, find_one, insert_one_sync, insert_one
+from mango.wf.models import WorkflowRequest
+from mango.wf.views import init_workflow_run
 from settings import manager, templates
 
 SESSION_SECRET_KEY = os.environ.get('SESSION_SECRET_KEY')
@@ -89,6 +91,12 @@ def logout(request: Request, next: Optional[str] = None):
   # manager.set_cookie(resp, '') # Need to clear out the cookie
   return resp
 
+@router.get('/signup-confirmation', response_class=HTMLResponse, name='signup-confirmation')
+async def get_signup_confirmation(request: Request):
+  context = {'request': request}
+  response = templates.TemplateResponse('auth/signup-confirmation.html', context)
+  return response
+
 @router.get('/signup', response_class=HTMLResponse, name='signup')
 async def get_signup(request: Request, next: Optional[str] = None):
   context = {'request': request}
@@ -101,9 +109,16 @@ async def get_signup(request: Request, next: Optional[str] = None):
 async def post_signup(request: Request, next: Optional[str] = None):
   form = await SignupForm.from_formdata(request)
   if await form.validate_on_submit():
-    credentials = Credentials(**form.data)
-    result = add_user(credentials.email, credentials.password, database=DATABASE_NAME)
-    resp = RedirectResponse(url='login', status_code=status.HTTP_302_FOUND)
+    signup = Signup(**form.data)
+    wr = WorkflowRequest(**{
+      'database': DATABASE_NAME,
+      'workflow_name': 'UserSignup',
+      'trigger': 'signup',
+      'data': signup,
+    })
+    res = init_workflow_run(wr)
+    # result = add_user(credentials.email, credentials.password, database=DATABASE_NAME)
+    resp = RedirectResponse(url='signup-confirmation', status_code=status.HTTP_302_FOUND)
     return resp
   else:
     context = {'request': request}
@@ -111,7 +126,23 @@ async def post_signup(request: Request, next: Optional[str] = None):
     response = templates.TemplateResponse('auth/signup.html', context)
     return response
 
-
+#  signup(options, database) {
+#     let opt = {
+#       "database": database,
+#       "name": "UserSignup",
+#       "trigger": "signup",
+#       "data": options,
+#     };
+#     const payload = {method: 'post', body: JSON.stringify(opt)};
+#     return this.workflowFetch(`init-workflow-run`, payload)
+#       .then(response => response.json())
+#       .then(data => {
+#         if (data.error) {
+#           throw data.error;
+#         }
+#         return data;
+#       });
+#   }
 
 
 

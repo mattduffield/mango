@@ -1,0 +1,13 @@
+{% extends "registration_base.html" %}
+{% from 'macros/macros.html' import crispy %}
+{% from 'macros/macros.html' import crispy2 %}
+
+{% block content %}
+  <div class="h-screen xl:h-auto flex py-5 xl:py-0 my-10 xl:my-0">
+    Your request is being processed. Please check your email for approval.
+    <div class="intro-x mt-5 xl:mt-8 text-center xl:text-left">
+      <a href="{{ url_for('login') }}" 
+        class="btn btn-outline-secondary py-3 px-4 w-full xl:w-32 mt-3 xl:mt-0 align-top">Sign in</a>
+    </div>
+  </div>
+{% endblock %}
