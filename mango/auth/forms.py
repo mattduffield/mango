@@ -1,3 +1,4 @@
+import os
 import markupsafe
 from typing import Text
 from starlette_wtf import StarletteForm, CSRFProtectMiddleware, csrf_protect
@@ -11,7 +12,7 @@ from wtforms import (
   FormField,
   Form,
 )
-from wtforms.validators	import DataRequired, NoneOf
+from wtforms.validators	import DataRequired, Email, EqualTo, NoneOf, ValidationError
 from mango.core.forms import (
   label_class, 
   chk_class, 
@@ -20,7 +21,28 @@ from mango.core.forms import (
   textarea_class, 
   QuerySelectField
 )
+from mango.db.api import find_one_sync
+from mango.db.models import QueryOne
 
+DATABASE_NAME = os.environ.get('DATABASE_NAME')
+
+def does_email_exist(email:str, database:str = DATABASE_NAME):
+  payload = {
+    'database': database,
+    'collection': 'users', 
+    'query_type': 'find_one',
+    'query': {
+      'email': email
+    }, 
+  }
+  query = QueryOne.parse_obj(payload)
+  found = find_one_sync(query)
+  return found
+
+def unique_email_validator(form, field):
+    """ Email must be unique. This validator may NOT be customized."""
+    if does_email_exist(field.data):
+        raise ValidationError('This Email is already in use. Please try another one.')
 
 class LoginForm(StarletteForm):
   email = StringField('Email', validators=[DataRequired()], render_kw={"autofocus": "true"})
@@ -30,7 +52,11 @@ class LoginForm(StarletteForm):
 class SignupForm(StarletteForm):
   email = StringField(
     'Email', 
-    validators=[DataRequired()], 
+    validators=[
+      DataRequired('Email is required.'),
+      Email('Invalid email.'),
+      unique_email_validator,
+    ], 
     render_kw={"autofocus": "true"},
     description='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
   )
@@ -41,6 +67,6 @@ class SignupForm(StarletteForm):
   )
   password_confirmation = PasswordField(
     'Password confirmation', 
-    validators=[DataRequired()],
+    validators=[DataRequired(), EqualTo('password', message='The two password fields did not match.')],
     description='Enter the same password as before, for verification.',
   )

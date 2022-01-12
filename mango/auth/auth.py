@@ -100,10 +100,16 @@ async def get_signup(request: Request, next: Optional[str] = None):
 @router.post('/signup')
 async def post_signup(request: Request, next: Optional[str] = None):
   form = await SignupForm.from_formdata(request)
-  credentials = Credentials(**form.data)
-  result = add_user(credentials.email, credentials.password, database=DATABASE_NAME)
-  resp = RedirectResponse(url='login', status_code=status.HTTP_201_CREATED)
-  return resp
+  if await form.validate_on_submit():
+    credentials = Credentials(**form.data)
+    result = add_user(credentials.email, credentials.password, database=DATABASE_NAME)
+    resp = RedirectResponse(url='login', status_code=status.HTTP_302_FOUND)
+    return resp
+  else:
+    context = {'request': request}
+    context['form'] = form
+    response = templates.TemplateResponse('auth/signup.html', context)
+    return response
 
 
 

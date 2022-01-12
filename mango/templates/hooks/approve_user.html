@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>User Approval</title>
+    <link href="/static/external/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <h1>Approve User</h1>
+      <p>Please review the following account and either approve or reject for <strong>FALM</strong>.</p>
+      <table class="table table-hover table-dark">
+        <thead class="thead-dark">
+          <th>Username</th>
+          <th>Email</th>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              {{wfr.data.username}}
+            </td>
+            <td>
+              {{wfr.data.contact.email}}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="d-flex justify-content-end">
+        <form method="post"
+          xtarget="hiddenFrame"  
+          action="/wf/trigger-workflow-run-as-form"
+          class="mx-2">
+          <input type="hidden" name="database" value="{{database}}"> 
+          <input type="hidden" name="id" value="{{id}}"> 
+          <input type="hidden" name="trigger" value="approve"> 
+          <input type="hidden" name="user" value='{ "username": "Matt", "actions": ["approve_registration"] }'>
+          <a onclick="this.parentNode.submit();"
+            style="cursor: pointer; text-decoration: underline;">Approve</a>
+        </form>
+
+        <form method="post" 
+          xtarget="hiddenFrame" 
+          action="/wf/trigger-workflow-run-as-form"
+          class="mx-2">
+          <input type="hidden" name="database" value="{{database}}"> 
+          <input type="hidden" name="id" value="{{id}}"> 
+          <input type="hidden" name="trigger" value="reject"> 
+          <input type="hidden" name="user" value='{ "username": "Matt", "actions": ["approve_registration"] }'>
+          <a onclick="this.parentNode.submit();"
+            style="cursor: pointer; text-decoration: underline;">Reject</a>
+        </form>
+      </div>
+      <iframe name="hiddenFrame" width="0" height="0" border="0" style="display: none;"></iframe>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+  </body>
+</html>
