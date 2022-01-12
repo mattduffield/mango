@@ -5,9 +5,9 @@ WorkFlow - the following are endpoints for executing workflows.
 from typing import (
     Deque, Dict, FrozenSet, List, Literal, Optional, Sequence, Set, Tuple, Type, Union
 )
-from db.api import find, find_one, count, bulk_read, insert_one, insert_many, update_one, delete, bulk_write, run_pipeline
-from wf.models import User, Workflow, WorkflowRequest, WorkflowRun, WorkflowTrigger, Machine
-from db.models import json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
+from mango.db.api import find, find_one, count, bulk_read, insert_one, insert_many, update_one, delete, bulk_write, run_pipeline
+from mango.wf.models import User, Workflow, WorkflowRequest, WorkflowRun, WorkflowTrigger, Machine
+from mango.db.models import json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
 from fastapi import APIRouter, HTTPException, Request, Form, Body, Query
 from bson import json_util, ObjectId
 import json, os

@@ -11,9 +11,9 @@ from quickbooks.objects.payment import Payment
 from quickbooks.objects.invoice import Invoice
 from quickbooks.objects.attachable import Attachable, AttachableRef
 
-from db.api import find, find_one, count, bulk_read, insert_one, insert_many, update_one, delete, bulk_write, run_pipeline
-from db.models import json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
-from wf.models import WorkflowRun
+from mango.db.api import find, find_one, count, bulk_read, insert_one, insert_many, update_one, delete, bulk_write, run_pipeline
+from mango.db.models import json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
+from mango.wf.models import WorkflowRun
 from pathlib import Path
 import json, os
 import requests

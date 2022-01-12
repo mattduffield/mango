@@ -14,10 +14,10 @@ https://towardsdatascience.com/how-to-integrate-quickbooks-with-python-8be2d69f9
 from typing import (
     Deque, Dict, FrozenSet, List, Literal, Optional, Sequence, Set, Tuple, Type, Union
 )
-from db.api import find, find_one, count, bulk_read, insert_one, insert_many, update_one, delete, bulk_write, run_pipeline
-from wf.models import User, Workflow, WorkflowRequest, WorkflowRun, WorkflowTrigger, Machine
-from qb.models import QueryModel, CreateModel, UpdateModel, NewAttachment, NewNoteAttachment
-from db.models import json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
+from mango.db.api import find, find_one, count, bulk_read, insert_one, insert_many, update_one, delete, bulk_write, run_pipeline
+from mango.wf.models import User, Workflow, WorkflowRequest, WorkflowRun, WorkflowTrigger, Machine
+from mango.qb.models import QueryModel, CreateModel, UpdateModel, NewAttachment, NewNoteAttachment
+from mango.db.models import json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
 from fastapi import APIRouter, HTTPException, Request, Form, Body, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates

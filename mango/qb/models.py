@@ -3,8 +3,8 @@ from typing import (
 )
 from enum import Enum, IntEnum
 from pydantic import BaseModel
-from hooks.models import Hook
-import hooks.views
+from mango.hooks.models import Hook
+import mango.hooks.views
 
 class QueryModel(BaseModel):
   entity_name: str
