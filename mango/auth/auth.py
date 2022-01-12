@@ -70,10 +70,16 @@ async def login(request: Request, next: Optional[str] = None):
   form = await LoginForm.from_formdata(request)
   credentials = Credentials(**form.data)
   user = load_user(credentials.email, database=DATABASE_NAME)
-  if not user:
-    raise InvalidCredentialsException
-  elif not auth_handler.verify_password(credentials.password, user['password']):
-    raise InvalidCredentialsException
+  if not user or not auth_handler.verify_password(credentials.password, user['password']):
+    context = {'request': request}
+    context['form'] = form
+    response = templates.TemplateResponse('auth/login.html', context)
+    return response
+  # if not user:
+  #   raise InvalidCredentialsException
+  # elif not auth_handler.verify_password(credentials.password, user['password']):
+  #   raise InvalidCredentialsException
+
   if next is None:
     next = '/'
   access_token = manager.create_access_token(
