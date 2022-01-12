@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from mango.hooks.models import Hook
 from mango.hooks import hooks
 
+
 class User(BaseModel):
   username:str
   actions:List[str] = []

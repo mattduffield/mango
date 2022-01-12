@@ -94,13 +94,13 @@ def logout(request: Request, next: Optional[str] = None):
 @router.get('/password-reset-done', response_class=HTMLResponse, name='password-reset-done')
 async def get_password_reset_done(request: Request):
   context = {'request': request}
-  response = templates.TemplateResponse('auth/password-reset-done.html', context)
+  response = templates.TemplateResponse('auth/password_reset_done.html', context)
   return response
 
 @router.get('/signup-confirmation', response_class=HTMLResponse, name='signup-confirmation')
 async def get_signup_confirmation(request: Request):
   context = {'request': request}
-  response = templates.TemplateResponse('auth/signup-confirmation.html', context)
+  response = templates.TemplateResponse('auth/signup_confirmation.html', context)
   return response
 
 @router.get('/signup', response_class=HTMLResponse, name='signup')
