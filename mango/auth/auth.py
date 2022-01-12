@@ -111,13 +111,13 @@ async def post_signup(request: Request, next: Optional[str] = None):
   if await form.validate_on_submit():
     signup = Signup(**form.data)
     signup.password = auth_handler.get_password_hash(signup.password)
-    wr = WorkflowRequest(**{
-      'database': DATABASE_NAME,
-      'workflow_name': 'UserSignup',
-      'trigger': 'signup',
-      'data': signup,
-    })
-    res = init_workflow_run(wr)
+    wr = WorkflowRequest(
+      database=DATABASE_NAME,
+      name='UserSignup',
+      trigger='signup',
+      data=dict(signup),
+    )
+    res = await init_workflow_run(wr)
     # result = add_user(credentials.email, credentials.password, database=DATABASE_NAME)
     resp = RedirectResponse(url='signup-confirmation', status_code=status.HTTP_302_FOUND)
     return resp

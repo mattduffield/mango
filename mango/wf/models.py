@@ -4,8 +4,7 @@ from typing import (
 from enum import Enum, IntEnum
 from pydantic import BaseModel
 from mango.hooks.models import Hook
-import mango.hooks.views
-
+from mango.hooks import hooks
 
 class User(BaseModel):
   username:str
@@ -77,16 +76,16 @@ class Machine(BaseModel):
   async def before(self, transition:Transition):
     # https://gist.github.com/indraniel/da11c4f79c79b5e6bfb8
     for x in transition.before:
-      if hasattr(hooks.views, x.name):
-        await getattr(hooks.views, x.name)(database=self.database, id=self.workflow_run.id, hookData=x.data, data=self.workflow_run.data)
+      if hasattr(hooks, x.name):
+        await getattr(hooks, x.name)(database=self.database, id=self.workflow_run.id, hookData=x.data, data=self.workflow_run.data)
       else:
         raise Exception(f'Hook: {x.name} does not exist!')
 
   async def after(self, transition:Transition):
     # https://gist.github.com/indraniel/da11c4f79c79b5e6bfb8
     for x in transition.after:
-      if hasattr(hooks.views, x.name):
-        await getattr(hooks.views, x.name)(database=self.database, id=self.workflow_run.id, hookData=x.data, data=self.workflow_run.data)
+      if hasattr(hooks, x.name):
+        await getattr(hooks, x.name)(database=self.database, id=self.workflow_run.id, hookData=x.data, data=self.workflow_run.data)
       else:
         raise Exception(f'Hook: {x.name} does not exist!')
 
