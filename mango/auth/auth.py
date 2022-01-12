@@ -110,6 +110,7 @@ async def post_signup(request: Request, next: Optional[str] = None):
   form = await SignupForm.from_formdata(request)
   if await form.validate_on_submit():
     signup = Signup(**form.data)
+    signup.password = auth_handler.get_password_hash(signup.password)
     wr = WorkflowRequest(**{
       'database': DATABASE_NAME,
       'workflow_name': 'UserSignup',
