@@ -28,6 +28,7 @@ class Transition(BaseModel):
   condition:Optional[str]
   before:List[Hook] = []
   after:List[Hook] = []
+  redirect_url:str = ''
 
 
 class WorkflowRequest(BaseModel):
@@ -94,6 +95,7 @@ class Machine(BaseModel):
     print(f'Attempting to transition to next state (current_state:  {self.workflow_run.current_state})')
     transition = self.find_next_transition(trigger)
     print('transition', transition)
+    redirect_url = ''
     if transition:
       # if transition.permission and not user:
       #   raise Exception('This transition requires an authenticated user with permissions!')
@@ -106,4 +108,6 @@ class Machine(BaseModel):
       await self.before(transition)
       self.workflow_run.current_state = transition.dest
       await self.after(transition)
-    return self.workflow_run
+      if transition.redirect_url:
+        redirect_url = transition.redirect_url
+    return self.workflow_run, redirect_url

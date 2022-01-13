@@ -85,7 +85,7 @@ async def init_workflow_run(req:WorkflowRequest):
   # 3. Run Machine
   machine = Machine(workflow_run=wfr, database=req.database)
   try:
-    run_state = await machine.next(database=req.database, trigger=req.trigger)
+    run_state, redirect_url = await machine.next(database=req.database, trigger=req.trigger)
   except Exception as err:
     print('Machine error...')
     print(err)
@@ -109,13 +109,13 @@ async def trigger_workflow_run_by_id(req:WorkflowTrigger):
   # 2. Run Machine
   machine = Machine(workflow_run=wfr, database=req.database)
   try:
-    run_state = await machine.next(database=req.database, trigger=req.trigger)
+    run_state, redirect_url = await machine.next(database=req.database, trigger=req.trigger)
   except Exception as err:
     raise HTTPException(status_code=404, detail=err.args)
   
   # 3. Update WorkflowRun
   update_res = await update_workflow_run_state_by_id(database=req.database, id=req.id, state=run_state.current_state)
-  return update_res
+  return update_res, redirect_url
 
 @router.post('/init-workflow-run')
 async def init_workflow_run_as_body(payload:WorkflowRequest):
@@ -142,7 +142,7 @@ async def trigger_workflow_run_as_body(req:WorkflowTrigger):
         "trigger_data": "..."
       }
     '''
-  res = await trigger_workflow_run_by_id(req)
+  res, redirect_url = await trigger_workflow_run_by_id(req)
   return res
 
 @router.post('/trigger-workflow-run-as-form')
@@ -164,9 +164,8 @@ async def trigger_workflow_run_as_form(request:Request, database:str = Form(...)
     "trigger_data": trigger_data
   }
   req = WorkflowTrigger(**payload)
-  res = await trigger_workflow_run_by_id(req)
-  if res['acknowledged'] and res.get('redirect_url'):
-    redirect_url = res['redirect_url']
+  res, redirect_url = await trigger_workflow_run_by_id(req)
+  if redirect_url:
     resp = RedirectResponse(url=redirect_url, status_code=status.HTTP_302_FOUND)
     return resp
 
