@@ -3,7 +3,8 @@ WorkFlow - the following are endpoints for executing workflows.
 '''
 import json, os
 from bson import json_util, ObjectId
-from fastapi import APIRouter, HTTPException, Request, Form, Body, Query
+from fastapi import APIRouter, HTTPException, Request, Form, Body, Query, status
+from fastapi.responses import RedirectResponse
 from typing import (
     Deque, Dict, FrozenSet, List, Literal, Optional, Sequence, Set, Tuple, Type, Union
 )
@@ -165,9 +166,8 @@ async def trigger_workflow_run_as_form(request:Request, database:str = Form(...)
   req = WorkflowTrigger(**payload)
   res = await trigger_workflow_run_by_id(req)
   if res['acknowledged']:
-    template_name = res['template_name']
-    context = {'request': request}
-    response = templates.TemplateResponse(template_name, context)
-    return response
+    redirect_url = res['redirect_url']
+    resp = RedirectResponse(url=redirect_url, status_code=status.HTTP_302_FOUND)
+    return resp
 
   return res

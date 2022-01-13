@@ -64,7 +64,7 @@ async def update_password(database:str, id:str, hookData:dict, data:dict):
   }
   update = Update(**payload)
   res = await update_one(update)
-  res['template_name'] = 'auth/password_reset_complete.html'
+  res['redirect_url'] = 'password-reset-complete'
   return res
 
 async def send_email(database:str, id:str, hookData:dict, data:dict):

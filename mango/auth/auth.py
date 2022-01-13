@@ -97,6 +97,12 @@ def logout(request: Request, next: Optional[str] = None):
   # manager.set_cookie(resp, '') # Need to clear out the cookie
   return resp
 
+@router.get('/password-reset-complete', response_class=HTMLResponse, name='password-reset-complete')
+async def get_password_reset_complete(request: Request):
+  context = {'request': request}
+  response = templates.TemplateResponse('auth/password_reset_complete.html', context)
+  return response
+
 @router.get('/password-reset-done', response_class=HTMLResponse, name='password-reset-done')
 async def get_password_reset_done(request: Request):
   context = {'request': request}
