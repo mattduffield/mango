@@ -165,7 +165,7 @@ async def trigger_workflow_run_as_form(request:Request, database:str = Form(...)
   }
   req = WorkflowTrigger(**payload)
   res = await trigger_workflow_run_by_id(req)
-  if res['acknowledged']:
+  if res['acknowledged'] and res.get('redirect_url'):
     redirect_url = res['redirect_url']
     resp = RedirectResponse(url=redirect_url, status_code=status.HTTP_302_FOUND)
     return resp
