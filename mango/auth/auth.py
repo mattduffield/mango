@@ -121,6 +121,12 @@ async def get_signup_confirmation(request: Request):
   response = templates.TemplateResponse('auth/signup_approval_complete.html', context)
   return response
 
+@router.get('/signup-rejection-complete', response_class=HTMLResponse, name='signup-rejection-complete')
+async def get_signup_confirmation(request: Request):
+  context = {'request': request}
+  response = templates.TemplateResponse('auth/signup_rejection_complete.html', context)
+  return response
+
 @router.get('/signup', response_class=HTMLResponse, name='signup')
 async def get_signup(request: Request, next: Optional[str] = None):
   context = {'request': request}
