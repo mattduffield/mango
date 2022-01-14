@@ -52,6 +52,11 @@ Now, freeze all the dependencies into a `requirements.txt` file:
 pip freeze > requirements.txt
 ```
 
+Next, create your Mango project:
+```bash
+mango_admin start-project <project-name>
+```
+
 ## Update Environment Variables
 You will need to provide some environment variables prior to starting the server.
 
@@ -81,12 +86,31 @@ The following steps assume you are using VS Code:
 
 Optionally, you can also browse to `http://localhost:8000/docs` to see the existing routes already configured by the server.
 
+The entry should look like the following:
+```json
+{
+  "name": "Python: FastAPI",
+  "type": "python",
+  "request": "launch",
+  "module": "uvicorn",
+  "cwd": "${workspaceFolder}/app",
+  "args": [
+    "main:app",
+    "--port",
+    "8000",
+    "--reload"
+  ],
+  "jinja": true,
+  "justMyCode": false
+}
+```
+
 ## Interacting with the CLI
 
 ```bash
 manage bulk-insert-recyclers raw_data/master_recycler_list.csv falm entities
 manage bulk-insert-products raw_data/master_product_list.csv falm products
 
-manage start-app entities
-manage start-app products
+manage start-app <project-name>/entities
+manage start-app <project-name>/products
 ```
