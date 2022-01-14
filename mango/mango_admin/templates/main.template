@@ -10,7 +10,9 @@ import uvicorn
 from mango.db import api
 from mango.auth import auth
 from mango.auth.models import NotAuthenticatedException
-
+from mango.hooks import views as hooks
+from mango.wf import views as wf
+from mango.qb import views as qb
 from settings import (
     SESSION_SECRET_KEY,
     DATABASE_CLUSTER,
@@ -56,8 +58,11 @@ def configure(dev_mode: bool):
 
 def configure_routes():
     app.mount('/static', StaticFiles(directory='static'), name='static')
-    app.include_router(api.router)
     app.include_router(auth.router)
+    app.include_router(api.router)
+    app.include_router(hooks.router)
+    app.include_router(wf.router)
+    app.include_router(qb.router)
     app.include_router(LandingView.router())
 
 app.add_middleware(
