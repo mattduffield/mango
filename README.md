@@ -8,6 +8,11 @@ Install Mango using the following command:
 pip install git+https://github.com/mattduffield/mango
 ```
 
+Next, you can create a new project by executing the following command:
+```bash
+mango_admin start-project <project-name>
+```
+
 ## Usage
 Features:
 * Forms --> Use WTForms for managing screen definition 
