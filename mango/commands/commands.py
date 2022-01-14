@@ -143,11 +143,17 @@ async def bulk_insert_products(file_name: str, database: str, collection: str):
 def start_app(app_name: str):
   """This creates a new app folder"""
   click.echo(f'Creating app: {app_name}')
+  init_path = os.path.join(os.path.dirname(__file__), 'templates/init.template')
   forms_path = os.path.join(os.path.dirname(__file__), 'templates/forms.template')
   models_path = os.path.join(os.path.dirname(__file__), 'templates/models.template')
   views_path = os.path.join(os.path.dirname(__file__), 'templates/views.template')
   os.mkdir(app_name)
   os.chdir(app_name)
+  with open(init_path, 'r') as init_file:
+    init = init_file.read()
+    f = open('init.py', 'w')
+    f.write(init)
+    f.close()
   with open(forms_path, 'r') as form_file:
     forms = form_file.read()
     f = open('forms.py', 'w')
