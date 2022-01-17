@@ -8,6 +8,7 @@ from typing import (
 from mango.auth.models import Credentials
 from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
 from mango.db.api import find, find_one, run_pipeline, delete, update_one, insert_one
+import settings
 from settings import templates, DATABASE_NAME
 
 from fastapi_router_controller import Controller
@@ -29,7 +30,7 @@ def get_controller(prefix: str = '', tags: List[str] = ['Views']):
 class StaticView():
   async def get(self, request: Request):
     self.request = request
-    context = {'request': request}
+    context = {'request': request, 'settings': settings}
     template_name = self.get_template_name()
     response = templates.TemplateResponse(template_name, context)
     return response
@@ -97,7 +98,7 @@ class BaseView():
   #   return form
 
   async def get_context_data(self, request, _id: str = ''):
-    context = {'request': request, 'MODEL_NAME_PLURAL': self.model_name_plural, 'MODEL_NAME': self.model_name, 'OBJECT_DISPLAY': self.object_display, 'list_url': self.list_url, 'create_url': self.create_url, 'delete_url': self.delete_url}
+    context = {'request': request, 'settings': settings, 'MODEL_NAME_PLURAL': self.model_name_plural, 'MODEL_NAME': self.model_name, 'OBJECT_DISPLAY': self.object_display, 'list_url': self.list_url, 'create_url': self.create_url, 'delete_url': self.delete_url}
     form = None
     if hasattr(self, 'form_class') and self.form_class:
       form = await self.form_class.from_formdata(request)
@@ -168,7 +169,7 @@ class View():
     pass
 
   async def get_context_data(self, request, _id: str = ''):
-    context = {'request': request, 'MODEL_NAME_PLURAL': self.model_name_plural, 'MODEL_NAME': self.model_name, 'OBJECT_DISPLAY': self.object_display, 'list_url': self.list_url, 'create_url': self.create_url, 'delete_url': self.delete_url}
+    context = {'request': request, 'settings': settings, 'MODEL_NAME_PLURAL': self.model_name_plural, 'MODEL_NAME': self.model_name, 'OBJECT_DISPLAY': self.object_display, 'list_url': self.list_url, 'create_url': self.create_url, 'delete_url': self.delete_url}
     if self.form_class:
       form = await self.form_class.from_formdata(request)
       context['form'] = form
@@ -380,7 +381,7 @@ class ListView():
     pass
 
   async def get_context_data(self, request, search: Optional[str] = ''):
-    context = {'request': request, 'MODEL_NAME_PLURAL': self.model_name_plural, 'MODEL_NAME': self.model_name, 'OBJECT_DISPLAY': self.object_display, 'list_url': self.list_url, 'create_url': self.create_url, 'delete_url': self.delete_url}
+    context = {'request': request, 'settings': settings, 'MODEL_NAME_PLURAL': self.model_name_plural, 'MODEL_NAME': self.model_name, 'OBJECT_DISPLAY': self.object_display, 'list_url': self.list_url, 'create_url': self.create_url, 'delete_url': self.delete_url}
     context['search'] = search
     context['object_list'] = await self.get_queryset()
     return context
@@ -494,7 +495,7 @@ class GenericListView():
     pass
 
   async def get_context_data(self, request, search: Optional[str] = ''):
-    context = {'request': request, 'MODEL_NAME_PLURAL': self.model_name_plural, 'MODEL_NAME': self.model_name, 'OBJECT_DISPLAY': self.object_display, 'list_url': self.list_url, 'create_url': self.create_url, 'delete_url': self.delete_url}
+    context = {'request': request, 'settings': settings, 'MODEL_NAME_PLURAL': self.model_name_plural, 'MODEL_NAME': self.model_name, 'OBJECT_DISPLAY': self.object_display, 'list_url': self.list_url, 'create_url': self.create_url, 'delete_url': self.delete_url}
     context['search'] = search
     context['object_list'] = await self.get_queryset()
     return context

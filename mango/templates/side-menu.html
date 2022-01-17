@@ -20,12 +20,28 @@
         hx-swap="innerHTML"
         hx-push-url="true"
         hx-indicator="#content-loader"
-        class="side-menu cursor-pointer {% if request.path == url %}side-menu--active{% endif %}">
+        class="side-menu cursor-pointer {% if request.path in [url, '/'] %}side-menu--active{% endif %}">
         <div class="side-menu__icon pointer-events-none"> <i data-feather="home"></i> </div>
         <div class="side-menu__title pointer-events-none">
           Dashboard 
         </div>
       </a>
     </li>
+    {% for app in settings.apps %}
+      <li>
+        <a id="{{app.plural_name}}" 
+          hx-get="{{app.list_url}}"
+          hx-target="#viewport"
+          hx-swap="innerHTML"
+          hx-push-url="true"
+          hx-indicator="#content-loader"
+          class="side-menu cursor-pointer {% if app.plural_name in request.path %}side-menu--active{% endif %}">
+          <div class="side-menu__icon pointer-events-none"> <i data-feather="box"></i> </div>
+          <div class="side-menu__title pointer-events-none">
+            {{app.plural_label}}
+          </div>
+        </a>      
+      </li>
+    {% endfor %}
   </ul>
 </nav>

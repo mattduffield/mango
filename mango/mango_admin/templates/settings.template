@@ -5,6 +5,8 @@ import os
 from mango.template_tags.custom_tags import configure_templates, register_tags, RenderColTag
 from fastapi_login import LoginManager
 from mango.auth.models import NotAuthenticatedException
+from mango.db.models import Query
+from mango.db.api import find_sync
 
 templates = configure_templates(directory='templates')
 
@@ -33,3 +35,10 @@ print(f'DATABASE_NAME: {DATABASE_NAME}')
 print(f'MAILGUN_API_KEY: {MAILGUN_API_KEY}')
 print(f'MAILGUN_URL: {MAILGUN_URL}')
 print(f'MAILGUN_FROM_BLOCK: {MAILGUN_FROM_BLOCK}')
+
+query = Query(
+  database=DATABASE_NAME,
+  collection='apps',
+  query_type='find'
+)
+apps = find_sync(query)
