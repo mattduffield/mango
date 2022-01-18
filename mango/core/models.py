@@ -12,4 +12,5 @@ class App(BaseModel):
   label: str
   label_plural: str
   list_url: str
+  list_route_name: str
   is_active: bool
