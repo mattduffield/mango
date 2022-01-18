@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel
 
 
-class Apps(BaseModel):
+class App(BaseModel):
   name: str
   name_plural: str
   label: str
