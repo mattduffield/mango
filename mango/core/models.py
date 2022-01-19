@@ -9,7 +9,7 @@ from typing import (
 )
 
 class Funcs(BaseModel):
-  __str__: str
+  str_func: str
 
 class Meta(BaseModel):
   search_index_name: str
