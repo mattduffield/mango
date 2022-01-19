@@ -23,6 +23,7 @@ class Field(BaseModel):
   label: str
   data_type: str
   default_value: Optional[str]
+  default_value_use_quotes: bool
   is_active: bool
 
 
