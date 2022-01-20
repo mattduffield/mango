@@ -35,11 +35,11 @@ class Field(BaseModel):
 class PageLayout(BaseModel):
   field_type: str
   name: str
-  css_class: Optional[str]
-  css_class_use_quotes: Optional[bool]
-  label_class: Optional[str]
-  label_class_use_quotes: Optional[bool]
-  page_layout: List['PageLayout']
+  css_class: str = ''
+  css_class_use_quotes: bool = True
+  label_class: str = ''
+  label_class_use_quotes: bool = True
+  page_layout: Optional[List['PageLayout']]
 
 
 class App(BaseModel):
