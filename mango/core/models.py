@@ -8,8 +8,10 @@ from typing import (
     Deque, Dict, FrozenSet, List, Literal, Optional, Sequence, Set, Tuple, Type, Union
 )
 
+
 class Funcs(BaseModel):
   str_func: str
+
 
 class Meta(BaseModel):
   search_index_name: str
@@ -30,6 +32,16 @@ class Field(BaseModel):
   is_active: bool
 
 
+class PageLayout(BaseModel):
+  field_type: str
+  name: str
+  css_class: Optional[str]
+  css_class_use_quotes: Optional[bool]
+  label_class: Optional[str]
+  label_class_use_quotes: Optional[bool]
+  page_layout: List['PageLayout']
+
+
 class App(BaseModel):
   name: str
   name_plural: str
@@ -40,4 +52,5 @@ class App(BaseModel):
   fields: List[Field]
   meta: Meta
   funcs: Funcs
+  page_layout: List[PageLayout]
   is_active: bool
