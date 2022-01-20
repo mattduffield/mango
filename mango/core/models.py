@@ -24,6 +24,9 @@ class Field(BaseModel):
   data_type: str
   default_value: Optional[str]
   default_value_use_quotes: bool
+  element_type: str
+  validators: List[str]
+  element_attributes: dict
   is_active: bool
 
 
