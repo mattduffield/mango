@@ -18,6 +18,10 @@ def init_config(config_templates = None, config_host = None):
   host = config_host
   templates = config_templates
 
+def get_apps():
+  global registered_apps
+  return registered_apps
+
 def get_registered_apps():
   global registered_apps
   registered_apps = []
