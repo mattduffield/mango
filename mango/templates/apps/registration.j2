@@ -1,0 +1,19 @@
+create_route = next((x for x in app.routes if x.name == 'user-create'), None)
+update_route = next((x for x in app.routes if x.name == 'user-item'), None)
+delete_route = next((x for x in app.routes if x.name == 'user-delete'), None)
+list_route = next((x for x in app.routes if x.name == 'user-list'), None)
+
+if create_route:
+  app.routes.remove(create_route)
+if update_route:
+  app.routes.remove(update_route)
+if delete_route:
+  app.routes.remove(delete_route)
+if list_route:
+  app.routes.remove(list_route)
+
+app.include_router({{ra.label}}CreateView.router())
+app.include_router({{ra.label}}UpdateView.router())
+app.include_router({{ra.label}}DeleteView.router())
+app.include_router({{ra.label}}ListView.router())
+

@@ -11,6 +11,7 @@ from typing import (
 
 class Funcs(BaseModel):
   str_func: str
+  object_display: str
 
 
 class Meta(BaseModel):

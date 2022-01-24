@@ -22,7 +22,7 @@ manager = LoginManager(
   token_url='/auth/login', 
   use_cookie=True,
   cookie_name='mango-cookie',
-  default_expiry=timedelta(hours=12),
+  default_expiry=timedelta(hours=8),
 )
 manager.not_authenticated_exception = NotAuthenticatedException
 
