@@ -12,7 +12,7 @@ host = None
 templates = None
 registered_apps = []
 
-def init_config(config_templates = None, config_host = None):
+def init_app_loader(config_templates = None, config_host = None):
   global host
   global templates
   host = config_host
