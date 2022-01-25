@@ -1,4 +1,5 @@
 import os
+import importlib
 from importlib.abc import Loader as _Loader, MetaPathFinder as _MetaPathFinder
 import sys
 from mango.core.models import App
@@ -50,6 +51,14 @@ def compile_code(module, code, global_dict = {}):
   exec(code, global_dict)
   module.code = code
   return module
+
+def import_apps():
+  get_registered_apps()
+  apps = get_apps
+  for item in apps:
+    importlib.import_module(item.name)
+    # script = f'import {name}'
+    # exec(script, globals(), locals())
 
 
 class CodeLoader(_Loader):

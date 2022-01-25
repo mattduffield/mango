@@ -1,7 +1,32 @@
-create_route = next((x for x in app.routes if x.name == 'user-create'), None)
-update_route = next((x for x in app.routes if x.name == 'user-item'), None)
-delete_route = next((x for x in app.routes if x.name == 'user-delete'), None)
-list_route = next((x for x in app.routes if x.name == 'user-list'), None)
+import sys
+from mango.core import reloader
+
+
+@app.get('/reload_{{ra.name_plural}}')
+async def reload_{{ra.name_plural}}():
+  create_route = next((x for x in app.routes if x.name == '{{ra.name}}-create'), None)
+  update_route = next((x for x in app.routes if x.name == '{{ra.name}}-item'), None)
+  delete_route = next((x for x in app.routes if x.name == '{{ra.name}}-delete'), None)
+  list_route = next((x for x in app.routes if x.name == '{{ra.name}}-list'), None)
+
+  if create_route:
+    app.routes.remove(create_route)
+  if update_route:
+    app.routes.remove(update_route)
+  if delete_route:
+    app.routes.remove(delete_route)
+  if list_route:
+    app.routes.remove(list_route)
+
+  module = sys.modules['{{ra.name}}__c']
+  reloader.reload_all(module)
+  return {"msg": "reload {{ra.name_plural}} successful!"}
+
+
+create_route = next((x for x in app.routes if x.name == '{{ra.name}}-create'), None)
+update_route = next((x for x in app.routes if x.name == '{{ra.name}}-item'), None)
+delete_route = next((x for x in app.routes if x.name == '{{ra.name}}-delete'), None)
+list_route = next((x for x in app.routes if x.name == '{{ra.name}}-list'), None)
 
 if create_route:
   app.routes.remove(create_route)
