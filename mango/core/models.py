@@ -36,7 +36,7 @@ class Field(BaseModel):
 class TableHeader(BaseModel):
   name: str = ''
   html: str = ''
-  actions: str = ''
+  actions: Optional[List[str]]
   css_class: str = ''
   css_class_use_quotes: bool = True
   format: str = ''
@@ -45,7 +45,7 @@ class TableHeader(BaseModel):
 class TableBody(BaseModel):
   name: str = ''
   html: str = ''
-  actions: str = ''
+  actions: Optional[List[str]]
   css_class: str = ''
   css_class_use_quotes: bool = True
   format: str = ''
