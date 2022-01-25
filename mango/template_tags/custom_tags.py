@@ -23,6 +23,7 @@ class RenderColTag(StandaloneTag):
     result = ''
     name = col.get('name')
     html = col.get('html')
+    actions = col.get('actions')
     if name and instance:
       result = instance.get(name, '')
       format = col.get('format')
@@ -35,6 +36,10 @@ class RenderColTag(StandaloneTag):
     if html and instance:
       context = {'object': instance}
       template = self.environment.from_string(html)
+      result = template.render(context)
+    if actions and instance:
+      context = {'object': instance}
+      template = self.environment.from_string(actions)
       result = template.render(context)
     return result
 
