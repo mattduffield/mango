@@ -109,20 +109,28 @@ class {{ra.label}}ListView(ListView):
 
     def get_table_definition(self, context):
         context['table_header'] = [
-            {'name': 'username', 'class': 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'},
-            {'name': 'email', 'class': 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'},
-            {'name': 'status', 'class': 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'},
-            {'html': '<span class="sr-only">Actions</span>', 'class': 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'},
+            {% for field in ra.list_layout.table_header %}
+                {
+                    '{% if field.name %}name{% else %}html{% endif %}': '{% if field.name %}{{field.name}}{% else %}{{field.html | safe}}{% endif %}', 
+                    'class': '{{field.css_class}}',
+                    {% if field.format %}'format': '{{field.format}}',{% endif %}
+                },
+            {% endfor %}
         ]
         context['table_body'] = [
-            {'name': 'username', 'class': 'px-6 py-4 whitespace-nowrap'},
-            {'name': 'email', 'class': 'px-6 py-4 whitespace-nowrap', 'format': 'title'},
-            {'html': '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>',
-                'class': 'px-6 py-4 whitespace-nowrap'
-            },
-            {
-                'html': f'{edit_button}{delete_button}',
-                'class': 'flex justify-between px-6 py-4 whitespace-nowrap text-right text-sm font-medium',
-            }
+            {% for field in ra.list_layout.table_body %}
+                {
+                    {% if field.name %}'name': '{{field.name}}',{% endif %}
+                    {% if field.html %}'html': '{{field.html | safe}}',{% endif %}
+                    {% if field.actions %}'actions': [
+                        {% for act in field.actions %}
+                            {{act | safe}},
+                        {% endfor %}
+                    ],
+                    {% endif %}
+                    'class': '{{field.css_class}}',
+                    {% if field.format %}'format': '{{field.format}}',{% endif %}
+                },
+            {% endfor %}
         ]
 

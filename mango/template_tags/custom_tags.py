@@ -38,9 +38,13 @@ class RenderColTag(StandaloneTag):
       template = self.environment.from_string(html)
       result = template.render(context)
     if actions and instance:
+      partials = []
       context = {'object': instance}
-      template = self.environment.from_string(actions)
-      result = template.render(context)
+      result = ' '.join([self.environment.from_string(item).render(context) for item in actions])
+      # for action in actions:
+      #   template = self.environment.from_string(action)
+      #   partials.append(template.render(context))
+      # result = ' '.join(partials)
     return result
 
 
