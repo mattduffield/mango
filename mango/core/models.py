@@ -36,6 +36,7 @@ class Field(BaseModel):
 class TableHeader(BaseModel):
   name: str = ''
   html: str = ''
+  actions: str = ''
   css_class: str = ''
   css_class_use_quotes: bool = True
   format: str = ''
@@ -44,14 +45,15 @@ class TableHeader(BaseModel):
 class TableBody(BaseModel):
   name: str = ''
   html: str = ''
+  actions: str = ''
   css_class: str = ''
   css_class_use_quotes: bool = True
   format: str = ''
 
 
 class ListLayout(BaseModel):
-  table_header: TableHeader
-  table_body: TableBody
+  table_header: Optional[List[TableHeader]]
+  table_body: Optional[List[TableBody]]
 
 
 class PageLayout(BaseModel):
