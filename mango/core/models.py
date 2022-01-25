@@ -33,6 +33,27 @@ class Field(BaseModel):
   is_active: bool
 
 
+class TableHeader(BaseModel):
+  name: str = ''
+  html: str = ''
+  css_class: str = ''
+  css_class_use_quotes: bool = True
+  format: str = ''
+
+
+class TableBody(BaseModel):
+  name: str = ''
+  html: str = ''
+  css_class: str = ''
+  css_class_use_quotes: bool = True
+  format: str = ''
+
+
+class ListLayout(BaseModel):
+  table_header: TableHeader
+  table_body: TableBody
+
+
 class PageLayout(BaseModel):
   field_type: str
   name: str
@@ -54,4 +75,5 @@ class App(BaseModel):
   meta: Meta
   funcs: Funcs
   page_layout: List[PageLayout]
+  list_layout: ListLayout
   is_active: bool

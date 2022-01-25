@@ -71,7 +71,8 @@ class {{ra.label}}CreateView(CreateView):
 class {{ra.label}}UpdateView(UpdateView):
   form_class = {{ra.label}}Form
   model_class = {{ra.label}}
-  object_display = lambda self, object: f'{object["username"]}'
+  object_display2 = lambda self, object: f'{object["username"]}'
+  object_display = {{ra.funcs.object_display | safe}}
 
   @update_controller.route.get('/{{ra.name_plural}}/{_id}', response_class=HTMLResponse, name='{{ra.name}}-item')
   async def get(self, request: Request, _id: str, user=Depends(manager)):
@@ -85,7 +86,7 @@ class {{ra.label}}UpdateView(UpdateView):
 @delete_controller.resource()
 class {{ra.label}}DeleteView(DeleteView):
   model_class = {{ra.label}}
-  object_display = lambda self, object: f'{object["username"]}'
+  object_display = {{ra.funcs.object_display | safe}}
 
   @delete_controller.route.get('/{{ra.name_plural}}/{_id}/delete', response_class=HTMLResponse, name='{{ra.name}}-delete')
   async def get(self, request: Request, _id: str, user=Depends(manager)):
