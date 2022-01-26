@@ -8,6 +8,7 @@ from wtforms import (
   EmailField, 
   SelectField,
   BooleanField,
+  IntegerField,
   FormField,
   Form,
 )
@@ -21,14 +22,30 @@ from mango.core.forms import (
   QuerySelectField
 )
 
+{% for field in ra.fields %}
+  {% if field.element_type == 'FormField' %}
+class {{field.label}}Form(Form):
+  {% for form_field in field.fields %}
+  {{form_field.name}} = {{form_field.element_type}}(
+    '{{form_field.label}}', 
+    validators=[{% for val in form_field.validators %}{{val}}{% endfor %}]{% if form_field.element_attributes %},{% endif %} 
+    {% if form_field.element_attributes %}render_kw={ {% for k, v in form_field.element_attributes.items() %} "{{k}}":"{{v}}", {% endfor %} }{% endif %}
+  )
+  {% endfor %}
+  {% endif %}
+{% endfor %}
 
 class {{ra.label}}Form(StarletteForm):
   {% for field in ra.fields %}
+  {% if field.element_type == 'FormField' %}
+  {{field.name}} = {{field.element_type}}({{field.label}}Form)
+  {% else %}
   {{field.name}} = {{field.element_type}}(
     '{{field.label}}', 
     validators=[{% for val in field.validators %}{{val}}{% endfor %}]{% if field.element_attributes %},{% endif %} 
     {% if field.element_attributes %}render_kw={ {% for k, v in field.element_attributes.items() %} "{{k}}":"{{v}}", {% endfor %} }{% endif %}
   )
+  {% endif %}
   {% endfor %}
 
   def layout_fields(self):
@@ -36,13 +53,32 @@ class {{ra.label}}Form(StarletteForm):
       {% for field in ra.page_layout %}
         {
           '{{field.field_type}}': '{{field.name}}', 
-          'css_class': '{{field.css_class}}', 
+          {% if field.content %}'content': '{{field.content}}',{% endif %}
+          'css_class': {% if field.css_class_use_quotes %}'{% endif %}{{field.css_class}}{% if field.css_class_use_quotes %}'{% endif %}, 
           'fields': [
             {% for inner in field.page_layout %}
               {
-                '{{inner.field_type}}': self.{{inner.name}}, 
-                'css_class': {{inner.css_class}},
-                'label_class': {{inner.label_class}}
+                '{{inner.field_type}}': {% if inner.field_type == 'type' %}'{{inner.name}}'{% else %}self.{{inner.name}}{% endif %}, 
+                {% if inner.content %}'content': '{{inner.content}}',{% endif %}
+                'css_class': {% if inner.css_class_use_quotes %}'{% endif %}{{inner.css_class}}{% if inner.css_class_use_quotes %}'{% endif %},
+                {% if inner.page_layout %}
+
+                'fields': [
+                  {% for inner_inner in inner.page_layout %}
+                    {
+                      '{{inner_inner.field_type}}': {% if inner_inner.field_type == 'type' %}'{{inner_inner.name}}'{% else %}self.{{inner_inner.name}}{% endif %}, 
+                      {% if inner_inner.content %}'content': '{{inner_inner.content}}',{% endif %}
+                      'css_class': {% if inner_inner.css_class_use_quotes %}'{% endif %}{{inner_inner.css_class}}{% if inner_inner.css_class_use_quotes %}'{% endif %},
+                      'label_class': {% if inner_inner.label_class_use_quotes %}'{% endif %}{{inner_inner.label_class}}{% if inner_inner.label_class_use_quotes %}'{% endif %}
+                    },
+                  {% endfor %}
+                ],
+
+                {% else %}
+
+                {% if inner.label_class %}'label_class': {% if inner.label_class_use_quotes %}'{% endif %}{{inner.label_class}}{% if inner.label_class_use_quotes %}'{% endif %}{% endif %}
+
+                {% endif %}
               },
             {% endfor %}
           ]
