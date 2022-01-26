@@ -28,8 +28,8 @@ class Field(BaseModel):
   default_value: Optional[str]
   default_value_use_quotes: bool
   element_type: str
-  validators: List[str]
-  element_attributes: dict
+  validators: Optional[List[str]]
+  element_attributes: Optional[dict]
   fields: Optional[List['Field']]
   is_active: bool
 
