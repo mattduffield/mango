@@ -22,8 +22,9 @@ class MetaData(BaseModel):
 
 
 class Field(BaseModel):
-  name: str
-  label: str
+  name: str = ''
+  label: str = ''
+  content: str = ''
   data_type: str
   default_value: Optional[str]
   default_value_use_quotes: bool
