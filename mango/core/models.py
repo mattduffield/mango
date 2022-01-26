@@ -30,6 +30,7 @@ class Field(BaseModel):
   element_type: str
   validators: List[str]
   element_attributes: dict
+  fields: Optional[List['Field']]
   is_active: bool
 
 
