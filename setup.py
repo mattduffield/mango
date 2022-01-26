@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='mango',
-    version='0.0.128',
+    version='0.0.129',
     author='Matthew Duffield',
     author_email='matt.duffield@gmail.com',
     description='Web framework for Python',
