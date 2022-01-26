@@ -17,12 +17,12 @@ class {{ra.label}}(BaseModel):
   class Meta:
     model_name = '{{ra.name}}'
     model_name_plural = '{{ra.name_plural}}'
-    search_by = '{{ra.meta.search_by}}'
-    search_index_name = '{{ra.meta.search_index_name}}'
+    search_by = '{{ra.meta_data.search_by}}'
+    search_index_name = '{{ra.meta_data.search_index_name}}'
     order_by = [
-      {% for item in ra.meta.order_by %}
+      {% for item in ra.meta_data.order_by %}
       '{{item}}',
       {% endfor %}
     ]
-    page_size = {{ra.meta.page_size}}
+    page_size = {{ra.meta_data.page_size}}
 

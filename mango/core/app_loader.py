@@ -54,9 +54,9 @@ def compile_code(module, code, global_dict = {}):
 
 def import_apps():
   get_registered_apps()
-  apps = get_apps
+  apps = get_apps()
   for item in apps:
-    importlib.import_module(item.name)
+    importlib.import_module(f'{item.name}__c')
     # script = f'import {name}'
     # exec(script, globals(), locals())
 

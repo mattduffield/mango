@@ -14,7 +14,7 @@ class Funcs(BaseModel):
   object_display: str
 
 
-class Meta(BaseModel):
+class MetaData(BaseModel):
   search_index_name: str
   search_by: str
   order_by: List[str]
@@ -74,7 +74,7 @@ class App(BaseModel):
   list_url: str
   list_route_name: str
   fields: List[Field]
-  meta: Meta
+  meta_data: MetaData
   funcs: Funcs
   page_layout: List[PageLayout]
   list_layout: ListLayout
