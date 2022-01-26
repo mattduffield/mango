@@ -2,6 +2,7 @@ import asyncio
 import json
 import markupsafe
 from wtforms import SelectFieldBase, widgets
+from wtforms.fields import StringField
 from wtforms.widgets import Select, TextInput
 from wtforms.fields.core import Field, UnboundField
 from mango.db.api import find, find_one, run_pipeline, find_sync
@@ -282,61 +283,44 @@ class QuerySelectField(SelectFieldBase):
     return choices
 
 
-class ChosenSelect(Select):
 
-    def __init__(self, multiple=False, renderer=None, options={}):
+class TagsField(StringField):
+    """Stringfield for a list of separated tags"""
+
+    def __init__(self, label='', validators=None, remove_duplicates=True, to_lowercase=True, separator=' ', **kwargs):
         """
-            Initiate the widget. This offers you two general options.
-            First off it allows you to configure the ChosenSelect to
-            allow multiple options and it allows you to pass options
-            to the chosen select (this will produce a json object)
-            that chosen will get passed as configuration.
-
-                :param multiple: whether this is a multiple select
-                    (default to `False`)
-                :param renderer: If you do not want to use the default
-                    select renderer, you can pass a function that will
-                    get the field and options as arguments so that
-                    you can customize the rendering.
-                :param options: a dictionary of options that will
-                    influence the chosen behavior. If no options are
-                    given `width: 100%` will be set.
+        Construct a new field.
+        :param label: The label of the field.
+        :param validators: A sequence of validators to call when validate is called.
+        :param remove_duplicates: Remove duplicates in a case insensitive manner.
+        :param to_lowercase: Cast all values to lowercase.
+        :param separator: The separator that splits the individual tags.
         """
-        super(ChosenSelect, self).__init__(multiple=multiple)
-        self.renderer = renderer
-        options.setdefault('width', '100%')
-        self.options = options
+        super(TagsField, self).__init__(label, validators, **kwargs)
+        self.remove_duplicates = remove_duplicates
+        self.to_lowercase = to_lowercase
+        self.separator = separator
+        self.data = []
 
-    def __call__(self, field, **kwargs):
-        """
-            Render the actual select.
-
-                :param field: the field to render
-                :param **kwargs: options to pass to the rendering
-                    (i.e. class, data-* and so on)
-
-            This will render the select as is and attach a chosen
-            initiator script for the given id afterwards considering
-            the options set up in the beginning.
-        """
-        kwargs.setdefault('id', field.id)
-        # currently chosen does not reflect the readonly attribute
-        # we compensate for that by automatically setting disabled,
-        # if readonly if given
-        # https://github.com/harvesthq/chosen/issues/67
-        if kwargs.get("readonly"):
-            kwargs['disabled'] = 'disabled'
-        html = []
-        # render the select
-        if self.renderer:
-            html.append(self.renderer(self, field, **kwargs))
+    def _value(self):
+        if self.data:
+            return u', '.join(self.data)
         else:
-            html.append(super(ChosenSelect, self).__call__(field, **kwargs))
-        # attach the chosen initiation with options
-        html.append(
-            '<script>$("#%s").chosen(%s);</script>\n'
-            % (kwargs['id'], json.dumps(self.options))
-        )
-        # return the HTML (as safe markup)
-        return markupsafe.Markup('\n'.join(html))
-        # return HTMLString('\n'.join(html))
+            return u''
+
+    def process_formdata(self, valuelist):
+        if valuelist:
+            self.data = [x.strip() for x in valuelist[0].split(self.separator)]
+            if self.remove_duplicates:
+                self.data = list(self._remove_duplicates(self.data))
+            if self.to_lowercase:
+                self.data = [x.lower() for x in self.data]
+
+    @classmethod
+    def _remove_duplicates(cls, seq):
+        """Remove duplicates in a case insensitive, but case preserving manner"""
+        d = {}
+        for item in seq:
+            if item.lower() not in d:
+                d[item.lower()] = True
+                yield item
