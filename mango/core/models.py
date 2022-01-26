@@ -22,9 +22,8 @@ class MetaData(BaseModel):
 
 
 class Field(BaseModel):
-  name: str = ''
-  label: str = ''
-  content: str = ''
+  name: str
+  label: str
   data_type: str
   default_value: Optional[str]
   default_value_use_quotes: bool
@@ -60,7 +59,8 @@ class ListLayout(BaseModel):
 
 class PageLayout(BaseModel):
   field_type: str
-  name: str
+  name: str = ''
+  content: str = ''
   css_class: str = ''
   css_class_use_quotes: bool = True
   label_class: str = ''
