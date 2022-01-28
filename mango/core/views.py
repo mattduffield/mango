@@ -352,13 +352,17 @@ class ListView():
         raise Exception(f'Missing attribute model_name on Meta on {self.model_class} class!')
       if not hasattr(self.model_class.Meta, 'model_name_plural'):
         raise Exception(f'Missing attribute model_name_plural on Meta on {self.model_class} class!')
-      if not hasattr(self.model_class.Meta, 'search_by'):
-        raise Exception(f'Missing attribute search_by on Meta on {self.model_class} class!')
+      # if not hasattr(self.model_class.Meta, 'search_by'):
+      #   raise Exception(f'Missing attribute search_by on Meta on {self.model_class} class!')
       if not hasattr(self.model_class.Meta, 'search_index_name'):
         raise Exception(f'Missing attribute search_index_name on Meta on {self.model_class} class!')
+      if not hasattr(self.model_class.Meta, 'search_fields'):
+        raise Exception(f'Missing attribute search_fields on Meta on {self.model_class} class!')
+      if len(self.model_class.Meta.search_fields) == 0:
+        raise Exception(f'Please provide at least one search_field entry on Meta on {self.model_class} class!')
       self.model_name = self.model_class.Meta.model_name
       self.model_name_plural = self.model_class.Meta.model_name_plural
-      self.search_by = self.model_class.Meta.search_by
+      # self.search_by = self.model_class.Meta.search_by
     self.list_url = f'{self.model_name}-list'
     self.create_url = f'{self.model_name}-create'
 

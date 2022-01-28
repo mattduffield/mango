@@ -7,19 +7,23 @@ from wtforms import (
   PasswordField, 
   EmailField, 
   SelectField,
+  SelectMultipleField,
   BooleanField,
   IntegerField,
   FormField,
   Form,
 )
 from wtforms.validators	import DataRequired, NoneOf
+from wtforms.widgets import Select
 from mango.core.forms import (
   label_class, 
   chk_class, 
   input_class, 
   select_class, 
   textarea_class, 
-  QuerySelectField
+  QuerySelectField,
+  TagListField,
+  TagsField,
 )
 
 {% for field in ra.fields %}
@@ -27,8 +31,11 @@ from mango.core.forms import (
 class {{field.label}}Form(Form):
   {% for form_field in field.fields %}
   {{form_field.name}} = {{form_field.element_type}}(
-    '{{form_field.label}}', 
-    validators=[{% for val in form_field.validators %}{{val}}{% endfor %}]{% if form_field.element_attributes %},{% endif %} 
+    '{{form_field.label}}',
+    {% if form_field.element_type == 'TagsField' %}
+    separator=',',
+    {% endif %}
+    {% if form_field.validators %}validators=[{% for val in form_field.validators %}{{val}}{% endfor %}]{% if form_field.element_attributes %},{% endif %}{% endif %}
     {% if form_field.element_attributes %}render_kw={ {% for k, v in form_field.element_attributes.items() %} "{{k}}":"{{v}}", {% endfor %} }{% endif %}
   )
   {% endfor %}
@@ -42,7 +49,7 @@ class {{ra.label}}Form(StarletteForm):
   {% else %}
   {{field.name}} = {{field.element_type}}(
     '{{field.label}}', 
-    validators=[{% for val in field.validators %}{{val}}{% endfor %}]{% if field.element_attributes %},{% endif %} 
+    {% if field.validators %}validators=[{% for val in field.validators %}{{val}}{% endfor %}]{% if field.element_attributes %},{% endif %}{% endif %} 
     {% if field.element_attributes %}render_kw={ {% for k, v in field.element_attributes.items() %} "{{k}}":"{{v}}", {% endfor %} }{% endif %}
   )
   {% endif %}
