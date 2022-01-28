@@ -73,10 +73,14 @@ class {{ra.label}}Form(StarletteForm):
                 'fields': [
                   {% for inner_inner in inner.page_layout %}
                     {
-                      '{{inner_inner.field_type}}': {% if inner_inner.field_type == 'type' %}'{{inner_inner.name}}'{% else %}self.{{inner_inner.name}}{% endif %}, 
-                      {% if inner_inner.content %}'content': '{{inner_inner.content}}',{% endif %}
-                      'css_class': {% if inner_inner.css_class_use_quotes %}'{% endif %}{{inner_inner.css_class}}{% if inner_inner.css_class_use_quotes %}'{% endif %},
-                      'label_class': {% if inner_inner.label_class_use_quotes %}'{% endif %}{{inner_inner.label_class}}{% if inner_inner.label_class_use_quotes %}'{% endif %}
+                      {% if inner_inner.field_type == 'html' %}
+                        'html': markupsafe.Markup('''{{inner_inner.name | safe }}''')
+                      {% else %}
+                        '{{inner_inner.field_type}}': {% if inner_inner.field_type == 'type' %}'{{inner_inner.name}}'{% else %}self.{{inner_inner.name}}{% endif %}, 
+                        {% if inner_inner.content %}'content': '{{inner_inner.content}}',{% endif %}
+                        'css_class': {% if inner_inner.css_class_use_quotes %}'{% endif %}{{inner_inner.css_class}}{% if inner_inner.css_class_use_quotes %}'{% endif %},
+                        'label_class': {% if inner_inner.label_class_use_quotes %}'{% endif %}{{inner_inner.label_class}}{% if inner_inner.label_class_use_quotes %}'{% endif %}
+                      {% endif %}
                     },
                   {% endfor %}
                 ],
