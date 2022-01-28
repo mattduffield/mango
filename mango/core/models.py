@@ -16,7 +16,7 @@ class Funcs(BaseModel):
 
 class MetaData(BaseModel):
   search_index_name: str
-  search_fields: List[str] = []
+  search_fields: Optional[List[str]] = []
   order_by: List[str]
   page_size: int
 
