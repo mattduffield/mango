@@ -17,8 +17,12 @@ class {{ra.label}}(BaseModel):
   class Meta:
     model_name = '{{ra.name}}'
     model_name_plural = '{{ra.name_plural}}'
-    search_by = '{{ra.meta_data.search_by}}'
     search_index_name = '{{ra.meta_data.search_index_name}}'
+    search_fields = [
+      {% for item in ra.meta_data.search_fields %}
+      '{{item}}',
+      {% endfor %}
+    ]
     order_by = [
       {% for item in ra.meta_data.order_by %}
       '{{item}}',

@@ -415,7 +415,7 @@ class ListView():
   def get_pipeline(self):
     search_index_name = self.model_class.Meta.search_index_name
     page_size = self.model_class.Meta.page_size
-    keys = [x for x in self.model_class.Meta.list_fields]
+    keys = [x for x in self.model_class.Meta.search_fields]
     projection = {keys[i]: 1 for i in range(0, len(keys), 1)}
     project = {
       "_id": {
@@ -462,17 +462,17 @@ class GenericListView():
   query_type = 'find'
   search_by = ''
   page_size = 15
-  list_fields = []
+  search_fields = []
 
   def __init__(self):
     if not self.model_name:
       raise Exception(f'Missing attribute model_name!')
     if not self.model_name_plural:
       raise Exception(f'Missing attribute model_name_plural!')
-    if not self.search_by:
-      raise Exception(f'Missing attribute search_by!')
-    if len(self.list_fields) == 0:
-      raise Exception(f'Please provide at least one list_field entry!')
+    if not self.search_fields:
+      raise Exception(f'Missing attribute search_fields!')
+    if len(self.search_fields) == 0:
+      raise Exception(f'Please provide at least one search_field entry!')
     self.list_url = f'{self.model_name}-list'
     self.create_url = f'{self.model_name}-create'
 
@@ -519,7 +519,7 @@ class GenericListView():
 
   def get_pipeline(self):
     page_size = self.page_size
-    keys = [x for x in self.list_fields]
+    keys = [x for x in self.search_fields]
     projection = {keys[i]: 1 for i in range(0, len(keys), 1)}
     project = {
       "_id": {
