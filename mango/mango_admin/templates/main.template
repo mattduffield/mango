@@ -3,16 +3,26 @@ load_dotenv()
 from fastapi import FastAPI, APIRouter, Depends, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from starlette.middleware.sessions import SessionMiddleware
 import os
 import uvicorn
+from mango.core.views import (
+  CreateView,
+  UpdateView,
+  DeleteView, 
+  ListView, 
+  get_controller,
+  GenericListView,
+)
+from mango.core.app_loader import import_apps
 from mango.db import api
 from mango.auth import auth
 from mango.auth.models import NotAuthenticatedException
 from mango.hooks import views as hooks
 from mango.wf import views as wf
 from mango.qb import views as qb
+import settings
 from settings import (
     SESSION_SECRET_KEY,
     DATABASE_CLUSTER,
@@ -23,11 +33,25 @@ from settings import (
     MAILGUN_FROM_BLOCK,
     MAILGUN_URL,
     manager,
+    templates,
+    set_host,
 )
-
+from entities.views import (
+    EntityCreateView,
+    EntityUpdateView,
+    EntityDeleteView,
+    EntityListView,
+)
+from products.views import (
+    ProductCreateView,
+    ProductUpdateView,
+    ProductDeleteView,
+    ProductListView,
+)
 
 app = FastAPI()
 manager.useRequest(app)
+set_host(app)
 
 @app.exception_handler(NotAuthenticatedException)
 def auth_exception_handler(request: Request, exc: NotAuthenticatedException):
@@ -56,6 +80,11 @@ def configure(dev_mode: bool):
     print(f'dev_mode: {dev_mode}')
     configure_routes()
 
+# def import_dynamic(name):
+#     importlib.import_module(name)
+#     # script = f'import {name}'
+#     # exec(script, globals(), locals())
+
 def configure_routes():
     app.mount('/static', StaticFiles(directory='static'), name='static')
     app.include_router(auth.router)
@@ -64,6 +93,20 @@ def configure_routes():
     app.include_router(wf.router)
     app.include_router(qb.router)
     app.include_router(LandingView.router())
+    app.include_router(EntityCreateView.router())
+    app.include_router(EntityUpdateView.router())
+    app.include_router(EntityDeleteView.router())
+    app.include_router(EntityListView.router())
+    app.include_router(ProductCreateView.router())
+    app.include_router(ProductUpdateView.router())
+    app.include_router(ProductDeleteView.router())
+    app.include_router(ProductListView.router())
+    # import_dynamic('user__c')
+    import_apps()
+
+@app.get('/ms17708825.txt')
+async def domain_check():
+    return FileResponse('ms17708825.txt')
 
 app.add_middleware(
     CORSMiddleware,

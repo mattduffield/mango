@@ -1,1 +1,1 @@
-__all__ = ['forms', 'views']
+__all__ = ['app_loader', 'forms', 'models', 'reloader', 'views', 'widgets']

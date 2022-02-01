@@ -12,6 +12,7 @@
       hx-swap="innerHTML"
       hx-push-url="true"
       hx-indicator="#content-loader"
+      _="on load addHxVars()"
       >
       {# {{ crispy(form) }} #}
       {{ crispy2(form.layout_fields()) }}

@@ -1,4 +1,18 @@
-{% macro crispy(form) -%}
+{% macro crispy_multi_select(field) %}
+  <div class='mb-4 flex-1'>
+    <label class='block text-gray-700 text-sm font-light mb-2' for='meta_data-search_fields'>Search Fields</label>
+    <multi-select id='meta_data-search_fields' name='meta_data-search_fields'>
+      <input list='fields'>
+      <datalist id='fields'>
+        <option value='name' selected='true'>Name</option>
+        <option value='name_plural'>Name Plural</option>
+        <option value='list_url'>List URL</option>
+      </datalist>
+    </multi-select>
+  </div>
+{% endmacro %}
+
+{% macro crispy(form) %}
   {% for field in form %}
     <div class="mb-4">
       {{ field.label(class="block text-gray-700 text-sm font-bold mb-2") }}
@@ -11,9 +25,9 @@
       {% endif %}
     </div>
   {% endfor %}
-{%- endmacro %}
+{% endmacro %}
 
-{% macro crispy2(fields) -%}
+{% macro crispy2(fields) %}
   {% for field in fields %}
     {% if field.get('type') %}
       <div class="{{field.get('css_class')}}">
@@ -42,10 +56,11 @@
           {% endif %}
           {% if field.get('field').errors %}
             <span>{{ field.get('field').errors[0] }}</span>
-          {% endif %}          
+          {% endif %}
         </div>
       {% elif field.get('html') %}
         {{ field.get('html') }}
+        {# {{ crispy_multi_select(field) }} #}
       {% else %}
         <div class="mb-4 flex-1">
           {# {{ field.get('field').label(class=field.get('label_class')) }} #}
@@ -54,4 +69,6 @@
       {% endif %}
     {% endif %}
   {% endfor %}
-{%- endmacro %}
+{% endmacro %}
+
+

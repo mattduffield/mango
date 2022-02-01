@@ -1,12 +1,14 @@
 import asyncio
 import json
 import markupsafe
-from wtforms import SelectFieldBase, widgets
+from typing import List
+from wtforms import SelectField, SelectFieldBase, widgets
 from wtforms.fields import StringField
 from wtforms.widgets import Select, TextInput
 from wtforms.fields.core import Field, UnboundField
 from mango.db.api import find, find_one, run_pipeline, find_sync
 from mango.db.models import Query
+from mango.core.widgets import TagsWidget
 # from mango.utils.utils import settings
 from settings import templates, DATABASE_NAME
 
@@ -284,8 +286,10 @@ class QuerySelectField(SelectFieldBase):
 
 
 
-class TagsField(StringField):
+class TagsField(SelectField):
     """Stringfield for a list of separated tags"""
+
+    widget = TagsWidget()
 
     def __init__(self, label='', validators=None, remove_duplicates=True, to_lowercase=True, separator=' ', **kwargs):
         """
@@ -308,13 +312,19 @@ class TagsField(StringField):
         else:
             return u''
 
+    def pre_validate(self, form):
+        pass 
+
     def process_formdata(self, valuelist):
         if valuelist:
+          if len(valuelist) > 1:
+            self.data = [x.strip() for x in valuelist]
+          else:
             self.data = [x.strip() for x in valuelist[0].split(self.separator)]
-            if self.remove_duplicates:
-                self.data = list(self._remove_duplicates(self.data))
-            if self.to_lowercase:
-                self.data = [x.lower() for x in self.data]
+          if self.remove_duplicates:
+              self.data = list(self._remove_duplicates(self.data))
+          if self.to_lowercase:
+              self.data = [x.lower() for x in self.data]
 
     @classmethod
     def _remove_duplicates(cls, seq):

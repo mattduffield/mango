@@ -10,6 +10,7 @@ from wtforms import (
   SelectMultipleField,
   BooleanField,
   IntegerField,
+  FieldList,
   FormField,
   Form,
 )
@@ -30,14 +31,35 @@ from mango.core.forms import (
   {% if field.element_type == 'FormField' %}
 class {{field.label}}Form(Form):
   {% for form_field in field.fields %}
-  {{form_field.name}} = {{form_field.element_type}}(
-    '{{form_field.label}}',
-    {% if form_field.element_type == 'TagsField' %}
-    separator=',',
+    {% if form_field.element_type == 'FieldList' %}
+    {{form_field.name}} = {{form_field.element_type}}(StringField(
+      '{{form_field.label}}',
+      {% if form_field.element_type == 'TagsField' %}
+      separator=',',
+      choices=[
+        {% for choice in form_field.choices %}
+          ('{{choice['name']}}', '{{choice['label']}}'),
+        {% endfor %}
+      ],
+      {% endif %}
+      {% if form_field.validators %}validators=[{% for val in form_field.validators %}{{val}}{% endfor %}]{% if form_field.element_attributes %},{% endif %}{% endif %}
+      {% if form_field.element_attributes %}render_kw={ {% for k, v in form_field.element_attributes.items() %} "{{k}}":"{{v}}", {% endfor %} }{% endif %}
+    ))
+    {% else %}
+    {{form_field.name}} = {{form_field.element_type}}(
+      '{{form_field.label}}',
+      {% if form_field.element_type == 'TagsField' %}
+      separator=',',
+      choices=[
+        {% for choice in form_field.choices %}
+          ('{{choice['name']}}', '{{choice['label']}}'),
+        {% endfor %}
+      ],
+      {% endif %}
+      {% if form_field.validators %}validators=[{% for val in form_field.validators %}{{val}}{% endfor %}]{% if form_field.element_attributes %},{% endif %}{% endif %}
+      {% if form_field.element_attributes %}render_kw={ {% for k, v in form_field.element_attributes.items() %} "{{k}}":"{{v}}", {% endfor %} }{% endif %}
+    )
     {% endif %}
-    {% if form_field.validators %}validators=[{% for val in form_field.validators %}{{val}}{% endfor %}]{% if form_field.element_attributes %},{% endif %}{% endif %}
-    {% if form_field.element_attributes %}render_kw={ {% for k, v in form_field.element_attributes.items() %} "{{k}}":"{{v}}", {% endfor %} }{% endif %}
-  )
   {% endfor %}
   {% endif %}
 {% endfor %}

@@ -110,7 +110,12 @@ class BaseView():
           if hasattr(form, prop):
             if form[prop].type == 'FormField':
               for sub_prop in data[prop]:
-                form[prop].form[sub_prop].data = data[prop][sub_prop]
+                if isinstance(form[prop].form[sub_prop].data, List):
+                  for d in data[prop][sub_prop]:
+                    form[prop].form[sub_prop].data.append(d)
+                else:
+                  setattr(form[prop].form[sub_prop], 'data', data[prop][sub_prop])
+                  # form[prop].form[sub_prop].data = data[prop][sub_prop]
             else:
               form[prop].data = data[prop]
       context['object'] = data

@@ -1,4 +1,3 @@
-import jwt
 from fastapi import HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from passlib.context import CryptContext
@@ -29,6 +28,7 @@ class Field(BaseModel):
   default_value_use_quotes: bool
   element_type: str
   element_html: Optional[str]
+  choices: List[Dict[str, str]] = []
   validators: List[str] = []
   element_attributes: dict = {}
   fields: Optional[List['Field']]

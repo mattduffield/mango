@@ -10,8 +10,10 @@
     <link href="{{ url_for('static', path='/css/midone.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', path='/css/styles.css') }}" rel="stylesheet">
     <script src="https://unpkg.com/htmx.org@1.6.1"></script>
-    <script src="https://unpkg.com/hyperscript.org@0.9.1"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.4"></script>
     <script src="https://unpkg.com/feather-icons"></script>
+    <script type="module" src="{{ url_for('static', path='/js/components/multi-select.js') }}"></script>
+
   </head>
   <!-- END: Head -->
   <body class="main"
@@ -60,5 +62,34 @@
     </div>
     {# {% django_htmx_script %} #}
     {# {% include 'scripts.html' %}         #}
+
+    <script>
+      function addHxVars() {
+        const el = document.querySelector('#frmUpdate');
+        if (el) {
+          let list = [];
+          let vars = el.getAttribute('hx-vars') || '';
+          if (vars) {
+            list.push(vars);
+          }
+          const multiSelects = Array.from(el.querySelectorAll('multi-select'));
+          for (m of multiSelects) {      
+            list.push(`'${m.id}':getComponentValues('#${m.id}')`);
+          }
+          if (list.length > 0) {
+            el.setAttribute('hx-vars', list.join(','));
+          }
+        }
+      }
+      function getComponentValues(selector) {
+        const el = document.querySelector(selector);
+        let data = null;
+        if (el) {
+          data = el.getValues();
+        }
+        return data;
+      }
+    </script>
+
   </body>
 </html>
