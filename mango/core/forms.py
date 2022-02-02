@@ -2,13 +2,13 @@ import asyncio
 import json
 import markupsafe
 from typing import List
-from wtforms import SelectField, SelectFieldBase, widgets
+from wtforms import BooleanField, RadioField, SelectField, SelectFieldBase, widgets
 from wtforms.fields import StringField
 from wtforms.widgets import Select, TextInput
 from wtforms.fields.core import Field, UnboundField
 from mango.db.api import find, find_one, run_pipeline, find_sync
 from mango.db.models import Query
-from mango.core.widgets import TagsWidget
+from mango.core.widgets import TagsWidget, ToggleRadioWidget, ToggleSwitchWidget
 # from mango.utils.utils import settings
 from settings import templates, DATABASE_NAME
 
@@ -87,7 +87,17 @@ select_class = '''form-select appearance-none
   ease-in-out
   m-0
   focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none'''
-
+toggle_radio_class = '''
+  w-full
+  transition
+  ease-in-out
+  focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+  toggle-radio
+'''
+toggle_switch_class = '''
+  toggle-switch-container
+  cursor-pointer
+'''
 
 class DivField(Field):
 
@@ -285,7 +295,6 @@ class QuerySelectField(SelectFieldBase):
     return choices
 
 
-
 class TagsField(SelectField):
     """Stringfield for a list of separated tags"""
 
@@ -334,3 +343,17 @@ class TagsField(SelectField):
             if item.lower() not in d:
                 d[item.lower()] = True
                 yield item
+
+
+class ToggleRadioField(RadioField):
+  widget = ToggleRadioWidget()
+
+  def __init__(self, label='', validators=None, **kwargs):
+    super(ToggleRadioField, self).__init__(label, validators, **kwargs)
+
+
+class ToggleSwitchField(BooleanField):
+  widget = ToggleSwitchWidget()
+
+  def __init__(self, label='', validators=None, **kwargs):
+    super(ToggleSwitchField, self).__init__(label, validators, **kwargs)

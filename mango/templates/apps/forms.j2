@@ -2,16 +2,25 @@ import markupsafe
 from typing import Text
 from starlette_wtf import StarletteForm, CSRFProtectMiddleware, csrf_protect
 from wtforms import (
-  StringField, 
-  TextAreaField, 
-  PasswordField, 
-  EmailField, 
+  BooleanField,
+  DateField,
+  DateTimeField,
+  DecimalField,
+  EmailField,
+  FileField,
+  MultipleFileField,
+  FloatField,
+  IntegerField,
+  RadioField,
   SelectField,
   SelectMultipleField,
-  BooleanField,
-  IntegerField,
-  FieldList,
+  StringField,
+  SubmitField,
+  HiddenField,
+  PasswordField,
+  TextAreaField,
   FormField,
+  FieldList,
   Form,
 )
 from wtforms.validators	import DataRequired, NoneOf
@@ -22,10 +31,15 @@ from mango.core.forms import (
   input_class, 
   select_class, 
   textarea_class, 
+  toggle_radio_class,
+  toggle_switch_class,
   QuerySelectField,
   TagListField,
   TagsField,
+  ToggleRadioField,
+  ToggleSwitchField,
 )
+from mango.core.widgets import TagsWidget, ToggleRadioWidget
 
 {% for field in ra.fields %}
   {% if field.element_type == 'FormField' %}
@@ -42,6 +56,13 @@ class {{field.label}}Form(Form):
         {% endfor %}
       ],
       {% endif %}
+      {% if form_field.element_type == 'RadioField' or form_field.element_type == 'ToggleRadioField' %}
+      choices=[
+        {% for choice in form_field.choices %}
+          ('{{choice['name']}}', '{{choice['label']}}'),
+        {% endfor %}
+      ],
+      {% endif %}
       {% if form_field.validators %}validators=[{% for val in form_field.validators %}{{val}}{% endfor %}]{% if form_field.element_attributes %},{% endif %}{% endif %}
       {% if form_field.element_attributes %}render_kw={ {% for k, v in form_field.element_attributes.items() %} "{{k}}":"{{v}}", {% endfor %} }{% endif %}
     ))
@@ -50,6 +71,13 @@ class {{field.label}}Form(Form):
       '{{form_field.label}}',
       {% if form_field.element_type == 'TagsField' %}
       separator=',',
+      choices=[
+        {% for choice in form_field.choices %}
+          ('{{choice['name']}}', '{{choice['label']}}'),
+        {% endfor %}
+      ],
+      {% endif %}
+      {% if form_field.element_type == 'RadioField' or form_field.element_type == 'ToggleRadioField' %}
       choices=[
         {% for choice in form_field.choices %}
           ('{{choice['name']}}', '{{choice['label']}}'),
@@ -71,6 +99,13 @@ class {{ra.label}}Form(StarletteForm):
   {% else %}
   {{field.name}} = {{field.element_type}}(
     '{{field.label}}', 
+    {% if field.element_type == 'RadioField' or field.element_type == 'ToggleRadioField' %}
+    choices=[
+      {% for choice in field.choices %}
+        ('{{choice['name']}}', '{{choice['label']}}'),
+      {% endfor %}
+    ],
+    {% endif %}
     {% if field.validators %}validators=[{% for val in field.validators %}{{val}}{% endfor %}]{% if field.element_attributes %},{% endif %}{% endif %} 
     {% if field.element_attributes %}render_kw={ {% for k, v in field.element_attributes.items() %} "{{k}}":"{{v}}", {% endfor %} }{% endif %}
   )

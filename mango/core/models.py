@@ -81,4 +81,5 @@ class App(BaseModel):
   funcs: Funcs
   page_layout: List[PageLayout]
   list_layout: ListLayout
+  stage: Optional[str]
   is_active: bool

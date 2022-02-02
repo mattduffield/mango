@@ -1,0 +1,170 @@
+:root {
+  /*Background color when it's turned off*/
+  --toggle-switch-off-color: #d1d3d4;
+
+  /*Background color when it's turned on*/
+  --toggle-switch-on-color: #38cf5b;
+  
+  /*Animation speed and type*/
+  --toggle-switch-animation-speed: 0.15s ease-out;
+
+  /*Font used by the text*/
+  --toggle-switch-font-family: Arial;
+
+  /*The size used*/
+  --toggle-switch-font-size: 11px;
+
+  /*The font weight*/
+  --toggle-switch-font-weight: 300;
+  
+  /*Font color when the switch is on*/
+  --toggle-switch-on-font-color: white;
+
+  /*Font color when the switch is off*/
+  --toggle-switch-off-font-color: white;
+
+  /*How far the OFF text is from the right side*/
+  --toggle-switch-label-position-off: 12px;
+
+  /*How far the ON text is from the left side*/
+  --toggle-switch-label-position-on: 11px;
+
+  /*Small switch width*/
+  --toggle-switch-width: 50px;
+
+  /*Small switch height*/
+  --toggle-switch-height: 25px;
+
+  /*Border radius for the handle*/
+  --toggle-switch-handle-border-radius: 20px;
+
+  /*Border radius for the box*/
+  --toggle-switch-box-border-radius: 18px;
+
+  /*Shadow for the handle*/
+  --toggle-switch-handle-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
+  
+  /*Handle color*/
+  --toggle-switch-handle-color: white;
+
+  /*Handle width*/
+  --toggle-switch-handle-width: 15px;
+
+  /*Handle height*/
+  --toggle-switch-handle-height: 15px;
+
+  /*The handle's width while the toggle is clicked*/
+  --toggle-switch-onclick-width: 30px;
+
+  /*Handle's distance from the top*/
+  --toggle-switch-handle-top: 5px;
+}
+
+.toggle-switch-container * {
+  font-family: var(--toggle-switch-font-family);
+  -webkit-transition: var(--toggle-switch-animation-speed);
+  -moz-transition: var(--toggle-switch-animation-speed);
+  -o-transition: var(--toggle-switch-animation-speed);
+  transition: var(--toggle-switch-animation-speed);
+}
+
+.toggle-switch {
+  width: var(--toggle-switch-width);
+  height: var(--toggle-switch-height);
+}
+
+.toggle-switch-container label {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  border-radius: var(--toggle-switch-box-border-radius);
+  cursor: pointer;
+}
+
+.toggle-switch-input {
+  position: absolute;
+  transform: translate3d(5px, 5px, 0);
+}
+
+.toggle-switch-label {
+  position: relative;
+  display: block;
+  height: inherit;
+  font-size: var(--toggle-switch-font-size);
+  font-weight: var(--toggle-switch-font-weight);
+  background: var(--toggle-switch-off-color);
+  border-radius: inherit;
+}
+
+.toggle-switch-label:before,
+.toggle-switch-label:after {
+  position: absolute;
+  top: 50%;
+  margin-top: -0.5em;
+  line-height: 1.1;
+}
+
+.toggle-switch-label:before {
+  content: attr(data-off);
+  color: var(--toggle-switch-on-font-color);
+}
+
+.toggle-switch-label:after {
+  content: attr(data-on);
+  color: var(--toggle-switch-off-font-color);
+  opacity: 0;
+}
+
+.toggle-switch-label:before {
+  right: var(--toggle-switch-label-position-off);;
+}
+
+.toggle-switch-label:after {
+  left: var(--toggle-switch-label-position-on);;
+}
+
+.toggle-switch-input:checked ~ .toggle-switch-label {
+  background: var(--toggle-switch-on-color);
+}
+
+.toggle-switch-input:checked ~ .toggle-switch-label:before {
+  opacity: 0;
+}
+
+.toggle-switch-input:checked ~ .toggle-switch-label:after {
+  opacity: 1;
+}
+
+.toggle-switch-handle {
+  position: absolute !important;
+  top: var(--toggle-switch-handle-top);
+  left: 5px;
+  background: var(--toggle-switch-handle-color);
+  border-radius: var(--toggle-switch-handle-border-radius);
+  box-shadow: var(--toggle-switch-handle-shadow);
+}
+
+.toggle-switch-handle {
+  width: var(--toggle-switch-handle-width);
+  height: var(--toggle-switch-handle-height);
+}
+
+.toggle-switch-handle:before {
+  content: "";
+  top: 50%;
+  left: 50%;
+  position: absolute !important;
+  margin: -6px 0 0 -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+}
+
+.toggle-switch-label:active ~ .toggle-switch-handle, .toggle-switch-handle:active {
+  width: var(--toggle-switch-onclick-width);
+}
+
+.toggle-switch-input:checked ~ .toggle-switch-handle {
+  left: unset;
+  right: 5px;
+}
