@@ -117,22 +117,6 @@ toggle_switch_class = '''
 '''
 
 
-class FieldForm(Form):
-  name: StringField('Name')
-  label: StringField('Label')
-  data_type: StringField('Data Type')
-  default_value: StringField('Default Value')
-  default_value_use_quotes: BooleanField('Default Value Use Quotes')
-  element_type: StringField('Element Type')
-  # element_html: StringField('Element HTML')
-  # choices: List[Dict[str, str]] = []
-  # validators: List[str] = []
-  # element_attributes: dict = {}
-  # fields: Optional[List['Field']]
-  is_active: BooleanField('Is Active')
-
-
-
 class DivField(Field):
 
   def __call__(self, **kwargs):

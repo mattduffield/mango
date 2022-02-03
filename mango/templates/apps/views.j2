@@ -71,7 +71,6 @@ class {{ra.label}}CreateView(CreateView):
 class {{ra.label}}UpdateView(UpdateView):
   form_class = {{ra.label}}Form
   model_class = {{ra.label}}
-  object_display2 = lambda self, object: f'{object["username"]}'
   object_display = {{ra.funcs.object_display | safe}}
 
   @update_controller.route.get('/{{ra.name_plural}}/{_id}', response_class=HTMLResponse, name='{{ra.name}}-item')
@@ -100,7 +99,7 @@ class {{ra.label}}DeleteView(DeleteView):
 @list_controller.resource()
 class {{ra.label}}ListView(ListView):
     model_class = {{ra.label}}
-    create_url = 'entity-list'
+    create_url = ''
     delete_url = lambda self, object: f''
 
     @list_controller.route.get('/{{ra.name_plural}}', response_class=HTMLResponse, name='{{ra.name}}-list')
