@@ -34,7 +34,6 @@ from mango.core.forms import (
   multi_select_class,
   toggle_radio_class,
   toggle_switch_class,
-  FieldForm,
   QuerySelectField,
   TagListField,
   TagsField,
