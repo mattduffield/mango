@@ -31,8 +31,10 @@ from mango.core.forms import (
   input_class, 
   select_class, 
   textarea_class, 
+  multi_select_class,
   toggle_radio_class,
   toggle_switch_class,
+  FieldForm,
   QuerySelectField,
   TagListField,
   TagsField,
@@ -40,6 +42,7 @@ from mango.core.forms import (
   ToggleSwitchField,
 )
 from mango.core.widgets import TagsWidget, ToggleRadioWidget
+
 
 {% for field in ra.fields %}
   {% if field.element_type == 'FormField' %}
@@ -96,6 +99,8 @@ class {{ra.label}}Form(StarletteForm):
   {% for field in ra.fields %}
   {% if field.element_type == 'FormField' %}
   {{field.name}} = {{field.element_type}}({{field.label}}Form)
+  {% elif field.element_type.startswith('FieldList') %}
+  {{field.name}} = {{field.element_type}}
   {% else %}
   {{field.name}} = {{field.element_type}}(
     '{{field.label}}', 
@@ -122,16 +127,23 @@ class {{ra.label}}Form(StarletteForm):
           'fields': [
             {% for inner in field.page_layout %}
               {
-                '{{inner.field_type}}': {% if inner.field_type == 'type' %}'{{inner.name}}'{% else %}self.{{inner.name}}{% endif %}, 
-                {% if inner.content %}'content': '{{inner.content}}',{% endif %}
-                'css_class': {% if inner.css_class_use_quotes %}'{% endif %}{{inner.css_class}}{% if inner.css_class_use_quotes %}'{% endif %},
+                {% if inner.field_type == 'html' %}
+                  'html': markupsafe.Markup('''{{inner.name | safe }}'''),
+                {% elif inner.field_type == 'macro' %}
+                  'macro': markupsafe.Markup('''{{inner.name | safe }}'''),
+                {% else %}
+                  '{{inner.field_type}}': {% if inner.field_type == 'type' %}'{{inner.name}}'{% else %}self.{{inner.name}}{% endif %}, 
+                  {% if inner.content %}'content': '{{inner.content}}',{% endif %}
+                  'css_class': {% if inner.css_class_use_quotes %}'{% endif %}{{inner.css_class}}{% if inner.css_class_use_quotes %}'{% endif %},
+                {% endif %}
                 {% if inner.page_layout %}
-
                 'fields': [
                   {% for inner_inner in inner.page_layout %}
                     {
                       {% if inner_inner.field_type == 'html' %}
-                        'html': markupsafe.Markup('''{{inner_inner.name | safe }}''')
+                        'html': markupsafe.Markup('''{{inner_inner.name | safe }}'''),
+                      {% elif inner_inner.field_type == 'macro' %}
+                        'macro': markupsafe.Markup('''{{inner_inner.name | safe }}'''),
                       {% else %}
                         '{{inner_inner.field_type}}': {% if inner_inner.field_type == 'type' %}'{{inner_inner.name}}'{% else %}self.{{inner_inner.name}}{% endif %}, 
                         {% if inner_inner.content %}'content': '{{inner_inner.content}}',{% endif %}

@@ -116,6 +116,8 @@ class BaseView():
                 else:
                   setattr(form[prop].form[sub_prop], 'data', data[prop][sub_prop])
                   # form[prop].form[sub_prop].data = data[prop][sub_prop]
+            elif form[prop].type == 'FieldList':
+              form[prop].entries = data[prop]
             else:
               form[prop].data = data[prop]
       context['object'] = data

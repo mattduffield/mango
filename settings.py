@@ -5,8 +5,10 @@ import os
 from mango.template_tags.custom_tags import configure_templates, register_tags, RenderColTag
 from fastapi_login import LoginManager
 from mango.auth.models import NotAuthenticatedException
+from mango.core.app_loader import init_app_loader, get_apps
 
 templates = configure_templates(directory='templates')
+host = None
 
 SESSION_SECRET_KEY = os.environ.get('SESSION_SECRET_KEY')
 DATABASE_CLUSTER = os.environ.get('DATABASE_CLUSTER')
@@ -22,9 +24,15 @@ manager = LoginManager(
   token_url='/auth/login', 
   use_cookie=True,
   cookie_name='mango-cookie',
-  default_expiry=timedelta(hours=8),
+  default_expiry=timedelta(hours=12),
 )
 manager.not_authenticated_exception = NotAuthenticatedException
+
+def set_host(app):
+  global host
+  host = app
+  init_app_loader(config_templates=templates, config_host=host)
+
 
 print(f'DATABASE_CLUSTER: {DATABASE_CLUSTER}')
 print(f'DATABASE_USERNAME: {DATABASE_USERNAME}')

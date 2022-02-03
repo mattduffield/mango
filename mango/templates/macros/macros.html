@@ -12,6 +12,86 @@
   </div>
 {% endmacro %}
 
+{% macro crispy_table(fields) %}
+  <div class='mb-4 flex-1'>
+    <style>
+xtable {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+xtd, xth {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+xtr:nth-child(even) {
+  background-color: #dddddd;
+}
+    </style>
+    <label class='block text-gray-700 text-sm font-light mb-2'>Fields</label>
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Label</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Type</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Default Value</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Default Value Use Quotes</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Element Type</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Validators</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Element Attributes</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Is Active</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+      {% for field in fields %}
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{field.get('name')}}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{field.get('label')}}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{field.get('data_type')}}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{field.get('default_value')}}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{field.get('default_value_use_quotes')}}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{field.get('element_type')}}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{field.get('validators')}}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{field.get('element_attributes')}}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{field.get('is_active')}}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            {# <a hx-get="/users/61e70fcba4175185ae850249"
+              _="on htmx:afterOnLoad remove .hidden from #modal"
+              hx-target="#modal-content"
+              hx-params="none"
+              hx-swap="innerHTML"
+              hx-push-url="false"
+              hx-indicator="#content-loader"
+              class="cursor-pointer"
+              data-json="{{field}}"
+              >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" 
+                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </a> #}
+            <a onclick="handleGet(`{{field}}`)"
+              class="cursor-pointer"
+              data-json="{{field}}"
+              >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" 
+                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endmacro %}
+
 {% macro crispy(form) %}
   {% for field in form %}
     <div class="mb-4">
@@ -27,7 +107,7 @@
   {% endfor %}
 {% endmacro %}
 
-{% macro crispy2(fields) %}
+{% macro crispy2(form, fields) %}
   {% for field in fields %}
     {% if field.get('type') %}
       <div class="{{field.get('css_class')}}">
@@ -35,11 +115,11 @@
         {{ field.get('content') }}
       {% endif %}
       {% if field.get('fields') %}
-        {{ crispy2(field.get('fields')) }}
+        {{ crispy2(form, field.get('fields')) }}
       {% endif %}
       {% if field.get('type') == 'form_field' %}
         {# {{ field.get('field').label(class=field.get('label_class')) }} #}
-        {{ crispy2(field.get('field').form.fields) }}
+        {{ crispy2(form, field.get('field').form.fields) }}
       {% endif %}
       </div>
     {% else %}
@@ -61,6 +141,8 @@
       {% elif field.get('html') %}
         {{ field.get('html') }}
         {# {{ crispy_multi_select(field) }} #}
+      {% elif field.get('macro') == 'crispy_table' %}
+        {{ crispy_table(form.fields) }}
       {% else %}
         <div class="mb-4 flex-1">
           {# {{ field.get('field').label(class=field.get('label_class')) }} #}
@@ -70,5 +152,4 @@
     {% endif %}
   {% endfor %}
 {% endmacro %}
-
 

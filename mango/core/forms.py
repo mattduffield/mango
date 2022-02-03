@@ -2,7 +2,7 @@ import asyncio
 import json
 import markupsafe
 from typing import List
-from wtforms import BooleanField, RadioField, SelectField, SelectFieldBase, widgets
+from wtforms import Form, BooleanField, RadioField, SelectField, SelectFieldBase, widgets
 from wtforms.fields import StringField
 from wtforms.widgets import Select, TextInput
 from wtforms.fields.core import Field, UnboundField
@@ -87,6 +87,23 @@ select_class = '''form-select appearance-none
   ease-in-out
   m-0
   focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none'''
+multi_select_class = '''
+  form-control
+  block
+  w-full
+  px-2
+  py-0.5
+  text-base
+  font-normal
+  text-gray-700
+  bg-white bg-clip-padding
+  border border-solid border-gray-300
+  rounded
+  transition
+  ease-in-out
+  m-0
+  focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+'''
 toggle_radio_class = '''
   w-full
   transition
@@ -98,6 +115,23 @@ toggle_switch_class = '''
   toggle-switch-container
   cursor-pointer
 '''
+
+
+class FieldForm(Form):
+  name: StringField('Name')
+  label: StringField('Label')
+  data_type: StringField('Data Type')
+  default_value: StringField('Default Value')
+  default_value_use_quotes: BooleanField('Default Value Use Quotes')
+  element_type: StringField('Element Type')
+  # element_html: StringField('Element HTML')
+  # choices: List[Dict[str, str]] = []
+  # validators: List[str] = []
+  # element_attributes: dict = {}
+  # fields: Optional[List['Field']]
+  is_active: BooleanField('Is Active')
+
+
 
 class DivField(Field):
 

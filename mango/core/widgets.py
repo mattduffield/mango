@@ -83,13 +83,6 @@ class TagsWidget:
         html = ['<multi-select %s>' % html_params(name=field.name, **kwargs)]
         html.append(f'<input list="{field.id}_fields">')
         html.append(f'<datalist id="{field.id}_fields">')
-        # html.append('''
-        #   <option value="name">Name</option>
-        #   <option value="name_plural">Name Plural</option>
-        #   <option value="label" data-selected="true">Label</option>
-        #   <option value="label_plural" data-selected="true">Label Plural</option>
-        #   <option value="list_url" data-selected="true">List URL</option>
-        # ''')
         for option in field:
             if field.data and option.data in field.data:
               attr = option_attr.get(option.id, {"data-selected": "true"})
