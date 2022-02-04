@@ -2,7 +2,7 @@ import asyncio
 import json
 import markupsafe
 from typing import List
-from wtforms import Form, BooleanField, RadioField, SelectField, SelectFieldBase, widgets
+from wtforms import Form, FieldList, BooleanField, RadioField, SelectField, SelectFieldBase, widgets
 from wtforms.fields import StringField
 from wtforms.widgets import Select, TextInput
 from wtforms.fields.core import Field, UnboundField
@@ -375,3 +375,39 @@ class ToggleSwitchField(BooleanField):
 
   def __init__(self, label='', validators=None, **kwargs):
     super(ToggleSwitchField, self).__init__(label, validators, **kwargs)
+
+
+class JSONFieldList(FieldList):
+  def process(self, formdata, data=None):
+    self.entries = []
+    if data is None or not data:
+      try:
+        data = self.default()
+      except TypeError:
+        data = self.default
+
+    self.object_data = data
+
+    if formdata:
+      for (index, obj_data) in enumerate(formdata.getlist(self.name)):
+        self._add_entry(formdata, obj_data, index=index)
+    else:
+      for obj_data in data:
+        self._add_entry(formdata, obj_data)
+
+    while len(self.entries) < self.min_entries:
+      self._add_entry(formdata)
+
+  def _add_entry(self, formdata=None, data=None, index=None):
+    assert not self.max_entries or len(self.entries) < self.max_entries, \
+      'You cannot have more than max_entries entries in this FieldList'
+    if index is None:
+      index = self.last_index + 1
+    self.last_index = index
+    name = '%s-%d' % (self.short_name, index)
+    id = '%s-%d' % (self.id, index)
+    field = self.unbound_field.bind(form=None, name=name, id=id, prefix=self._prefix, _meta=self.meta,
+                                    translations=self._translations)
+    field.process(formdata, data)
+    self.entries.append(field)
+    return field
