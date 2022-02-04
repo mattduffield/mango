@@ -43,7 +43,7 @@ from mango.core.forms import (
 from mango.core.widgets import TagsWidget, ToggleRadioWidget
 
 
-class FieldForm(Form):
+class FieldForm(StarletteForm):
   name: StringField('Name')
   label: StringField('Label')
   data_type: StringField('Data Type')
@@ -56,6 +56,70 @@ class FieldForm(Form):
   # element_attributes: dict = {}
   # fields: Optional[List['Field']]
   is_active: BooleanField('Is Active')
+
+  def layout_fields(self):
+    fields = [
+      {
+        'type': 'row', 
+        'css_class': 'flex flex-1 gap-4', 
+        'fields': [
+          {
+            'field': self.name, 
+            'css_class': input_class,
+            'label_class': label_class
+          },
+          {
+            'field': self.label, 
+            'css_class': input_class,
+            'label_class': label_class
+          },
+        ]
+      },
+      {
+        'type': 'row', 
+        'css_class': 'flex flex-1 gap-4', 
+        'fields': [
+          {
+            'field': self.data_type, 
+            'css_class': input_class,
+            'label_class': label_class
+          },
+        ]
+      },
+      {
+        'type': 'row', 
+        'css_class': 'flex flex-1 gap-4', 
+        'fields': [
+          {
+            'field': self.default_value, 
+            'css_class': input_class,
+            'label_class': label_class
+          },
+          {
+            'field': self.default_value_use_quotes, 
+            'css_class': chk_class,
+            'label_class': label_class
+          },
+        ]
+      },
+      {
+        'type': 'row', 
+        'css_class': 'flex flex-1 gap-4', 
+        'fields': [
+          {
+            'field': self.element_type, 
+            'css_class': input_class,
+            'label_class': label_class
+          },
+          {
+            'field': self.is_active, 
+            'css_class': chk_class,
+            'label_class': label_class
+          },
+        ]
+      },
+    ]
+    return fields
 
 
 class FuncsForm(Form):

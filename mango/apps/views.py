@@ -177,11 +177,31 @@ class FieldUpdateView(UpdateView):
   form_class = FieldForm
   model_class = Field
   object_display = lambda self, object: f'{object["name"]}'
+  custom_query = {}
 
-  @update_controller.route.get('/apps/{_id}/fields', response_class=HTMLResponse, name='field-item')
-  async def get(self, request: Request, _id: str, user=Depends(manager)):
+  async def get_queryset(self):
+    query = self.get_query()
+    data = await find_one(query)
+    data = data.get('fields')[0]
+    return data
+
+  def get_query(self):
+    query = Query(
+      database=DATABASE_NAME,
+      collection=self.model_name_plural,
+      query_type=self.query_type,
+      # query={'_id': self._id},
+      query=self.custom_query,
+      projection={'fields': 1}
+    )
+    return query
+
+  @field_update_controller.route.get('/apps/{_id}/fields/{field_name}', response_class=HTMLResponse, name='field-item')
+  async def get(self, request: Request, _id: str, field_name: str, user=Depends(manager)):
+    self.custom_query={'_id': _id, 'fields.name': field_name}
     return await super().get(request=request, _id=_id)
 
-  @update_controller.route.post('/apps/{_id}/fields', response_class=HTMLResponse, name='field-item')
-  async def post(self, request: Request, _id: str, user=Depends(manager)):
+  @field_update_controller.route.post('/apps/{_id}/fields/{field_name}', response_class=HTMLResponse, name='field-item')
+  async def post(self, request: Request, _id: str, field_name: str, user=Depends(manager)):
+    self.custom_query={'_id': _id, 'fields.name': field_name}
     return await super().post(request=request, _id=_id)
