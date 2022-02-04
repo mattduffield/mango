@@ -1,3 +1,4 @@
+from http.client import HTTPException
 from fastapi import Request, Depends
 from fastapi.responses import HTMLResponse
 from typing import (
@@ -177,12 +178,14 @@ class FieldUpdateView(UpdateView):
   form_class = FieldForm
   model_class = Field
   object_display = lambda self, object: f'{object["name"]}'
-  custom_query = {}
+  field_name = ''
 
   async def get_queryset(self):
     query = self.get_query()
     data = await find_one(query)
-    data = data.get('fields')[0]
+    data = next((item for item in data.get('fields') if item['name'] == self.field_name), None)
+    if data is None:
+      raise HTTPException('Field Not Found!')
     return data
 
   def get_query(self):
@@ -190,18 +193,17 @@ class FieldUpdateView(UpdateView):
       database=DATABASE_NAME,
       collection=self.model_name_plural,
       query_type=self.query_type,
-      # query={'_id': self._id},
-      query=self.custom_query,
+      query={'_id': self._id},
       projection={'fields': 1}
     )
     return query
 
   @field_update_controller.route.get('/apps/{_id}/fields/{field_name}', response_class=HTMLResponse, name='field-item')
   async def get(self, request: Request, _id: str, field_name: str, user=Depends(manager)):
-    self.custom_query={'_id': _id, 'fields.name': field_name}
+    self.field_name = field_name
     return await super().get(request=request, _id=_id)
 
   @field_update_controller.route.post('/apps/{_id}/fields/{field_name}', response_class=HTMLResponse, name='field-item')
   async def post(self, request: Request, _id: str, field_name: str, user=Depends(manager)):
-    self.custom_query={'_id': _id, 'fields.name': field_name}
+    self.field_name = field_name
     return await super().post(request=request, _id=_id)

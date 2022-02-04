@@ -44,18 +44,18 @@ from mango.core.widgets import TagsWidget, ToggleRadioWidget
 
 
 class FieldForm(StarletteForm):
-  name: StringField('Name')
-  label: StringField('Label')
-  data_type: StringField('Data Type')
-  default_value: StringField('Default Value')
-  default_value_use_quotes: BooleanField('Default Value Use Quotes')
-  element_type: StringField('Element Type')
-  # element_html: StringField('Element HTML')
-  # choices: List[Dict[str, str]] = []
-  # validators: List[str] = []
-  # element_attributes: dict = {}
-  # fields: Optional[List['Field']]
-  is_active: BooleanField('Is Active')
+  name = StringField('Name')
+  label = StringField('Label')
+  data_type = StringField('Data Type')
+  default_value = StringField('Default Value')
+  default_value_use_quotes = BooleanField('Default Value Use Quotes')
+  element_type = StringField('Element Type')
+  # element_html = StringField('Element HTML')
+  # choices = List[Dict[str, str]] = []
+  # validators = List[str] = []
+  # element_attributes = dict = {}
+  # fields = Optional[List['Field']]
+  is_active = BooleanField('Is Active')
 
   def layout_fields(self):
     fields = [
