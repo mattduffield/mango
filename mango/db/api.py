@@ -12,7 +12,7 @@ DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD')
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
 # from mango.auth.models import AuthHandler, Credentials
-from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
+from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 
 uri = f'mongodb+srv://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_CLUSTER}.mongodb.net/{DATABASE_NAME}?retryWrites=true&w=majority'
 client = MongoClient(uri)
@@ -142,7 +142,31 @@ async def insert_many(payload: InsertMany):
   return data
 
 @router.post('/update')
-async def update_one(payload: Update):
+async def update(payload: Update):
+  database = payload.database
+  if not database:
+    database = DATABASE_NAME
+  db = client[database]
+  expr = payload.buildExpression()
+  entity = db[payload.collection]
+  result = eval(expr)
+  data = json.loads(json_util.dumps({'acknowledged': result.acknowledged, 'matched_count': result.matched_count, 'modified_count': result.modified_count}))
+  return data
+
+@router.post('/updateOne')
+async def update_one(payload: UpdateOne):
+  database = payload.database
+  if not database:
+    database = DATABASE_NAME
+  db = client[database]
+  expr = payload.buildExpression()
+  entity = db[payload.collection]
+  result = eval(expr)
+  data = json.loads(json_util.dumps({'acknowledged': result.acknowledged, 'matched_count': result.matched_count, 'modified_count': result.modified_count}))
+  return data
+
+@router.post('/updateMany')
+async def update_many(payload: UpdateMany):
   database = payload.database
   if not database:
     database = DATABASE_NAME
@@ -155,6 +179,30 @@ async def update_one(payload: Update):
 
 @router.post('/delete')
 async def delete(payload: Delete):
+  database = payload.database
+  if not database:
+    database = DATABASE_NAME
+  db = client[database]
+  expr = payload.buildExpression()
+  entity = db[payload.collection]
+  result = eval(expr)
+  data = json.loads(json_util.dumps({'acknowledged': result.acknowledged, 'deleted_count': result.deleted_count}))
+  return data
+
+@router.post('/deleteOne')
+async def delete_one(payload: DeleteOne):
+  database = payload.database
+  if not database:
+    database = DATABASE_NAME
+  db = client[database]
+  expr = payload.buildExpression()
+  entity = db[payload.collection]
+  result = eval(expr)
+  data = json.loads(json_util.dumps({'acknowledged': result.acknowledged, 'deleted_count': result.deleted_count}))
+  return data
+
+@router.post('/deleteMany')
+async def delete_many(payload: DeleteMany):
   database = payload.database
   if not database:
     database = DATABASE_NAME
