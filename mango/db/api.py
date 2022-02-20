@@ -38,8 +38,9 @@ async def find(query: Query):
   entity = db[query.collection]
   cursor = eval(expr)
   results = list(cursor)
-  data = json.loads(json.dumps(results, default=json_from_mongo))
-  return data
+  return results
+  # data = json.loads(json.dumps(results, default=json_from_mongo))
+  # return data
 
 def find_sync(query: Query):
   database = query.database
@@ -50,8 +51,9 @@ def find_sync(query: Query):
   entity = db[query.collection]
   cursor = eval(expr)
   results = list(cursor)
-  data = json.loads(json.dumps(results, default=json_from_mongo))
-  return data
+  return results
+  # data = json.loads(json.dumps(results, default=json_from_mongo))
+  # return data
 
 def find_one_sync(query: Query):
   database = query.database
@@ -61,8 +63,10 @@ def find_one_sync(query: Query):
   expr = query.buildExpression()
   entity = db[query.collection]
   result = eval(expr)
-  data = json.loads(json.dumps(result, default=json_from_mongo))
+  data = json.loads(json.dumps(result))
   return data
+  # data = json.loads(json.dumps(result, default=json_from_mongo))
+  # return data
 
 def insert_one_sync(payload: InsertOne):
   database = payload.database
@@ -85,8 +89,10 @@ async def find_one(query: QueryOne):
   expr = query.buildExpression()
   entity = db[query.collection]
   result = eval(expr)
-  data = json.loads(json.dumps(result, default=json_from_mongo))
-  return data
+  return result
+  # NOTE: We are using this API to work only server-side with Jinja2
+  # data = json.loads(json.dumps(result, default=json_from_mongo))
+  # return data
 
 @router.post('/count')
 async def count(query: Count):
@@ -97,8 +103,8 @@ async def count(query: Count):
   expr = query.buildExpression()
   entity = db[query.collection]
   result = eval(expr)
-  data = json.loads(json.dumps(result, default=json_from_mongo))
-
+  data = json.loads(json.dumps(result))
+  # data = json.loads(json.dumps(result, default=json_from_mongo))
   return {'count': data}
 
 @router.post('/bulkRead')
@@ -113,8 +119,11 @@ async def bulk_read(batch: List[Union[Query, QueryOne]]):
     entity = db[query.collection]
     cursor = eval(expr)
     results = list(cursor)
-    data = json.loads(json.dumps(results, default=json_from_mongo))
-    payload.append(data)
+    payload.append(results)
+    return results
+    # NOTE: We are using this API to work only server-side with Jinja2
+    # data = json.loads(json.dumps(results, default=json_from_mongo))
+    # payload.append(data)
   return payload
 
 @router.post('/insertOne')
@@ -234,5 +243,7 @@ async def run_pipeline(ap: AggregatePipeline):
   db = client[database]
   command = {"aggregate": ap.aggregate, "pipeline": ap.pipeline, "cursor": ap.cursor}
   result = db.command(command)  
-  data = json.loads(json_util.dumps(result), object_hook=json_from_mongo)
-  return data
+  return result
+  # NOTE: We are using this API to work only server-side with Jinja2
+  # data = json.loads(json_util.dumps(result), object_hook=json_from_mongo)
+  # return data
