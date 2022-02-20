@@ -165,6 +165,32 @@ class InsertMany(BaseMongo):
     return None
 
 @as_form
+class UpdateOne(BaseMongo):
+  update_type: Literal['update_one', 'update_many'] = 'update_one'
+  query: Optional[dict]
+  data: dict
+  def buildExpression(self):
+    if self.query:
+      self.query = json_to_mongo(self.query)
+    if self.data:
+      expr = f'entity.{self.update_type}({self.query}, {self.data})'
+      return expr
+    return None
+
+@as_form
+class UpdateMany(BaseMongo):
+  update_type: Literal['update_one', 'update_many'] = 'update_many'
+  query: Optional[dict]
+  data: dict
+  def buildExpression(self):
+    if self.query:
+      self.query = json_to_mongo(self.query)
+    if self.data:
+      expr = f'entity.{self.update_type}({self.query}, {self.data})'
+      return expr
+    return None
+
+@as_form
 class Update(BaseMongo):
   update_type: Literal['update_one', 'update_many'] = 'update_one'
   query: Optional[dict]
@@ -180,6 +206,28 @@ class Update(BaseMongo):
 @as_form
 class Delete(BaseMongo):
   delete_type: Literal['delete_one', 'delete_many'] = 'delete_one'
+  query: Optional[dict]
+  def buildExpression(self):
+    if self.query:
+      self.query = json_to_mongo(self.query)
+      expr = f'entity.{self.delete_type}({self.query})'
+      return expr
+    return None
+
+@as_form
+class DeleteOne(BaseMongo):
+  delete_type: Literal['delete_one', 'delete_many'] = 'delete_one'
+  query: Optional[dict]
+  def buildExpression(self):
+    if self.query:
+      self.query = json_to_mongo(self.query)
+      expr = f'entity.{self.delete_type}({self.query})'
+      return expr
+    return None
+
+@as_form
+class DeleteMany(BaseMongo):
+  delete_type: Literal['delete_one', 'delete_many'] = 'delete_many'
   query: Optional[dict]
   def buildExpression(self):
     if self.query:
