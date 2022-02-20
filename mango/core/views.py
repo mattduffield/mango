@@ -12,11 +12,22 @@ from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 from mango.auth.models import Credentials
 from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, ModelFieldAttribute, ModelFieldChoice, ModelFieldValidator, PageLayout, Tab, App
 from mango.core.forms import ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, ModelFieldAttributeForm, ModelFieldChoiceForm, ModelFieldValidatorForm, PageLayoutForm, TabForm, AppForm
-from mango.core.views import get_controller, get_router
 from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 from mango.db.api import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
 import settings
 from settings import templates, DATABASE_NAME
+
+
+def get_router(prefix: str = '', tags: List[str] = ['Views']):
+  return APIRouter(
+   prefix = prefix,
+    tags = tags
+  )
+
+def get_controller(prefix: str = '', tags: List[str] = ['Views']):
+  router = get_router(prefix=prefix, tags=tags)
+  controller = Controller(router)
+  return controller
 
 
 class BaseView():
