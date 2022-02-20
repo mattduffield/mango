@@ -12,7 +12,7 @@ from jinja2_simple_tags import StandaloneTag
 from wtforms import fields
 from mango.db.api import find_sync, find_one_sync
 from mango.db.models import Query, QueryOne
-from core.fields import QuerySelectField, QuerySelectMultipleField
+from mango.core.fields import QuerySelectField, QuerySelectMultipleField
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
