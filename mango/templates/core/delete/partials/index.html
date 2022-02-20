@@ -1,0 +1,58 @@
+{% set parent_url = "__"+view.model_name+"__"+data["_id"] %}
+{% if is_modal %}
+  {% set post_url = "/"+view.model_name+"/"+data["_id"]+"/delete?redirect_url="+redirect_url %}
+{% else %}
+  {% set post_url = "/"+view.model_name+"/"+data["_id"]+"/delete" %}
+{% endif %}
+
+<div class="intro-y p-6 mx-auto max-w-2xl">
+  <h3 class="intro-x text-xl mt-5 text-center">
+    Are you sure you want to delete this ({{ data_string }}) {{ view.model_name|to_proper_case }}?
+  </h3>
+  <div class="w-full">
+    <form id="{{ view.model_name }}FormDelete" method="POST"
+      hx-enctype="text/x-www-form-urlencoded"
+      hx-post="{{ post_url }}" 
+      hx-target="#viewport"
+      hx-swap="innerHTML"
+      hx-push-url="true"
+      hx-indicator="#content-loader"
+      >
+      {% if is_modal %}
+        <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+          <button class="mt-3 w-full inline-flex justify-center rounded-md shadow-sm px-4 py-2 intro-x bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:col-start-1 sm:text-sm"
+            type="button" 
+            _="on click add .hidden to #modal">
+            Cancel
+          </button>
+          <button class="w-full inline-flex justify-center rounded-md shadow-sm px-4 py-2 intro-x bg-red-500 hover:bg-red-600 text-base font-medium text-white sm:col-start-2 sm:text-sm"
+            type="submit"
+            form="{{ view.model_name }}FormDelete"
+            _="on click add .hidden to #modal">
+            Delete
+          </button>
+        </div>
+      {% else %}
+        <div class="flex justify-end mt-3 gap-3">
+          <a class="cursor-pointer intro-x px-3 py-2 cursor-pointer"
+            hx-get="{{ view.list_url }}" 
+            hx-target="#viewport"
+            hx-swap="innerHTML"
+            hx-push-url="true"
+            hx-indicator="#content-loader">
+            Cancel
+          </a>
+          <button class="intro-x text-white bg-red-500 hover:bt-red-600 px-3 py-2 rounded-md"
+            type="submit"
+            form="{{ view.model_name }}FormDelete">
+            Delete
+          </button>
+        </div>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+{% if request.state.htmx and not is_modal %}
+  {% include 'core/item_breadcrumbs.html' %}
+{% endif %}

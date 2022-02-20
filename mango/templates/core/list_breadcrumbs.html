@@ -1,0 +1,24 @@
+<div id="breadcrumbs"
+  class="-intro-x breadcrumb mr-auto hidden sm:flex"
+  hx-swap-oob="true"
+  _="on click
+    set targetId to the @data-target of the event's target
+    take .{'side-menu--active'}
+      from <a/> in #side-menu
+      for #{targetId}"
+  >
+  <a hx-get="/"
+    hx-target="#viewport"
+    hx-swap="innerHTML"
+    hx-push-url="true"
+    hx-indicator="#content-loader"
+    data-target="dashboard"
+    class="cursor-pointer"
+  >
+    Application
+  </a>
+  <svg id="chevron-right" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+  </svg>
+  <span class="breadcrumb--active">{{ view.model_name|to_proper_case }}</span>
+</div>

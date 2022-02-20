@@ -13,14 +13,6 @@ from wtforms import (
   Form,
 )
 from wtforms.validators	import DataRequired, Email, EqualTo, NoneOf, ValidationError
-from mango.core.forms import (
-  label_class, 
-  chk_class, 
-  input_class, 
-  select_class, 
-  textarea_class, 
-  QuerySelectField
-)
 from mango.db.api import find_one_sync
 from mango.db.models import QueryOne
 

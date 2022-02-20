@@ -1,42 +1,22 @@
+import datetime
+from dateutil import parser
 import json
 from bson import json_util, ObjectId
 from fastapi import APIRouter, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
-from typing import (
-    Deque, Dict, FrozenSet, List, Optional, Sequence, Set, Tuple, Union
-)
+from fastapi_router_controller import Controller
+from starlette_wtf import StarletteForm
+from starlette.datastructures import MultiDict
+from wtforms import Form
+from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 from mango.auth.models import Credentials
-from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
-from mango.db.api import find, find_one, run_pipeline, delete, update_one, insert_one
+from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, ModelFieldAttribute, ModelFieldChoice, ModelFieldValidator, PageLayout, Tab, App
+from mango.core.forms import ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, ModelFieldAttributeForm, ModelFieldChoiceForm, ModelFieldValidatorForm, PageLayoutForm, TabForm, AppForm
+from mango.core.views import get_controller, get_router
+from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
+from mango.db.api import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
 import settings
 from settings import templates, DATABASE_NAME
-
-from fastapi_router_controller import Controller
-
-
-
-def get_router(prefix: str = '', tags: List[str] = ['Views']):
-  return APIRouter(
-   prefix = prefix,
-    tags = tags
-  )
-
-def get_controller(prefix: str = '', tags: List[str] = ['Views']):
-  router = get_router(prefix=prefix, tags=tags)
-  controller = Controller(router)
-  return controller
-
-
-class StaticView():
-  async def get(self, request: Request):
-    self.request = request
-    context = {'request': request, 'settings': settings}
-    template_name = self.get_template_name()
-    response = templates.TemplateResponse(template_name, context)
-    return response
-
-  def get_template_name(self):
-    pass
 
 
 class BaseView():
@@ -45,517 +25,652 @@ class BaseView():
     information required for loading data for create, update, or delete.
   '''
   template_name = ''
+  model_class = None
   model_name = ''
-  model_name_plural = ''
-  object_display = lambda self, object: f''
-  list_url = ''
+  form_class = None
+  create_route_name = ''
+  update_route_name = ''
+  delete_route_name = ''
+  list_route_name = ''
   create_url = ''
-  delete_url = lambda self, object: f''
+  update_url = ''
+  delete_url = ''
+  list_url = ''
+  redirect_url = ''
   query_type = ''
 
   def __init__(self):
-    if not self.template_name:
-      raise Exception('Missing attribute template_name!')
-    if bool(hasattr(self, 'model_name') and self.model_name and hasattr(self, 'model_name_plural') and self.model_name_plural):
-      pass
-    else:
-      if not hasattr(self, 'model_class'):
-        raise Exception('Missing attribute model_class!')
-      if not hasattr(self.model_class, 'Meta'):
-        raise Exception(f'Missing attribute Meta on {self.model_class} class!')
-      if not hasattr(self.model_class.Meta, 'model_name'):
-        raise Exception(f'Missing attribute model_name on Meta on {self.model_class} class!')
-      if not hasattr(self.model_class.Meta, 'model_name_plural'):
-        raise Exception(f'Missing attribute model_name_plural on Meta on {self.model_class} class!')
-      self.model_name = self.model_class.Meta.model_name
-      self.model_name_plural = self.model_class.Meta.model_name_plural
-    self.list_url = f'{self.model_name}-list'
-    self.create_url = f'{self.model_name}-create'
+    # if not self.template_name:
+    #   raise Exception('Missing attribute template_name!')
+    if not self.model_class:
+      raise Exception('Missing attribute model_class!')
 
-  async def get(self, request: Request, _id: str = ''):
+    self.model_name = self.model_class.Meta.name
+    self.initialize_route_names()
+    
+  def initialize_route_names(self):
+    if not self.create_route_name:
+      self.create_route_name = f'{self.model_name}-create'
+    if not self.update_route_name:
+      self.update_route_name = f'{self.model_name}-update'
+    if not self.delete_route_name:
+      self.delete_route_name = f'{self.model_name}-delete'
+    if not self.list_route_name:
+      self.list_route_name = f'{self.model_name}-list'
+
+  def initialize_route_urls(self, _id: str = ''):
+    if not self.create_url:
+      self.create_url = f'/{self.model_name}/create'
+    if not self.update_url and _id:
+      self.update_url = f'/{self.model_name}/{_id}'
+    if not self.delete_url and _id:
+      self.delete_url = f'/{self.model_name}/{_id}/delete'
+    if not self.list_url:
+      self.list_url = f'/{self.model_name}'
+
+  async def get(self, request: Request, get_type: str, _id: str = '', is_modal: bool = False):
     self.request = request
     self._id = _id
-    context = await self.get_context_data(request, _id)
-    template_name = self.get_template_name()
+    self.initialize_route_urls(_id)
+    context = await self.get_context_data(request, get_type=get_type, _id=_id)
+    context['is_modal'] = is_modal
+    if self.redirect_url:
+      context['redirect_url'] = self.redirect_url
+    
+    template_name = self.get_template_name(get_type)
     response = templates.TemplateResponse(template_name, context)
     return response
 
-  async def post(self, request: Request, _id: str = ''):
-    pass
-
-  def get_template_name(self):
-    pass
-
-  # def set_form(self, form, data):
-  #   if data and form:
-  #     for prop in data:
-  #       if hasattr(form, prop):
-  #         if form[prop].type == 'FormField':
-  #           for sub_prop in data[prop]:
-  #             form[prop].form[sub_prop].data = data[prop][sub_prop]
-  #         else:
-  #           form[prop].data = data[prop]
-  #   return form
-
-  async def get_context_data(self, request, _id: str = ''):
-    context = {'request': request, 'settings': settings, 'MODEL_NAME_PLURAL': self.model_name_plural, 'MODEL_NAME': self.model_name, 'OBJECT_DISPLAY': self.object_display, 'list_url': self.list_url, 'create_url': self.create_url, 'delete_url': self.delete_url}
+  async def get_context_data(self, request: Request, get_type: str, _id: str = ''):
     form = None
-    if hasattr(self, 'form_class') and self.form_class:
-      form = await self.form_class.from_formdata(request)
-      context['form'] = form
-    if _id:
-      data = await self.get_queryset()
-      if data and form:
-        for prop in data:
-          if hasattr(form, prop):
-            if form[prop].type == 'FormField':
-              for sub_prop in data[prop]:
-                if isinstance(form[prop].form[sub_prop].data, List):
-                  for d in data[prop][sub_prop]:
-                    form[prop].form[sub_prop].data.append(d)
-                else:
-                  setattr(form[prop].form[sub_prop], 'data', data[prop][sub_prop])
-                  # form[prop].form[sub_prop].data = data[prop][sub_prop]
-            elif form[prop].type == 'FieldList':
-              form[prop].entries = data[prop]
-            else:
-              form[prop].data = data[prop]
-      context['object'] = data
-      context['_id'] = _id
+
+    if hasattr(self, 'form_class'):
+      if request.method == 'GET':
+        if issubclass(self.form_class, StarletteForm):
+          form = self.form_class(request)
+          pass
+        elif issubclass(self.form_class, Form):
+          form = self.form_class()
+      elif request.method == 'POST':
+        form = await self.form_class.from_formdata(request)
+
+    data_string = ''
+
+    if get_type in ['get_create']:
+      data = self.model_class.new_dict()
     else:
-      context['object'] = {}
+      data = await self.get_data(get_type)
+
+    if get_type in ['get_update', 'get_delete']:
+      model_data = self.model_class(**data)
+      data_string = str(model_data)
+
+    if _id or get_type in ['get_create']:
+      if  hasattr(self, 'form_class'):
+        if issubclass(self.form_class, StarletteForm):
+          form = self.form_class(request, data=data)
+          pass
+        elif issubclass(self.form_class, Form):
+          form = self.form_class(data=data)
+
+    context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form}
     return context
 
-  async def get_queryset(self):
-    query = self.get_query()
-    data = await find_one(query)
+  async def get_data(self, get_type: str):
+    data = None
+    if get_type in ['get_create']:
+      pass
+    elif get_type in ['get_update', 'get_delete']:
+      query = self.get_query('find_one', {'_id': self._id})
+      data = await find_one(query)
+    elif get_type in ['get_list']:
+      query = self.get_query('find')
+      data = await find(query)
     return data
 
-  def get_query(self):
-    query = Query(
-      database=DATABASE_NAME,
-      collection=self.model_name_plural,
-      query_type=self.query_type,
-      query={'_id': self._id}
-    )
+  def get_query(self, query_type: str, query: dict = {}, data: dict = None):
+    if query_type == 'find_one':
+      query = QueryOne(
+        database=DATABASE_NAME,
+        collection=self.model_name,
+        query=query  # {'_id': self._id}
+      )
+    elif query_type == 'find':
+      query = Query(
+        database=DATABASE_NAME,
+        collection=self.model_name,
+        query=query  # {'_id': self._id}
+      )
+
     return query
 
-  async def get_lookups(self, collection, query_type = 'find', query = {}, projection = {'name': 1, 'value': 1, '_id': 0}):
-    query = Query(
-      database=DATABASE_NAME,
-      collection=collection,
-      query_type=query_type,
-      query=query,
-      projection=projection
-    )
-    lookups = await find(query)
-    return lookups
+  async def post(self, request: Request, post_type: str, _id: str = '', is_modal: bool = False):
+    self.request = request
+    self._id = _id
+    self.initialize_route_urls(_id)
+    temp = await request.form()
+    self.form = await self.form_class.from_formdata(request)
 
+    if post_type in ['post_update', 'post_delete']:
+      data = await self.get_data('get_update')
+      model_data = self.model_class(**data)
+      data_string = str(model_data)
 
-class View():
-  template_name = ''
-  model_name = ''
-  model_name_plural = ''
-  object_display = lambda self, object: f''
-  list_url = ''
-  create_url = ''
-  delete_url = lambda self, object: f''
-  query_type = ''
-
-  def __init__(self):
-    self.list_url = f'{self.model_name}-list'
-    self.create_url = f'{self.model_name}-create'
-
-  async def get(self, request: Request, _id: str = ''):
-    context = await self.get_context_data(request, _id)
-    template_name = self.get_template_name()
-    response = templates.TemplateResponse(template_name, context)
+    if post_type == 'post_create':
+      if await self.form.validate_on_submit():
+        payload = self.post_query(post_type)
+        response = await self.post_data(post_type, payload=payload)
+      else:
+        context = {'request': request, 'settings': settings, 'view': self, 'data': {}, 'form': self.form}
+        template_name = self.get_template_name(post_type)
+        response = templates.TemplateResponse(template_name, context)
+    elif post_type == 'post_update':
+      if await self.form.validate_on_submit():
+        payload = self.post_query(post_type, query={'_id': self._id})
+        response = await self.post_data(post_type, payload=payload)
+      else:
+        context = {'request': request, 'settings': settings, 'view': self, 'data': {'_id': _id}, 'data_string': data_string, 'form': self.form}
+        template_name = self.get_template_name(post_type)
+        response = templates.TemplateResponse(template_name, context)
+    elif post_type == 'post_delete':
+      payload = self.post_query(post_type, query={'_id': self._id})
+      response = await self.post_data(post_type, payload=payload)
     return response
 
-  def get_template_name(self):
-    pass
+  def post_query(self, post_type: str, query: dict = {}):
+    for field in self.form:
+      if isinstance(field.data, datetime.date):
+        min_time = datetime.datetime.min.time()
+        field.data = datetime.datetime.combine(field.data, min_time)
 
-  async def get_context_data(self, request, _id: str = ''):
-    context = {'request': request, 'settings': settings, 'MODEL_NAME_PLURAL': self.model_name_plural, 'MODEL_NAME': self.model_name, 'OBJECT_DISPLAY': self.object_display, 'list_url': self.list_url, 'create_url': self.create_url, 'delete_url': self.delete_url}
-    if self.form_class:
-      form = await self.form_class.from_formdata(request)
-      context['form'] = form
-    if _id:
-      query = self.get_query(_id)
-      data = await find_one(query)
-      if data and form:
-        for prop in data:
-          if hasattr(form, prop):
-            form[prop].data = data[prop]
-      context['object'] = data
-      context['_id'] = _id
-    return context
-
-  def get_query(self, _id: str):
-    query = Query(
-      database=DATABASE_NAME,
-      collection=self.model_name_plural,
-      query_type=self.query_type,
-      query={'_id': _id}
-    )
-    return query
-
-  async def get_lookups(self, collection, query_type = 'find', query = {}, projection = {'name': 1, 'value': 1, '_id': 0}):
-    query = Query(
-      database=DATABASE_NAME,
-      collection=collection,
-      query_type=query_type,
-      query=query,
-      projection=projection
-    )
-    lookups = await find(query)
-    return lookups
-
-
-class CreateView(BaseView):
-  template_name = 'crud/item/create.html'
-  query_type = 'find'
-  insert_type = 'insert_one'
-
-  def __init__(self):
-    super().__init__()
-
-  def get_template_name(self):
-    if self.request.state.htmx:
-      return 'crud/item/partials/create.html'
-    else:
-      return 'crud/item/create.html'
-
-  async def get(self, request: Request):
-    return await super().get(request=request)
-
-  async def post(self, request: Request):
-    self.request = request
-    form = await self.form_class.from_formdata(request)
-
-    if await form.validate_on_submit():
+    if post_type == 'post_create':
       payload = InsertOne(
         database=DATABASE_NAME,
-        collection=self.model_name_plural,
-        insert_type=self.insert_type,
-        data=form.data,
+        collection=self.model_name,
+        data=self.form.data,
       )
-      await insert_one(payload)
-      response = RedirectResponse(url=request.url_for(self.list_url), status_code=status.HTTP_302_FOUND)
-    else:
-      context = {'request': request, 'MODEL_NAME_PLURAL': self.model_name_plural, 'MODEL_NAME': self.model_name, 'OBJECT_DISPLAY': self.object_display, 'list_url': self.list_url, 'create_url': self.create_url, 'delete_url': self.delete_url}
-      context['form'] = form
-      context['object'] = {}
-      template_name = self.get_template_name()
-      response = templates.TemplateResponse(template_name, context)
-
-    return response
-
-
-class UpdateView(BaseView):
-  template_name = 'crud/item/update.html'
-  query_type = 'find_one'
-  update_type = 'update_one'
-
-  def __init__(self):
-    super().__init__()
-
-  def get_template_name(self):
-    if self.request.state.htmx:
-      return 'crud/item/partials/update.html'
-    else:
-      return 'crud/item/update.html'
-
-  async def get(self, request: Request, _id: str):
-    return await super().get(request=request, _id=_id)
-
-  async def post(self, request: Request, _id: str):
-    self.request = request
-    self._id = _id
-    form = await self.form_class.from_formdata(request)
-
-    if not self._id:
-      raise Exception('Missing attribute!')
-
-    if await form.validate_on_submit():
-      payload = Update(
+    elif post_type == 'post_update':
+      payload = UpdateOne(
         database=DATABASE_NAME,
-        collection=self.model_name_plural,
-        update_type=self.update_type,
-        query={'_id': self._id},
-        data={'$set': form.data},
+        collection=self.model_name,
+        query=query,
+        data={'$set': self.form.data},
       )
+    elif post_type == 'post_delete':
+      payload = DeleteOne(
+        database=DATABASE_NAME,
+        collection=self.model_name,
+        query=query,
+      )
+
+    return payload
+
+  async def post_data(self, post_type: str, payload):
+    if post_type == 'post_create':
+      await insert_one(payload)
+    elif post_type == 'post_update':
       await update_one(payload)
-      response = RedirectResponse(url=request.url_for(self.list_url), status_code=status.HTTP_302_FOUND)
+    elif post_type == 'post_delete':
+      await delete_one(payload)
+
+    if self.redirect_url:
+      response = RedirectResponse(url=self.redirect_url, status_code=status.HTTP_302_FOUND)
     else:
-      context = {'request': request, 'MODEL_NAME_PLURAL': self.model_name_plural, 'MODEL_NAME': self.model_name, 'OBJECT_DISPLAY': self.object_display, 'list_url': self.list_url, 'create_url': self.create_url, 'delete_url': self.delete_url}
-      context['form'] = form
-      context['object'] = {'_id': _id, 'name': form.name.data}
-      template_name = self.get_template_name()
-      response = templates.TemplateResponse(template_name, context)
+      response = RedirectResponse(url=self.list_url, status_code=status.HTTP_302_FOUND)
 
     return response
 
+  def get_template_name(self, http_type: str):
+    template_type = ''
+    if http_type in ['get_list']:
+      template_type = 'list'
+    elif http_type in ['get_create', 'post_create']:
+      template_type = 'create'
+    elif http_type in ['get_update', 'post_update']:
+      template_type = 'update'
+    elif http_type in ['get_delete', 'post_delete']:
+      template_type = 'delete'
 
-class DeleteView(BaseView):
-  template_name = 'crud/item/delete.html'
-  query_type = 'find_one'
-  delete_url = lambda self, model_name_plural, _id: f'/{model_name_plural}/{_id}/delete'
-  delete_type = 'delete_one'
+    if self.request.state.htmx:
+      return f'core/{template_type}/partials/index.html'
+    else:
+      return f'core/{template_type}/index.html'
+
+  async def get_list(self, request: Request, is_modal: bool=False):
+    pass
+
+  async def get_create(self, request: Request, is_modal: bool=False):
+    pass
+
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    pass
+
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    pass
+
+  async def post_create(self, request: Request, is_modal: bool=False):
+    pass
+
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    pass
+
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    pass
+
+
+action_controller = get_controller(tags=['Action Views'])
+@action_controller.resource()
+class ActionView(BaseView):
+  model_class = Action
+  form_class = ActionForm
 
   def __init__(self):
     super().__init__()
 
-  def get_template_name(self):
-    if self.request.state.htmx:
-      return 'crud/item/partials/delete.html'
-    else:
-      return 'crud/item/delete.html'
+  @action_controller.route.get('/action', response_class=HTMLResponse, name='action-list')
+  async def get_list(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
 
-  async def get(self, request: Request, _id: str):
-    return await super().get(request=request, _id=_id)
+  @action_controller.route.get('/action/create', response_class=HTMLResponse, name='action-create')
+  async def get_create(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
 
-  async def post(self, request: Request, _id: str = ''):
-    self.request = request
-    self._id = _id
+  @action_controller.route.post('/action/create', response_class=HTMLResponse, name='action-create')
+  async def post_create(self, request: Request, is_modal: bool=False):
+    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
 
-    if not self._id:
-      raise Exception('Missing attribute!')
+  @action_controller.route.get('/action/{_id}', response_class=HTMLResponse, name='action-update')
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
 
-    payload = Delete(
-      database=DATABASE_NAME,
-      collection=self.model_name_plural,
-      delete_type=self.delete_type,
-      query={'_id': self._id},
-    )
-    await delete(payload)
-    response = RedirectResponse(url=request.url_for(self.list_url), status_code=status.HTTP_302_FOUND)
-    return response
+  @action_controller.route.post('/action/{_id}', response_class=HTMLResponse, name='action-update')
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
+
+  @action_controller.route.get('/action/{_id}/delete', response_class=HTMLResponse, name='action-delete')
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
+
+  @action_controller.route.post('/action/{_id}/delete', response_class=HTMLResponse, name='action-delete')
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
-class ListView():
-  '''
-    This class is optimized to work with Atlas Search. It depends on a model class and 
-    its meta class to provide all the necessary information required for loading data.
-  '''
-  template_name = 'crud/list/list.html'
-  model_name = ''
-  model_name_plural = ''
-  object_display = lambda self, object: f''
-  list_url = ''
-  create_url = ''
-  delete_url = lambda self, object: f''
-  query_type = 'find'
+role_controller = get_controller(tags=['Role Views'])
+@role_controller.resource()
+class RoleView(BaseView):
+  model_class = Role
+  form_class = RoleForm
 
   def __init__(self):
-    if bool(hasattr(self, 'model_name') and self.model_name and hasattr(self, 'model_name_plural') and self.model_name_plural):
-      pass
-    else:
-      if not hasattr(self, 'model_class'):
-        raise Exception('Missing attribute model_class!')
-      if not hasattr(self.model_class, 'Meta'):
-        raise Exception(f'Missing attribute Meta on {self.model_class} class!')
-      if not hasattr(self.model_class.Meta, 'model_name'):
-        raise Exception(f'Missing attribute model_name on Meta on {self.model_class} class!')
-      if not hasattr(self.model_class.Meta, 'model_name_plural'):
-        raise Exception(f'Missing attribute model_name_plural on Meta on {self.model_class} class!')
-      # if not hasattr(self.model_class.Meta, 'search_by'):
-      #   raise Exception(f'Missing attribute search_by on Meta on {self.model_class} class!')
-      if not hasattr(self.model_class.Meta, 'search_index_name'):
-        raise Exception(f'Missing attribute search_index_name on Meta on {self.model_class} class!')
-      if not hasattr(self.model_class.Meta, 'search_fields'):
-        raise Exception(f'Missing attribute search_fields on Meta on {self.model_class} class!')
-      if len(self.model_class.Meta.search_fields) == 0:
-        raise Exception(f'Please provide at least one search_field entry on Meta on {self.model_class} class!')
-      self.model_name = self.model_class.Meta.model_name
-      self.model_name_plural = self.model_class.Meta.model_name_plural
-      # self.search_by = self.model_class.Meta.search_by
-    self.list_url = f'{self.model_name}-list'
-    self.create_url = f'{self.model_name}-create'
+    super().__init__()
 
-  async def get(self, request: Request, search: Optional[str] = ''):
-    self.request = request
-    self.search = search
-    context = await self.get_context_data(request, search)
-    self.get_table_definition(context)
-    template_name = self.get_template_name()
-    response = templates.TemplateResponse(template_name, context)
-    return response
+  @role_controller.route.get('/role', response_class=HTMLResponse, name='role-list')
+  async def get_list(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
 
-  def get_template_name(self):
-    if self.request.state.htmx:
-      return 'crud/list/partials/list.html'
-    else:
-      return 'crud/list/list.html'
+  @role_controller.route.get('/role/create', response_class=HTMLResponse, name='role-create')
+  async def get_create(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
 
-  def get_table_definition(self, context):
-    pass
+  @role_controller.route.post('/role/create', response_class=HTMLResponse, name='role-create')
+  async def post_create(self, request: Request, is_modal: bool=False):
+    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
 
-  async def get_context_data(self, request, search: Optional[str] = ''):
-    context = {'request': request, 'settings': settings, 'MODEL_NAME_PLURAL': self.model_name_plural, 'MODEL_NAME': self.model_name, 'OBJECT_DISPLAY': self.object_display, 'list_url': self.list_url, 'create_url': self.create_url, 'delete_url': self.delete_url}
-    context['search'] = search
-    context['object_list'] = await self.get_queryset()
-    return context
+  @role_controller.route.get('/role/{_id}', response_class=HTMLResponse, name='role-update')
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
 
-  async def get_queryset(self):
-    query = self.get_query()
-    page_size = self.model_class.Meta.page_size
-    # keys = [x for x in self.model_class.schema().get('properties').keys()]
-    # projection = {keys[i]: 1 for i in range(0, len(keys), 1)}
-    # query.projection = projection
+  @role_controller.route.post('/role/{_id}', response_class=HTMLResponse, name='role-update')
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
 
-    if self.search:
-      pipeline = self.get_pipeline()
-      batch = await run_pipeline(pipeline)
-      data = batch['cursor']['firstBatch']
-    else:
-      query = self.get_query()
-      query.limit = page_size
-      data = await find(query)
+  @role_controller.route.get('/role/{_id}/delete', response_class=HTMLResponse, name='role-delete')
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
-    return data
-
-  def get_query(self):
-    query = Query(
-      database=DATABASE_NAME,
-      collection=self.model_name_plural,
-      query_type=self.query_type
-    )
-    return query
-
-  def get_pipeline(self):
-    search_index_name = self.model_class.Meta.search_index_name
-    page_size = self.model_class.Meta.page_size
-    keys = [x for x in self.model_class.Meta.search_fields]
-    projection = {keys[i]: 1 for i in range(0, len(keys), 1)}
-    project = {
-      "_id": {
-        "$toString": "$_id"
-      }
-    }
-    project = project | projection
-    pipeline = AggregatePipeline(
-      database=DATABASE_NAME,
-      aggregate=self.model_name_plural,
-      pipeline=[
-        {
-          "$search": {
-            "index": search_index_name,
-            "text": {
-              "query": self.search,
-              "path": {
-                "wildcard": "*"
-              },
-              "fuzzy": {}
-            }
-          }
-        },
-        {
-          "$project": project
-        },
-        {
-          "$limit": page_size
-        }
-      ],
-      cursor={}
-    )
-    return pipeline
+  @role_controller.route.post('/role/{_id}/delete', response_class=HTMLResponse, name='role-delete')
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
-class GenericListView():
-  template_name = 'crud/list/list.html'
-  model_name = ''
-  model_name_plural = ''
-  object_display = lambda self, object: f''
-  list_url = ''
-  create_url = ''
-  delete_url = lambda self, object: f''
-  query_type = 'find'
-  search_by = ''
-  page_size = 15
-  search_fields = []
+model_controller = get_controller(tags=['Model Views'])
+@model_controller.resource()
+class ModelView(BaseView):
+  model_class = Model
+  form_class = ModelForm
 
   def __init__(self):
-    if not self.model_name:
-      raise Exception(f'Missing attribute model_name!')
-    if not self.model_name_plural:
-      raise Exception(f'Missing attribute model_name_plural!')
-    if not self.search_fields:
-      raise Exception(f'Missing attribute search_fields!')
-    if len(self.search_fields) == 0:
-      raise Exception(f'Please provide at least one search_field entry!')
-    self.list_url = f'{self.model_name}-list'
-    self.create_url = f'{self.model_name}-create'
+    super().__init__()
 
-  async def get(self, request: Request, search: Optional[str] = ''):
-    self.request = request
-    self.search = search
-    context = await self.get_context_data(request, search)
-    self.get_table_definition(context)
-    template_name = self.get_template_name()
-    response = templates.TemplateResponse(template_name, context)
-    return response
+  @model_controller.route.get('/model', response_class=HTMLResponse, name='model-list')
+  async def get_list(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
 
-  def get_template_name(self):
-    if self.request.state.htmx:
-      return 'crud/list/partials/list.html'
-    else:
-      return 'crud/list/list.html'
+  @model_controller.route.get('/model/create', response_class=HTMLResponse, name='model-create')
+  async def get_create(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
 
-  def get_table_definition(self, context):
-    pass
+  @model_controller.route.post('/model/create', response_class=HTMLResponse, name='model-create')
+  async def post_create(self, request: Request, is_modal: bool=False):
+    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
 
-  async def get_context_data(self, request, search: Optional[str] = ''):
-    context = {'request': request, 'settings': settings, 'MODEL_NAME_PLURAL': self.model_name_plural, 'MODEL_NAME': self.model_name, 'OBJECT_DISPLAY': self.object_display, 'list_url': self.list_url, 'create_url': self.create_url, 'delete_url': self.delete_url}
-    context['search'] = search
-    context['object_list'] = await self.get_queryset()
-    return context
+  @model_controller.route.get('/model/{_id}', response_class=HTMLResponse, name='model-update')
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
 
-  async def get_queryset(self):
-    query = self.get_query()
+  @model_controller.route.post('/model/{_id}', response_class=HTMLResponse, name='model-update')
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
 
-    pipeline = self.get_pipeline()
-    batch = await run_pipeline(pipeline)
-    data = batch['cursor']['firstBatch']
+  @model_controller.route.get('/model/{_id}/delete', response_class=HTMLResponse, name='model-delete')
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
-    return data
+  @model_controller.route.post('/model/{_id}/delete', response_class=HTMLResponse, name='model-delete')
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
-  def get_query(self):
-    query = Query(
-      database=DATABASE_NAME,
-      collection=self.model_name_plural,
-      query_type=self.query_type
-    )
-    return query
 
-  def get_pipeline(self):
-    page_size = self.page_size
-    keys = [x for x in self.search_fields]
-    projection = {keys[i]: 1 for i in range(0, len(keys), 1)}
-    project = {
-      "_id": {
-        "$toString": "$_id"
-      }
-    }
-    project = project | projection
-    pipeline = AggregatePipeline(
-      database=DATABASE_NAME,
-      aggregate=self.model_name_plural,
-      # This pipeline is less efficient when dealing with large datasets.
-      # Use Atlas Search instead for more efficient searches.
-      pipeline=[
-        {
-          "$match": {
-            self.search_by: {"$regex" : self.search , "$options" : "i"}
-          },
-        },
-        {
-          "$project": project
-        },
-        {
-          "$limit": page_size
-        }
-      ],
-      cursor={}
-    )
-    return pipeline
+model_record_type_controller = get_controller(tags=['Model Record Type Views'])
+@model_record_type_controller.resource()
+class ModelRecordTypeView(BaseView):
+  model_class = ModelRecordType
+  form_class = ModelRecordTypeForm
+
+  def __init__(self):
+    super().__init__()
+
+  @model_record_type_controller.route.get('/model_record_type', response_class=HTMLResponse, name='model_record_type-list')
+  async def get_list(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+
+  @model_record_type_controller.route.get('/model_record_type/create', response_class=HTMLResponse, name='model_record_type-create')
+  async def get_create(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
+
+  @model_record_type_controller.route.post('/model_record_type/create', response_class=HTMLResponse, name='model_record_type-create')
+  async def post_create(self, request: Request, is_modal: bool=False):
+    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
+
+  @model_record_type_controller.route.get('/model_record_type/{_id}', response_class=HTMLResponse, name='model_record_type-update')
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
+
+  @model_record_type_controller.route.post('/model_record_type/{_id}', response_class=HTMLResponse, name='model_record_type-update')
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
+
+  @model_record_type_controller.route.get('/model_record_type/{_id}/delete', response_class=HTMLResponse, name='model_record_type-delete')
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
+
+  @model_record_type_controller.route.post('/model_record_type/{_id}/delete', response_class=HTMLResponse, name='model_record_type-delete')
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
+
+
+model_field_controller = get_controller(tags=['Model Field Views'])
+@model_field_controller.resource()
+class ModelFieldView(BaseView):
+  model_class = ModelField
+  form_class = ModelFieldForm
+
+  def __init__(self):
+    super().__init__()
+
+  @model_field_controller.route.get('/model_field', response_class=HTMLResponse, name='model_field-list')
+  async def get_list(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+
+  @model_field_controller.route.get('/model_field/create', response_class=HTMLResponse, name='model_field-create')
+  async def get_create(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
+
+  @model_field_controller.route.post('/model_field/create', response_class=HTMLResponse, name='model_field-create')
+  async def post_create(self, request: Request, is_modal: bool=False):
+    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
+
+  @model_field_controller.route.get('/model_field/{_id}', response_class=HTMLResponse, name='model_field-update')
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
+
+  @model_field_controller.route.post('/model_field/{_id}', response_class=HTMLResponse, name='model_field-update')
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
+
+  @model_field_controller.route.get('/model_field/{_id}/delete', response_class=HTMLResponse, name='model_field-delete')
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
+
+  @model_field_controller.route.post('/model_field/{_id}/delete', response_class=HTMLResponse, name='model_field-delete')
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
+
+
+model_field_attribute_controller = get_controller(tags=['Model Field Attribute Views'])
+@model_field_attribute_controller.resource()
+class ModelFieldAttributeView(BaseView):
+  model_class = ModelFieldAttribute
+  form_class = ModelFieldAttributeForm
+
+  def __init__(self):
+    super().__init__()
+
+  @model_field_attribute_controller.route.get('/model_field_attribute', response_class=HTMLResponse, name='model_field_attribute-list')
+  async def get_list(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+
+  @model_field_attribute_controller.route.get('/model_field_attribute/create', response_class=HTMLResponse, name='model_field_attribute-create')
+  async def get_create(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
+
+  @model_field_attribute_controller.route.post('/model_field_attribute/create', response_class=HTMLResponse, name='model_field_attribute-create')
+  async def post_create(self, request: Request, is_modal: bool=False):
+    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
+
+  @model_field_attribute_controller.route.get('/model_field_attribute/{_id}', response_class=HTMLResponse, name='model_field_attribute-update')
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
+
+  @model_field_attribute_controller.route.post('/model_field_attribute/{_id}', response_class=HTMLResponse, name='model_field_attribute-update')
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
+
+  @model_field_attribute_controller.route.get('/model_field_attribute/{_id}/delete', response_class=HTMLResponse, name='model_field_attribute-delete')
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
+
+  @model_field_attribute_controller.route.post('/model_field_attribute/{_id}/delete', response_class=HTMLResponse, name='model_field_attribute-delete')
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
+
+
+model_field_choice_controller = get_controller(tags=['Model Field Choice Views'])
+@model_field_choice_controller.resource()
+class ModelFieldChoiceView(BaseView):
+  model_class = ModelFieldChoice
+  form_class = ModelFieldChoiceForm
+
+  def __init__(self):
+    super().__init__()
+
+  @model_field_choice_controller.route.get('/model_field_choice', response_class=HTMLResponse, name='model_field_choice-list')
+  async def get_list(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+
+  @model_field_choice_controller.route.get('/model_field_choice/create', response_class=HTMLResponse, name='model_field_choice-create')
+  async def get_create(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
+
+  @model_field_choice_controller.route.post('/model_field_choice/create', response_class=HTMLResponse, name='model_field_choice-create')
+  async def post_create(self, request: Request, is_modal: bool=False):
+    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
+
+  @model_field_choice_controller.route.get('/model_field_choice/{_id}', response_class=HTMLResponse, name='model_field_choice-update')
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
+
+  @model_field_choice_controller.route.post('/model_field_choice/{_id}', response_class=HTMLResponse, name='model_field_choice-update')
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
+
+  @model_field_choice_controller.route.get('/model_field_choice/{_id}/delete', response_class=HTMLResponse, name='model_field_choice-delete')
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
+
+  @model_field_choice_controller.route.post('/model_field_choice/{_id}/delete', response_class=HTMLResponse, name='model_field_choice-delete')
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
+
+
+model_field_validator_controller = get_controller(tags=['Model Field Validator Views'])
+@model_field_validator_controller.resource()
+class ModelFieldValidatorView(BaseView):
+  model_class = ModelFieldValidator
+  form_class = ModelFieldValidatorForm
+
+  def __init__(self):
+    super().__init__()
+
+  @model_field_validator_controller.route.get('/model_field_validator', response_class=HTMLResponse, name='model_field_validator-list')
+  async def get_list(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+
+  @model_field_validator_controller.route.get('/model_field_validator/create', response_class=HTMLResponse, name='model_field_validator-create')
+  async def get_create(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
+
+  @model_field_validator_controller.route.post('/model_field_validator/create', response_class=HTMLResponse, name='model_field_validator-create')
+  async def post_create(self, request: Request, is_modal: bool=False):
+    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
+
+  @model_field_validator_controller.route.get('/model_field_validator/{_id}', response_class=HTMLResponse, name='model_field_validator-update')
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
+
+  @model_field_validator_controller.route.post('/model_field_validator/{_id}', response_class=HTMLResponse, name='model_field_validator-update')
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
+
+  @model_field_validator_controller.route.get('/model_field_validator/{_id}/delete', response_class=HTMLResponse, name='model_field_validator-delete')
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
+
+  @model_field_validator_controller.route.post('/model_field_validator/{_id}/delete', response_class=HTMLResponse, name='model_field_validator-delete')
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
+
+
+page_layout_controller = get_controller(tags=['Page Layout Views'])
+@page_layout_controller.resource()
+class PageLayoutView(BaseView):
+  model_class = PageLayout
+  form_class = PageLayoutForm
+
+  def __init__(self):
+    super().__init__()
+
+  @page_layout_controller.route.get('/page_layout', response_class=HTMLResponse, name='page_layout-list')
+  async def get_list(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+
+  @page_layout_controller.route.get('/page_layout/create', response_class=HTMLResponse, name='page_layout-create')
+  async def get_create(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
+
+  @page_layout_controller.route.post('/page_layout/create', response_class=HTMLResponse, name='page_layout-create')
+  async def post_create(self, request: Request, is_modal: bool=False):
+    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
+
+  @page_layout_controller.route.get('/page_layout/{_id}', response_class=HTMLResponse, name='page_layout-update')
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
+
+  @page_layout_controller.route.post('/page_layout/{_id}', response_class=HTMLResponse, name='page_layout-update')
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
+
+  @page_layout_controller.route.get('/page_layout/{_id}/delete', response_class=HTMLResponse, name='page_layout-delete')
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
+
+  @page_layout_controller.route.post('/page_layout/{_id}/delete', response_class=HTMLResponse, name='page_layout-delete')
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
+
+
+tab_controller = get_controller(tags=['Tab Views'])
+@tab_controller.resource()
+class TabView(BaseView):
+  model_class = Tab
+  form_class = TabForm
+
+  def __init__(self):
+    super().__init__()
+
+  @tab_controller.route.get('/tab', response_class=HTMLResponse, name='tab-list')
+  async def get_list(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+
+  @tab_controller.route.get('/tab/create', response_class=HTMLResponse, name='tab-create')
+  async def get_create(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
+
+  @tab_controller.route.post('/tab/create', response_class=HTMLResponse, name='tab-create')
+  async def post_create(self, request: Request, is_modal: bool=False):
+    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
+
+  @tab_controller.route.get('/tab/{_id}', response_class=HTMLResponse, name='tab-update')
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
+
+  @tab_controller.route.post('/tab/{_id}', response_class=HTMLResponse, name='tab-update')
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
+
+  @tab_controller.route.get('/tab/{_id}/delete', response_class=HTMLResponse, name='tab-delete')
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
+
+  @tab_controller.route.post('/tab/{_id}/delete', response_class=HTMLResponse, name='tab-delete')
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
+
+
+app_controller = get_controller(tags=['App Views'])
+@app_controller.resource()
+class AppView(BaseView):
+  model_class = App
+  form_class = AppForm
+
+  def __init__(self):
+    super().__init__()
+
+  @app_controller.route.get('/app', response_class=HTMLResponse, name='app-list')
+  async def get_list(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+
+  @app_controller.route.get('/app/create', response_class=HTMLResponse, name='app-create')
+  async def get_create(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
+
+  @app_controller.route.post('/app/create', response_class=HTMLResponse, name='app-create')
+  async def post_create(self, request: Request, is_modal: bool=False):
+    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
+
+  @app_controller.route.get('/app/{_id}', response_class=HTMLResponse, name='app-update')
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
+
+  @app_controller.route.post('/app/{_id}', response_class=HTMLResponse, name='app-update')
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
+
+  @app_controller.route.get('/app/{_id}/delete', response_class=HTMLResponse, name='app-delete')
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
+
+  @app_controller.route.post('/app/{_id}/delete', response_class=HTMLResponse, name='app-delete')
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)

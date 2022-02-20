@@ -5,9 +5,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Request, HTTPException, status
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
-
 from fastapi_login.exceptions import InvalidCredentialsException
-
 from mango.auth.models import AuthHandler, Credentials, Signup, PasswordReset
 from mango.auth.forms import LoginForm, SignupForm, PasswordResetForm
 from mango.db.models import QueryOne, InsertOne

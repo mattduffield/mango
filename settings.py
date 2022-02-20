@@ -2,7 +2,7 @@ from datetime import timedelta
 from dotenv import load_dotenv
 load_dotenv()
 import os
-from mango.template_tags.custom_tags import configure_templates, register_tags, RenderColTag
+from mango.template_utils.utils import configure_templates, register_tags, RenderColTag
 from fastapi_login import LoginManager
 from mango.auth.models import NotAuthenticatedException
 from mango.core.app_loader import init_app_loader, get_apps

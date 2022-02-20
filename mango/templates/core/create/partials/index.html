@@ -1,0 +1,62 @@
+{% from 'macros/macros.html' import crispy_form_view %}
+
+{% if is_modal %}
+  {% set post_url = "/"+view.model_name+"/create?redirect_url="+redirect_url %}
+{% else %}
+  {% set post_url = "/"+view.model_name+"/create" %}
+{% endif %}
+
+
+<div class="intro-y p-6 mx-auto w-full">
+  <h3 class="text-xl mt-3 mb-2">New {{view.model_name|to_proper_case}}</h3>
+  <div class="full">
+    <form id="{{view.model_name}}FormCreate" method="POST"
+      class="flex flex-1 flex-col px-4 pt-6 pb-2 w-full"
+      hx-enctype="text/x-www-form-urlencoded"
+      hx-post="{{ post_url }}" 
+      hx-target="#viewport"
+      hx-swap="innerHTML"
+      hx-push-url="true"
+      hx-indicator="#content-loader"
+      _="on load 
+        addHxVars('#{{view.model_name}}FormCreate')
+        "
+      >
+      {{ crispy_form_view(form) }}
+      {% if is_modal %}
+        <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+          <button class="mt-3 w-full inline-flex justify-center rounded-md shadow-sm px-4 py-2 intro-x bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:col-start-1 sm:text-sm"
+            type="button" 
+            _="on click add .hidden to #modal">
+            Cancel
+          </button>
+          <button class="w-full inline-flex justify-center rounded-md shadow-sm px-4 py-2 intro-x bg-blue-500 hover:bg-blue-600 text-base font-medium text-white sm:col-start-2 sm:text-sm"
+            type="submit"
+            form="{{view.model_name}}FormCreate"
+            _="on click add .hidden to #modal">
+            Save
+          </button>
+        </div>
+      {% else %}
+        <div class="flex justify-end gap-3">
+          <a hx-get="{{view.list_url}}"
+            hx-target="#viewport"
+            hx-swap="innerHTML"
+            hx-push-url="true"
+            hx-indicator="#content-loader"
+            class="intro-x px-3 py-2 cursor-pointer">
+            Cancel
+          </a>
+          <button class="intro-x text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md"
+            type="submit"
+            form="{{view.model_name}}FormCreate">
+            Save
+          </button>
+        </div>
+      {% endif %}
+    </form>
+  </div>
+</div>
+{% if request.state.htmx and not is_modal %}
+  {% include 'core/item_breadcrumbs.html' %}
+{% endif %}
