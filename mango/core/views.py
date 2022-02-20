@@ -30,6 +30,18 @@ def get_controller(prefix: str = '', tags: List[str] = ['Views']):
   return controller
 
 
+class StaticView():
+  async def get(self, request: Request):
+    self.request = request
+    context = {'request': request, 'settings': settings}
+    template_name = self.get_template_name()
+    response = templates.TemplateResponse(template_name, context)
+    return response
+
+  def get_template_name(self):
+    pass
+
+
 class BaseView():
   '''
     It depends on a model class and its meta class to provide all the necessary 
