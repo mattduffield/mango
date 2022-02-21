@@ -350,12 +350,28 @@ class PageLayoutForm(StarletteForm):
   field_list = FieldList(FormField(
     ModelFieldForm
   ))
-  related_list = FieldList(FormField(
-    ModelForm
-  ))
-  role_list = FieldList(FormField(
-    RoleForm
-  ))
+  # related_list = FieldList(FormField(
+  #   ModelForm
+  # ))
+  related_list = QuerySelectMultipleField(
+    'Related List',
+    collection = 'model', 
+    projection = { 'label': 1 }, 
+    display_member = lambda data: f'{data["label"]}', 
+    value_member = lambda data: f'{data["_id"]}',
+    render_kw = { 'class': select_class },
+  )
+  # role_list = FieldList(FormField(
+  #   RoleForm
+  # ))
+  role_list = QuerySelectMultipleField(
+    'Roles',
+    collection = 'role', 
+    projection = { 'label': 1 }, 
+    display_member = lambda data: f'{data["label"]}', 
+    value_member = lambda data: f'{data["_id"]}',
+    render_kw = { 'class': select_class },
+  )
   is_default = ToggleSwitchField(
     'Is Default?', 
     render_kw = { 'class': chk_class },
@@ -427,6 +443,3 @@ class AppForm(StarletteForm):
     'Is Active?', 
     render_kw = { 'class': chk_class },
   )
-
-
-
