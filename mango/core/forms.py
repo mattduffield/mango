@@ -350,7 +350,7 @@ class PageLayoutForm(StarletteForm):
   )
   element_list = FieldList(StringField(
     'Element',
-  ))
+  ), min_entries=3)
   field_list = FieldList(FormField(
     ModelFieldForm
   ))
@@ -375,6 +375,10 @@ class PageLayoutForm(StarletteForm):
     display_member = lambda data: f'{data["label"]}', 
     value_member = lambda data: f'{data["_id"]}',
     render_kw = { 'class': select_class },
+  )
+  items = TextAreaField(
+    'Items',
+    render_kw = { 'class': textarea_class },
   )
   is_default = ToggleSwitchField(
     'Is Default?', 
