@@ -9,7 +9,7 @@ import datetime
 from enum import Enum
 from typing import Any, Optional, Dict, List
 from pydantic import BaseModel, PositiveInt
-
+from wtforms import Field
 
 '''
   This class represents a given action to perform.
@@ -242,7 +242,8 @@ class ModelFieldValidator(BaseModel):
   The Layout class represents the actual element layout for a given model.
 '''
 class Layout(BaseModel):
-  field_type: str
+  element_type: str
+  field: str = ''
   name: str = ''
   content: str = ''
   css_class: str = ''

@@ -124,6 +124,8 @@ class BaseView():
     else:
       data = await self.get_data(get_type)
 
+    page_layout = self.get_page_layout(get_type)
+
     if get_type in ['get_update', 'get_delete']:
       model_data = self.model_class(**data)
       data_string = str(model_data)
@@ -136,32 +138,39 @@ class BaseView():
         elif issubclass(self.form_class, Form):
           form = self.form_class(data=data)
 
-    context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form}
+    context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': page_layout}
     return context
+
+  async def get_page_layout(self, get_type: str):
+    data = None
+    if get_type in ['get_create', 'get_update']:
+      query = self.get_query('find_one', collection='page_layout', query={'model_id': self._id})
+      data = await find_one(query)
+    return data
 
   async def get_data(self, get_type: str):
     data = None
     if get_type in ['get_create']:
       pass
     elif get_type in ['get_update', 'get_delete']:
-      query = self.get_query('find_one', {'_id': self._id})
+      query = self.get_query('find_one', collection=self.model_name, query={'_id': self._id})
       data = await find_one(query)
     elif get_type in ['get_list']:
-      query = self.get_query('find')
+      query = self.get_query('find', collection=self.model_name)
       data = await find(query)
     return data
 
-  def get_query(self, query_type: str, query: dict = {}, data: dict = None):
+  def get_query(self, query_type: str, collection: str, query: dict = {}, data: dict = None):
     if query_type == 'find_one':
       query = QueryOne(
         database=DATABASE_NAME,
-        collection=self.model_name,
+        collection=collection,
         query=query  # {'_id': self._id}
       )
     elif query_type == 'find':
       query = Query(
         database=DATABASE_NAME,
-        collection=self.model_name,
+        collection=collection,
         query=query  # {'_id': self._id}
       )
 
