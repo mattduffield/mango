@@ -178,6 +178,10 @@ class ModelFieldForm(StarletteForm):
     blank_text = 'Pick...',
     render_kw = { 'class': select_class },
   )
+  is_optional = ToggleSwitchField(
+    'Is Optional?', 
+    render_kw = { 'class': chk_class },
+  )
   default_value = StringField(
     'Default Value',
     render_kw = { 'class': input_class },
