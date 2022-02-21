@@ -124,7 +124,7 @@ class BaseView():
     else:
       data = await self.get_data(get_type)
 
-    page_layout = self.get_page_layout(get_type)
+    page_layout = await self.get_page_layout(get_type)
 
     if get_type in ['get_update', 'get_delete']:
       model_data = self.model_class(**data)
