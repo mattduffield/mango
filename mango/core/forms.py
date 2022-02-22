@@ -557,7 +557,7 @@ class PageLayoutForm(StarletteForm):
   )
   name = StringField(
     'Name', 
-    validators = [OptionalIfFieldEqualTo('label')],
+    validators = [DataRequired('label')],
     render_kw = { 'class': input_class },
   )
   element_list = FieldList(StringField(

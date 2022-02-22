@@ -127,7 +127,7 @@ class ModelRecordType(BaseModel):
   * Need to support Field enclosers: FormField, FieldList, custom fields, etc.
 '''
 class ModelField(BaseModel):
-  model_id: str
+  model_name: str
   label: str
   name: str  # usually lowercase with underscores instead of spaces
   data_type: str  # usually sourced from a List of tuples (value, label), e.g. str,int,bool
@@ -142,7 +142,7 @@ class ModelField(BaseModel):
     return self.label
   
   def new_dict():
-    return {'model_id': '', 'label': '', 'name': '', 'data_type': '', 'default_value': '', 'default_value_use_quotes': True, 'field_type': '', 'is_locked': False, 'is_active': True}
+    return {'model_name': '', 'label': '', 'name': '', 'data_type': '', 'default_value': '', 'default_value_use_quotes': True, 'field_type': '', 'is_locked': False, 'is_active': True}
 
   class Meta:
     name = 'model_field'
@@ -284,8 +284,8 @@ class PageLayout(BaseModel):
   label: str
   name: str  # usually lowercase with underscores instead of spaces
   element_list: List = []  # holds a list of available HTML elements
-  field_list: List[ModelField] = []  # holds a list of available fields by model_id
-  related_list: List[Model] = []  # holds a list of related objects by model_id
+  field_list: List[ModelField] = []  # holds a list of available fields by model_name
+  related_list: List[Model] = []  # holds a list of related objects by model_name
   role_list: List[Role] = []  # loaded from the Roles collection
   items: List[Layout] = []  # holds the UI layout
   is_default: bool = False
@@ -311,7 +311,7 @@ class PageLayout(BaseModel):
   This class represents navigation to a given Model object.
 '''
 class Tab(BaseModel):
-  model_id: str  # references the a given Model object
+  model_name: str  # references the a given Model object
   label: str  # this can override the Model label
   sequence: PositiveInt = 0  # used for ordering
   is_default: bool = False
@@ -322,7 +322,7 @@ class Tab(BaseModel):
     return self.label
 
   def new_dict():
-    return {'model_id': '', 'label': '', 'sequence': 0, 'is_default': False, 'is_locked': False, 'is_active': True}
+    return {'model_name': '', 'label': '', 'sequence': 0, 'is_default': False, 'is_locked': False, 'is_active': True}
 
   class Meta:
     name = 'tab'
