@@ -25,7 +25,7 @@ from wtforms.validators	import DataRequired, NoneOf
 from mango.core.fields import QuerySelectField, QuerySelectMultipleField, ToggleSwitchField
 from mango.core.constants import chk_class, input_class, label_class, select_class, select_multiple_class, textarea_class, toggle_radio_class, toggle_switch_class
 from mango.core.choices import DATA_TYPES, FIELD_TYPES
-
+from mango.core.validators import DataRequiredIf
 
 class ActionForm(StarletteForm):
   topic = StringField(
@@ -557,7 +557,7 @@ class PageLayoutForm(StarletteForm):
   )
   name = StringField(
     'Name', 
-    validators = [DataRequired()],
+    validators = [DataRequiredIf('label')],
     render_kw = { 'class': input_class },
   )
   element_list = FieldList(StringField(
