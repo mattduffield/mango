@@ -279,7 +279,7 @@ class Layout(BaseModel):
   * Consider how fields are laid out on a page.
 '''
 class PageLayout(BaseModel):
-  model_id: str
+  model_name: str
   model_record_type: str  # holds the record type for the Model
   label: str
   name: str  # usually lowercase with underscores instead of spaces

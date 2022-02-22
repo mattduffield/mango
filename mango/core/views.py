@@ -144,7 +144,7 @@ class BaseView():
   async def get_page_layout(self, get_type: str):
     data = None
     if get_type in ['get_create', 'get_update']:
-      query = self.get_query('find_one', collection='page_layout', query={'model_id': self._id})
+      query = self.get_query('find_one', collection='page_layout', query={'model_name': self.model_name})
       data = await find_one(query)
     return data
 

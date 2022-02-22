@@ -528,12 +528,12 @@ class LayoutForm(Form):
 
 
 class PageLayoutForm(StarletteForm):
-  model_id = QuerySelectField(
+  model_name = QuerySelectField(
     'Model', 
     collection = 'model', 
-    projection = { 'label': 1 }, 
+    projection = { 'label': 1, 'name': 1 }, 
     display_member = lambda data: f'{data["label"]}', 
-    value_member = lambda data: f'{data["_id"]}',
+    value_member = lambda data: f'{data["name"]}',
     validators = [DataRequired()], 
     allow_blank = True,
     blank_text = 'Pick...',
@@ -562,7 +562,7 @@ class PageLayoutForm(StarletteForm):
   )
   element_list = FieldList(StringField(
     'Element',
-  ), min_entries=3)
+  ))
   field_list = FieldList(FormField(
     ModelFieldForm
   ))
