@@ -243,28 +243,28 @@ class ModelFieldValidator(BaseModel):
 '''
 class Layout(BaseModel):
   element_type: str  # e.g. div, field
-  field: str = ''  # e.g. model_id, model_record_type
-  css_class: str = ''
-  css_class_use_quotes: bool = True
-  inner_text: str = ''  # e.g. Addess Info
-  inner_html: str = ''  # e.g. <span>Address Info</span>
-  label_class: str = ''
-  label_class_use_quotes: bool = True
+  field: Optional[str] = ''  # e.g. model_id, model_record_type
+  css_class: Optional[str] = ''
+  css_class_use_quotes: Optional[bool] = True
+  inner_text: Optional[str] = ''  # e.g. Addess Info
+  inner_html: Optional[str] = ''  # e.g. <span>Address Info</span>
+  label_class: Optional[str] = ''
+  label_class_use_quotes: Optional[bool] = True
   items: Optional[List['Layout']]
   is_locked: bool = False
   is_active: bool = True
 
   def __str__(self):
-    return self.name
+    return self.element_type
   
   def new_dict():
-    return {'element_type': '', 'field': '', 'css_class': '', 'css_class_use_quotes': True, 'inner_text': '', 'inner_html': '', 'label_class': '', 'label_class_use_quotes': True, 'layout': [], 'is_locked': False, 'is_active': True}
+    return {'element_type': '', 'field': '', 'css_class': '', 'css_class_use_quotes': True, 'inner_text': '', 'inner_html': '', 'label_class': '', 'label_class_use_quotes': True, 'layout': []}
 
   class Meta:
     name = 'layout'
     search_index_name = 'layout_search'
     order_by = [
-      'name',
+      'element_type',
     ]
     page_size = 0
 

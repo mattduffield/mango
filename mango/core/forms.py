@@ -314,7 +314,8 @@ class ModelFieldValidatorForm(StarletteForm):
     render_kw = { 'class': chk_class },
   )
 
-class LayoutForm(Form):
+
+class LayoutLevel4Form(Form):
   element_type = StringField(
     'Element Type', 
     validators = [DataRequired()],
@@ -322,12 +323,10 @@ class LayoutForm(Form):
   )
   field = StringField(
     'Field', 
-    validators = [DataRequired()],
     render_kw = { 'class': input_class },
   )
   css_class = StringField(
     'CSS Class', 
-    validators = [DataRequired()],
     render_kw = { 'class': input_class },
   )
   css_class_use_quotes = ToggleSwitchField(
@@ -336,24 +335,192 @@ class LayoutForm(Form):
   )
   inner_text = StringField(
     'InnerText', 
-    validators = [DataRequired()],
     render_kw = { 'class': input_class },
   )
   inner_html = StringField(
     'InnerHTML', 
-    validators = [DataRequired()],
     render_kw = { 'class': input_class },
   )
   label_class = StringField(
     'Label Class', 
-    validators = [DataRequired()],
     render_kw = { 'class': input_class },
   )
   label_class_use_quotes = ToggleSwitchField(
     'Label Class Use Quotes?', 
     render_kw = { 'class': chk_class },
   )
-  items = FieldList(FormField('Layout'))
+  is_active = ToggleSwitchField(
+    'Is Active?', 
+    render_kw = { 'class': chk_class },
+  )
+
+
+class LayoutLevel3Form(Form):
+  element_type = StringField(
+    'Element Type', 
+    validators = [DataRequired()],
+    render_kw = { 'class': input_class },
+  )
+  field = StringField(
+    'Field', 
+    render_kw = { 'class': input_class },
+  )
+  css_class = StringField(
+    'CSS Class', 
+    render_kw = { 'class': input_class },
+  )
+  css_class_use_quotes = ToggleSwitchField(
+    'CSS Class Use Quotes?', 
+    render_kw = { 'class': chk_class },
+  )
+  inner_text = StringField(
+    'InnerText', 
+    render_kw = { 'class': input_class },
+  )
+  inner_html = StringField(
+    'InnerHTML', 
+    render_kw = { 'class': input_class },
+  )
+  label_class = StringField(
+    'Label Class', 
+    render_kw = { 'class': input_class },
+  )
+  label_class_use_quotes = ToggleSwitchField(
+    'Label Class Use Quotes?', 
+    render_kw = { 'class': chk_class },
+  )
+  items = FieldList(
+    FormField(LayoutLevel4Form)
+  )
+  is_active = ToggleSwitchField(
+    'Is Active?', 
+    render_kw = { 'class': chk_class },
+  )
+
+
+class LayoutLevel2Form(Form):
+  element_type = StringField(
+    'Element Type', 
+    validators = [DataRequired()],
+    render_kw = { 'class': input_class },
+  )
+  field = StringField(
+    'Field', 
+    render_kw = { 'class': input_class },
+  )
+  css_class = StringField(
+    'CSS Class', 
+    render_kw = { 'class': input_class },
+  )
+  css_class_use_quotes = ToggleSwitchField(
+    'CSS Class Use Quotes?', 
+    render_kw = { 'class': chk_class },
+  )
+  inner_text = StringField(
+    'InnerText', 
+    render_kw = { 'class': input_class },
+  )
+  inner_html = StringField(
+    'InnerHTML', 
+    render_kw = { 'class': input_class },
+  )
+  label_class = StringField(
+    'Label Class', 
+    render_kw = { 'class': input_class },
+  )
+  label_class_use_quotes = ToggleSwitchField(
+    'Label Class Use Quotes?', 
+    render_kw = { 'class': chk_class },
+  )
+  items = FieldList(
+    FormField(LayoutLevel3Form)
+  )
+  is_active = ToggleSwitchField(
+    'Is Active?', 
+    render_kw = { 'class': chk_class },
+  )
+
+
+class LayoutLevel1Form(Form):
+  element_type = StringField(
+    'Element Type', 
+    validators = [DataRequired()],
+    render_kw = { 'class': input_class },
+  )
+  field = StringField(
+    'Field', 
+    render_kw = { 'class': input_class },
+  )
+  css_class = StringField(
+    'CSS Class', 
+    render_kw = { 'class': input_class },
+  )
+  css_class_use_quotes = ToggleSwitchField(
+    'CSS Class Use Quotes?', 
+    render_kw = { 'class': chk_class },
+  )
+  inner_text = StringField(
+    'InnerText', 
+    render_kw = { 'class': input_class },
+  )
+  inner_html = StringField(
+    'InnerHTML', 
+    render_kw = { 'class': input_class },
+  )
+  label_class = StringField(
+    'Label Class', 
+    render_kw = { 'class': input_class },
+  )
+  label_class_use_quotes = ToggleSwitchField(
+    'Label Class Use Quotes?', 
+    render_kw = { 'class': chk_class },
+  )
+  items = FieldList(
+    FormField(LayoutLevel2Form)
+  )
+  is_active = ToggleSwitchField(
+    'Is Active?', 
+    render_kw = { 'class': chk_class },
+  )
+
+
+class LayoutForm(Form):
+  element_type = StringField(
+    'Element Type', 
+    validators = [DataRequired()],
+    render_kw = { 'class': input_class },
+  )
+  field = StringField(
+    'Field', 
+    render_kw = { 'class': input_class },
+  )
+  css_class = StringField(
+    'CSS Class', 
+    render_kw = { 'class': input_class },
+  )
+  css_class_use_quotes = ToggleSwitchField(
+    'CSS Class Use Quotes?', 
+    render_kw = { 'class': chk_class },
+  )
+  inner_text = StringField(
+    'InnerText', 
+    render_kw = { 'class': input_class },
+  )
+  inner_html = StringField(
+    'InnerHTML', 
+    render_kw = { 'class': input_class },
+  )
+  label_class = StringField(
+    'Label Class', 
+    render_kw = { 'class': input_class },
+  )
+  label_class_use_quotes = ToggleSwitchField(
+    'Label Class Use Quotes?', 
+    render_kw = { 'class': chk_class },
+  )
+  items = FieldList(
+    FormField(LayoutLevel1Form)
+  )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },
@@ -425,9 +592,9 @@ class PageLayoutForm(StarletteForm):
   #   'Items',
   #   render_kw = { 'class': textarea_class },
   # )
-  items = FieldList(FormField(
-    LayoutForm
-  ))
+  items = FieldList(
+    FormField(LayoutForm)
+  )
   is_default = ToggleSwitchField(
     'Is Default?', 
     render_kw = { 'class': chk_class },
