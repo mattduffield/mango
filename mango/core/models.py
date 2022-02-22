@@ -296,7 +296,7 @@ class PageLayout(BaseModel):
     return self.label
   
   def new_dict():
-    return {'model_id': '', 'model_record_type': '', 'label': '', 'name': '', 'element_list': [], 'field_list': [], 'related_list': [], 'role_list': [], 'is_default': False, 'is_locked': False, 'is_active': True}
+    return {'model_name': '', 'model_record_type': '', 'label': '', 'name': '', 'element_list': [], 'field_list': [], 'related_list': [], 'role_list': [], 'is_default': False, 'is_locked': False, 'is_active': True}
 
   class Meta:
     name = 'page_layout'
