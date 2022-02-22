@@ -140,12 +140,12 @@ class ModelRecordTypeForm(StarletteForm):
 
 
 class ModelFieldForm(StarletteForm):
-  model_id = QuerySelectField(
+  model_name = QuerySelectField(
     'Model',
     collection = 'model', 
-    projection = { 'label': 1 }, 
+    projection = { 'label': 1, 'name': 1 }, 
     display_member = lambda data: f'{data["label"]}', 
-    value_member = lambda data: f'{data["_id"]}',
+    value_member = lambda data: f'{data["name"]}',
     validators = [DataRequired()], 
     allow_blank = True,
     blank_text = 'Pick...',
@@ -606,12 +606,12 @@ class PageLayoutForm(StarletteForm):
 
 
 class TabForm(StarletteForm):
-  model_id = QuerySelectField(
+  model_name = QuerySelectField(
     'Model', 
     collection = 'model', 
-    projection = { 'label': 1 }, 
+    projection = { 'label': 1, 'name': 1 }, 
     display_member = lambda data: f'{data["label"]}', 
-    value_member = lambda data: f'{data["_id"]}',
+    value_member = lambda data: f'{data["name"]}',
     validators = [DataRequired()], 
     allow_blank = True,
     blank_text = 'Pick...',

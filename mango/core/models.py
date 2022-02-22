@@ -243,7 +243,7 @@ class ModelFieldValidator(BaseModel):
 '''
 class Layout(BaseModel):
   element_type: str  # e.g. div, field
-  field: Optional[str] = ''  # e.g. model_id, model_record_type
+  field: Optional[str] = ''  # e.g. model_name, model_record_type
   css_class: Optional[str] = ''
   css_class_use_quotes: Optional[bool] = True
   inner_text: Optional[str] = ''  # e.g. Addess Info
