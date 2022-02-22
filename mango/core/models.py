@@ -242,15 +242,15 @@ class ModelFieldValidator(BaseModel):
   The Layout class represents the actual element layout for a given model.
 '''
 class Layout(BaseModel):
-  element_type: str
-  field: str = ''
-  name: str = ''
-  content: str = ''
+  element_type: str  # e.g. div, field
+  field: str = ''  # e.g. model_id, model_record_type
   css_class: str = ''
   css_class_use_quotes: bool = True
+  inner_text: str = ''  # e.g. Addess Info
+  inner_html: str = ''  # e.g. <span>Address Info</span>
   label_class: str = ''
   label_class_use_quotes: bool = True
-  layout: Optional[List['Layout']]
+  items: Optional[List['Layout']]
   is_locked: bool = False
   is_active: bool = True
 
@@ -258,7 +258,7 @@ class Layout(BaseModel):
     return self.name
   
   def new_dict():
-    return {'field_type': '', 'name': '', 'content': '', 'css_class': '', 'css_class_use_quotes': True, 'label_class': '', 'label_class_use_quotes': True, 'layout': [], 'is_locked': False, 'is_active': True}
+    return {'element_type': '', 'field': '', 'css_class': '', 'css_class_use_quotes': True, 'inner_text': '', 'inner_html': '', 'label_class': '', 'label_class_use_quotes': True, 'layout': [], 'is_locked': False, 'is_active': True}
 
   class Meta:
     name = 'layout'
@@ -267,7 +267,6 @@ class Layout(BaseModel):
       'name',
     ]
     page_size = 0
-
 
 
 '''
@@ -288,6 +287,7 @@ class PageLayout(BaseModel):
   field_list: List[ModelField] = []  # holds a list of available fields by model_id
   related_list: List[Model] = []  # holds a list of related objects by model_id
   role_list: List[Role] = []  # loaded from the Roles collection
+  items: List[Layout] = []  # holds the UI layout
   is_default: bool = False
   is_locked: bool = False
   is_active: bool = True
