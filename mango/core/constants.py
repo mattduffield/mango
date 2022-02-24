@@ -102,3 +102,24 @@ toggle_switch_class = '''
   toggle-switch-container
   cursor-pointer
 '''
+
+hs_element_type_true_targets = ["inner_text", "inner_html"]
+hs_element_type_false_targets = ["field", "label_class", "label_class_use_quotes"]
+hs_element_type = f'''
+on change
+  toggleTableRowHidden(me, "element_type", {hs_element_type_true_targets}, {hs_element_type_false_targets}, "element")
+end
+on load
+  toggleTableRowHidden(me, "element_type", {hs_element_type_true_targets}, {hs_element_type_false_targets}, "element")
+end
+'''
+
+hs_label = f'''
+on input 
+  toLowerSnake(me, "name")
+'''
+
+hs_config_tom_select = f'''
+on load 
+  configTomSelect(me)
+'''

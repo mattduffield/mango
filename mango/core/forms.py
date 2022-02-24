@@ -23,7 +23,7 @@ from wtforms import (
 )
 from wtforms.validators	import DataRequired, NoneOf
 from mango.core.fields import QuerySelectField, QuerySelectMultipleField, ToggleSwitchField
-from mango.core.constants import chk_class, input_class, label_class, select_class, select_multiple_class, textarea_class, toggle_radio_class, toggle_switch_class
+from mango.core.constants import chk_class, input_class, label_class, select_class, select_multiple_class, textarea_class, toggle_radio_class, toggle_switch_class, hs_element_type, hs_label, hs_config_tom_select
 from mango.core.choices import DATA_TYPES, FIELD_TYPES
 from mango.core.validators import DataRequiredIf, OptionalIfFieldEqualTo
 
@@ -319,7 +319,7 @@ class LayoutLevel4Form(Form):
   element_type = StringField(
     'Element Type', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': hs_element_type },
   )
   field = StringField(
     'Field', 
@@ -359,7 +359,7 @@ class LayoutLevel3Form(Form):
   element_type = StringField(
     'Element Type', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': hs_element_type },
   )
   field = StringField(
     'Field', 
@@ -402,7 +402,7 @@ class LayoutLevel2Form(Form):
   element_type = StringField(
     'Element Type', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': hs_element_type },
   )
   field = StringField(
     'Field', 
@@ -445,7 +445,7 @@ class LayoutLevel1Form(Form):
   element_type = StringField(
     'Element Type', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': hs_element_type },
   )
   field = StringField(
     'Field', 
@@ -488,7 +488,7 @@ class LayoutForm(Form):
   element_type = StringField(
     'Element Type', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': hs_element_type },
   )
   field = StringField(
     'Field', 
@@ -553,7 +553,7 @@ class PageLayoutForm(StarletteForm):
   label = StringField(
     'Label', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': hs_label },
   )
   name = StringField(
     'Name', 
@@ -575,7 +575,7 @@ class PageLayoutForm(StarletteForm):
     projection = { 'label': 1 }, 
     display_member = lambda data: f'{data["label"]}', 
     value_member = lambda data: f'{data["_id"]}',
-    render_kw = { 'class': select_class },
+    render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
   )
   # role_list = FieldList(FormField(
   #   RoleForm
@@ -586,7 +586,7 @@ class PageLayoutForm(StarletteForm):
     projection = { 'label': 1 }, 
     display_member = lambda data: f'{data["label"]}', 
     value_member = lambda data: f'{data["_id"]}',
-    render_kw = { 'class': select_class },
+    render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
   )
   # items = TextAreaField(
   #   'Items',
