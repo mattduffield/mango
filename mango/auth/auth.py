@@ -47,7 +47,7 @@ auth_handler = AuthHandler()
 def load_user(email:str, database):
   payload = {
     'database': database,
-    'collection': 'users', 
+    'collection': 'user', 
     'query': {
       'email': email
     }, 
@@ -182,76 +182,8 @@ async def post_password_reset(request: Request, next: Optional[str] = None):
     response = templates.TemplateResponse('auth/password_reset_form.html', context)
     return response
 
-
-  # forgotPassword(options) {
-  #   let opt = {
-  #     "database": options.company_id,
-  #     "name": "ResetPassword",
-  #     "trigger": "send reset password",
-  #     "data": options,
-  #   };
-  #   const payload = {method: 'post', body: JSON.stringify(opt)};
-  #   return this.workflowFetch(`init-workflow-run`, payload)
-  #     .then(response => response.json())
-  #     .then(data => {
-  #       if (data.error) {
-  #         throw data.error;
-  #       }
-  #       return data;
-  #     });
-  # }
-
-
-
-
-# # @router.get('/private')
-# # def handle_private(_=Depends(manager)):
-# #   return 'You are an authenticated user!'
-
-# @router.post('/register', status_code=201)
-# async def register(credentials: Credentials):
-#   hashed_password = auth_handler.get_password_hash(credentials.password)
-#   #
-#   # TODO: NEED TO MAKE THIS PART GENERIC BY PASSING IN THE REQUEST DATA...
-#   #
-#   result = {
-#     'collection': 'users', 
-#     'data': {
-#       'email': credentials.email,
-#       'password': hashed_password
-#     }, 
-#     'database': DATABASE_NAME
-#   }
-#   query = InsertOne.parse_obj(result)
-#   try:
-#     resp = await insert_one(query)
-#     return resp
-#   except:
-#     raise HTTPException(status_code=404, detail='User already exists')
-
 @router.post('/server-signin')
 async def server_signin():
   serverEmail = 'server@server.com'
   token = auth_handler.encode_token(serverEmail)
   return {'token': token, 'database': None, 'user': serverEmail}
-
-# @router.post('/signin')
-# async def signin(credentials: Credentials):
-#   result = {
-#     'collection': 'users', 
-#     'query': {
-#       'email': credentials.email
-#     }, 
-#     'database': DATABASE_NAME
-#   }
-#   query = QueryOne.parse_obj(result)
-#   found = await find_one(query)
-#   if (found) and (auth_handler.verify_password(credentials.password, found['password'])):
-#     user_id = found['_id']
-#     # email = credentials.email
-#     # username = found['username']    
-#     # {user_id: _id, email, username, database}
-#     token = auth_handler.encode_token(user_id)
-#     return {'token': token, 'database': DATABASE_NAME, 'user': found}
-#   else:
-#     raise HTTPException(status_code=404, detail='Invalid credentials')
