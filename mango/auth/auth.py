@@ -50,11 +50,37 @@ def load_user(email:str, database):
     'collection': 'user', 
     'query': {
       'email': email
-    }, 
+    },
+    'projection': {
+      'password': 0
+    } ,
   }
   query = QueryOne.parse_obj(payload)
   found = find_one_sync(query)
   return found
+
+def authenticate_user(email:str, database):
+  payload = {
+    'database': database,
+    'collection': 'user', 
+    'query': {
+      'email': email
+    },
+  }
+  query = QueryOne.parse_obj(payload)
+  found = find_one_sync(query)
+  return found
+
+def can(request:Request, role:str = '', action:str = ''):
+  current_user = request.state.user
+  if current_user:
+    if role and action:
+      return role in current_user['roles'] and action in current_user['actions']
+    elif action:
+      return action in current_user['actions']
+    elif role:
+        return role in current_user['roles']
+  return False
 
 @router.get('/login', response_class=HTMLResponse)
 def login(request: Request, next: Optional[str] = None):
@@ -66,7 +92,7 @@ def login(request: Request, next: Optional[str] = None):
 async def login(request: Request, next: Optional[str] = None):
   form = await LoginForm.from_formdata(request)
   credentials = Credentials(**form.data)
-  user = load_user(credentials.email, database=DATABASE_NAME)
+  user = authenticate_user(credentials.email, database=DATABASE_NAME)
   if not user or not auth_handler.verify_password(credentials.password, user['password']):
     context = {'request': request}
     context['form'] = form

@@ -2,7 +2,7 @@ import datetime
 from dateutil import parser
 import json
 from bson import json_util, ObjectId
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi_router_controller import Controller
 from starlette_wtf import StarletteForm
@@ -15,7 +15,7 @@ from mango.core.forms import ActionForm, RoleForm, ModelForm, ModelRecordTypeFor
 from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 from mango.db.api import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
 import settings
-from settings import templates, DATABASE_NAME
+from settings import manager, templates, DATABASE_NAME
 
 
 def get_router(prefix: str = '', tags: List[str] = ['Views']):
