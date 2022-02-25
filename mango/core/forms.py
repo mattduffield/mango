@@ -68,7 +68,7 @@ class RoleForm(StarletteForm):
     projection = { 'topic': 1 }, 
     display_member = lambda data: f'{data["topic"]}', 
     value_member = lambda data: f'{data["_id"]}',
-    render_kw = { 'class': select_class },
+    render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
@@ -110,7 +110,7 @@ class ModelForm(StarletteForm):
     projection = { 'label': 1, 'name': 1 }, 
     display_member = lambda data: f'{data["label"]}', 
     value_member = lambda data: f'{data["_id"]}',
-    render_kw = { 'class': select_class },
+    render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
   )
   page_size = IntegerField(
     'Page Size',
