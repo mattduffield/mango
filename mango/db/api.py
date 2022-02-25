@@ -12,7 +12,6 @@ DATABASE_USERNAME = os.environ.get('DATABASE_USERNAME')
 DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD')
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
-# from mango.auth.models import AuthHandler, Credentials
 from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 
 uri = f'mongodb+srv://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_CLUSTER}.mongodb.net/{DATABASE_NAME}?retryWrites=true&w=majority'
@@ -21,15 +20,12 @@ db = client.test
 
 print(uri)
 
-# auth_handler = AuthHandler()
-
 router = APIRouter(
   prefix = '/api',
   tags = ['Mongodon']
 )
 
 @router.post('/find')
-# async def find(query: Query, user_id=Depends(auth_handler.auth_wrapper)):
 async def find(query: Query):
   database = query.database
   if not database:
@@ -40,8 +36,6 @@ async def find(query: Query):
   cursor = eval(expr)
   results = list(cursor)
   return results
-  # data = json.loads(json.dumps(results, default=json_from_mongo))
-  # return data
 
 def find_sync(query: Query):
   database = query.database
@@ -53,8 +47,6 @@ def find_sync(query: Query):
   cursor = eval(expr)
   results = list(cursor)
   return results
-  # data = json.loads(json.dumps(results, default=json_from_mongo))
-  # return data
 
 def find_one_sync(query: Query):
   database = query.database
@@ -66,8 +58,6 @@ def find_one_sync(query: Query):
   result = eval(expr)
   data = json.loads(json.dumps(result))
   return data
-  # data = json.loads(json.dumps(result, default=json_from_mongo))
-  # return data
 
 def insert_one_sync(payload: InsertOne):
   database = payload.database
@@ -80,7 +70,6 @@ def insert_one_sync(payload: InsertOne):
   data = json.loads(json_util.dumps({'acknowledged': result.acknowledged, 'inserted_id': result.inserted_id}))
   return data
 
-
 @router.post('/findOne')
 async def find_one(query: QueryOne):
   database = query.database
@@ -91,9 +80,6 @@ async def find_one(query: QueryOne):
   entity = db[query.collection]
   result = eval(expr)
   return result
-  # NOTE: We are using this API to work only server-side with Jinja2
-  # data = json.loads(json.dumps(result, default=json_from_mongo))
-  # return data
 
 @router.post('/count')
 async def count(query: Count):
@@ -105,7 +91,6 @@ async def count(query: Count):
   entity = db[query.collection]
   result = eval(expr)
   data = json.loads(json.dumps(result))
-  # data = json.loads(json.dumps(result, default=json_from_mongo))
   return {'count': data}
 
 @router.post('/bulkRead')
@@ -120,11 +105,8 @@ async def bulk_read(batch: List[Union[Query, QueryOne]]):
     entity = db[query.collection]
     cursor = eval(expr)
     results = list(cursor)
-    payload.append(results)
-    return results
-    # NOTE: We are using this API to work only server-side with Jinja2
-    # data = json.loads(json.dumps(results, default=json_from_mongo))
-    # payload.append(data)
+    data = json.loads(json.dumps(results))
+    payload.append(data)
   return payload
 
 @router.post('/insertOne')
@@ -244,7 +226,5 @@ async def run_pipeline(ap: AggregatePipeline):
   db = client[database]
   command = {"aggregate": ap.aggregate, "pipeline": ap.pipeline, "cursor": ap.cursor}
   result = db.command(command)  
-  return result
-  # NOTE: We are using this API to work only server-side with Jinja2
-  # data = json.loads(json_util.dumps(result), object_hook=json_from_mongo)
-  # return data
+  data = json.loads(json_util.dumps(result), object_hook=json_from_mongo)
+  return data
