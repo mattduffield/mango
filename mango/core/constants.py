@@ -123,3 +123,8 @@ hs_config_tom_select = f'''
 on load 
   configTomSelect(me)
 '''
+
+hs_config_rome = f'''
+on load 
+  configRome(me)
+'''

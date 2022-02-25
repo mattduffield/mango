@@ -10,7 +10,7 @@ from typing import (
 )
 from mango.db.api import find, find_one, count, bulk_read, insert_one, insert_many, update_one, delete, bulk_write, run_pipeline
 from mango.wf.models import User, Workflow, WorkflowRequest, WorkflowRun, WorkflowTrigger, Machine
-from mango.db.models import json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
+from mango.db.models import json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, Delete, BulkWrite, AggregatePipeline
 from settings import manager, templates
 
 
@@ -24,8 +24,7 @@ router = APIRouter(
 async def get_workflow_by_name(database:str, name:str):
   payload = {
     "database": database,
-    "collection": "workflows",
-    "query_type": "find_one",
+    "collection": "workflow",
     "query": {"name": name},
     "skip": 0
   }
@@ -36,8 +35,7 @@ async def get_workflow_by_name(database:str, name:str):
 async def get_workflow_run_by_id(database:str, id:str):
   payload = {
     "database": database,
-    "collection": "workflow-runs",
-    "query_type": "find_one",
+    "collection": "workflow_run",
     "query": {"_id": id},
     "skip": 0
   }
@@ -50,8 +48,7 @@ async def insert_workflow_run(database:str, run:dict, data:dict):
   wfr.data = data
   payload = {
     "database": database,
-    "collection": "workflow-runs",
-    "insert_type": "insert_one",
+    "collection": "workflow_run",
     "data": wfr.dict()
   }
   insertOne = InsertOne(**payload)
@@ -63,12 +60,11 @@ async def insert_workflow_run(database:str, run:dict, data:dict):
 async def update_workflow_run_state_by_id(database:str, id:str, state:str):
   payload = {
     "database": database,
-    "collection": "workflow-runs",
-    "update_type": "update_one",
+    "collection": "workflow_run",
     "query": {"_id": id},
     "data": {"$set": {"current_state": state}}
   }
-  updateOne = Update(**payload)
+  updateOne = UpdateOne(**payload)
   res = await update_one(updateOne)
   return res
 
