@@ -9,7 +9,7 @@ from fastapi_login.exceptions import InvalidCredentialsException
 from mango.auth.models import AuthHandler, Credentials, Signup, PasswordReset
 from mango.auth.forms import LoginForm, SignupForm, PasswordResetForm
 from mango.db.models import QueryOne, InsertOne
-from mango.db.api import find_one_sync, find_one, insert_one_sync, insert_one
+from mango.db.rest import find_one_sync, find_one, insert_one_sync, insert_one
 from mango.wf.models import WorkflowRequest
 from mango.wf.views import init_workflow_run
 from settings import manager, templates
@@ -48,7 +48,6 @@ def load_user(email:str, database):
   payload = {
     'database': database,
     'collection': 'users', 
-    'query_type': 'find_one',
     'query': {
       'email': email
     }, 
