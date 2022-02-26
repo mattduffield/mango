@@ -10,6 +10,7 @@ from starlette.datastructures import MultiDict
 from wtforms import Form
 from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 from mango.auth.models import Credentials
+from mango.auth.auth import can
 from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, ModelFieldAttribute, ModelFieldChoice, ModelFieldValidator, PageLayout, Tab, App
 from mango.core.forms import ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, ModelFieldAttributeForm, ModelFieldChoiceForm, ModelFieldValidatorForm, PageLayoutForm, TabForm, AppForm
 from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
@@ -67,7 +68,7 @@ class BaseView():
     #   raise Exception('Missing attribute template_name!')
     if not self.model_class:
       raise Exception('Missing attribute model_class!')
-
+    self.can = can
     self.model_name = self.model_class.Meta.name
     self.initialize_route_names()
     
