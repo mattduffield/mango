@@ -116,7 +116,7 @@ end
 
 hs_label = f'''
 on input 
-  toLowerSnake(me, "name")
+  copyToLowerSnake(me, "name")
 '''
 
 hs_config_tom_select = f'''

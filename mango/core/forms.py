@@ -31,7 +31,7 @@ class ActionForm(StarletteForm):
   topic = StringField(
     'Topic', 
     validators = [DataRequired()], 
-    render_kw = { 'autofocus': 'true', 'class': input_class },
+    render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'on input toLowerUri(me)' },
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
@@ -43,7 +43,7 @@ class RoleForm(StarletteForm):
   label = StringField(
     'Label', 
     validators = [DataRequired()], 
-    render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'on input toLowerSnake(me, "name")' },
+    render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
   )
   name = StringField(
     'Name', 
