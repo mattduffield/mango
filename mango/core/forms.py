@@ -50,24 +50,24 @@ class RoleForm(StarletteForm):
     validators = [DataRequired()],
     render_kw = { 'class': input_class },
   )  
-  current_action = QuerySelectField(
-    'Current Action',
-    collection = 'action', 
-    projection = { 'topic': 1 }, 
-    display_member = lambda data: f'{data["topic"]}', 
-    value_member = lambda data: f'{data["_id"]}',
-    render_kw = { 'class': select_class },
-  )
-  action_date = DateField(
-    'Action Date', 
-    render_kw = { 'class': input_class, 'data-type': 'datetime' },
-  )
+  # current_action = QuerySelectField(
+  #   'Current Action',
+  #   collection = 'action', 
+  #   projection = { 'topic': 1 }, 
+  #   display_member = lambda data: f'{data["topic"]}', 
+  #   value_member = lambda data: f'{data["_id"]}',
+  #   render_kw = { 'class': select_class },
+  # )
+  # action_date = DateField(
+  #   'Action Date', 
+  #   render_kw = { 'class': input_class, 'data-type': 'datetime' },
+  # )
   action_list = QuerySelectMultipleField(
     'Actions',
     collection = 'action', 
     projection = { 'topic': 1 }, 
     display_member = lambda data: f'{data["topic"]}', 
-    value_member = lambda data: f'{data["_id"]}',
+    value_member = lambda data: f'{data["topic"]}',
     render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
   )
   is_active = ToggleSwitchField(
