@@ -43,7 +43,7 @@ class RoleForm(StarletteForm):
   label = StringField(
     'Label', 
     validators = [DataRequired()], 
-    render_kw = { 'autofocus': 'true', 'class': input_class },
+    render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'on input toLowerSnake(me, "name")' },
   )
   name = StringField(
     'Name', 
