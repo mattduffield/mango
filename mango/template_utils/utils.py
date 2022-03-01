@@ -17,6 +17,7 @@ from mango.core.fields import QuerySelectField, QuerySelectMultipleField
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
 templates = None
+lookup_cache = {}
 
 '''
   The following can be used as either a filter or a test.
@@ -59,6 +60,14 @@ def to_date(value, *args, **kwargs):
   if isinstance(value, (datetime.datetime)):
     return value.strftime('%m/%d/%Y')
 
+def load_sync(query):
+  if not query.collection in lookup_cache:
+    lookup = find_sync(query)
+    lookup_cache[query.collection] = lookup
+  else:
+    lookup = lookup_cache[query.collection]
+  return lookup
+
 def db_lookup(value, data = []):
   if isinstance(value, (QuerySelectField)):
     query = Query(
@@ -69,7 +78,7 @@ def db_lookup(value, data = []):
     )
     display_member = value.display_member
     value_member = value.value_member
-    lookup = find_sync(query)
+    lookup = load_sync(query)
     found = next((display_member(x) for x in lookup if value_member(x) == data), None)
     return found
   elif isinstance(value, (QuerySelectMultipleField)):
@@ -81,7 +90,7 @@ def db_lookup(value, data = []):
     )
     display_member = value.display_member
     value_member = value.value_member
-    lookup = find_sync(query)
+    lookup = load_sync(query)
     processed = []
     for item in data:
       p = next((display_member(x) for x in lookup if value_member(x) == item), None)
@@ -95,6 +104,7 @@ class CustomJinja2Templates(Jinja2Templates):
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
     self.env.add_extension(RenderColTag)
+    self.env.add_extension(RenderTableTag)
     self.env.filters.update({
       'is_datetime': is_datetime,
       'is_fieldlist': is_fieldlist,
@@ -149,8 +159,180 @@ class RenderColTag(StandaloneTag):
     return result
 
 
+class RenderTableTag(StandaloneTag):
+  tags = {'RenderTable'}
+
+  def render(self, view, form, data):
+    # Usage:
+    #   {% RenderTable view=view, form=form, data=data %}
+    items = view.list_layout['field_list']
+
+    parts = []
+    table_start = '''
+      <table class="min-w-full divide-y divide-gray-200 shadow-md"
+        hx-indicator=".htmx-indicator">
+    '''
+    table_end = '''
+      </table>
+    '''
+    thead_start = '''
+      <thead class="bg-gray-50">
+        <tr>
+    '''
+    thead_end = '''
+        </tr>
+      </thead>
+    '''
+    thead_col_start = '''
+      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+    '''
+    thead_col_end = '''
+      </th>
+    '''
+    thead_col_actions = '''
+      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>  
+    '''
+    tbody_start = '''
+      <tbody class="bg-white divide-y divide-gray-200">
+    '''
+    tbody_end = '''
+      </tbody>
+    '''
+    tbody_row_start = '''
+      <tr class="intro-y">    
+    '''
+    tbody_row_end = '''
+      </tr>
+    '''
+    tbody_col_start = '''
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+    '''
+    tbody_col_end = '''
+      </td>
+    '''
+    tbody_col_actions = f'''
+      <td class="flex justify-between px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <a class="cursor-pointer" 
+          hx-get="/{view.model_name}/{{ object['_id'] }}" 
+          hx-target="#viewport" 
+          hx-swap="innerHTML" 
+          hx-push-url="true" 
+          hx-indicator="#content-loader">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+          </svg>
+        </a> 
+        <a class="cursor-pointer"
+          hx-get="/{view.model_name}/{{ object['_id'] }}/delete" 
+          hx-target="#viewport" 
+          hx-swap="innerHTML" 
+          hx-push-url="true" 
+          hx-indicator="#content-loader">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+        </a>
+      </td>    
+    '''
+    template = '''
+    <table class="min-w-full divide-y divide-gray-200 shadow-md"
+      hx-indicator=".htmx-indicator">
+      <thead class="bg-gray-50">
+        <tr>
+          {% for item in items %}
+            {% set field = form[item] %}
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {{ field.label.text }}
+            </th>
+          {% endfor %}
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>        
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        {% for object in data %}
+          <tr class="intro-y">
+            {% for item in items %}
+              {% set field = form[item] %}
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {% if object[field.name]|is_datetime %}
+                  {{ object[field.name]|to_date }}
+                {% elif object[field.name]|is_list or field|is_query_select_field %}
+                  {{ field|db_lookup(data=object[field.name]) }}
+                {% else %}
+                  {{ object[field.name] }}
+                {% endif %}
+              </td>
+            {% endfor %}
+            <td class="flex justify-between px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <a class="cursor-pointer" 
+                hx-get="/{{ view.model_name }}/{{ object['_id'] }}" 
+                hx-target="#viewport" 
+                hx-swap="innerHTML" 
+                hx-push-url="true" 
+                hx-indicator="#content-loader">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                </svg>
+              </a> 
+              <a class="cursor-pointer"
+                hx-get="/{{ view.model_name }}/{{ object['_id'] }}/delete" 
+                hx-target="#viewport" 
+                hx-swap="innerHTML" 
+                hx-push-url="true" 
+                hx-indicator="#content-loader">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </a>
+            </td>
+          </tr>
+        {% else %}
+          <tr class="intro-y">
+            <td colspan="100%" class="px-6 py-4 text-center h-36">
+              No Data
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>  
+    
+    '''
+
+    parts.append(table_start)
+    parts.append(thead_start)
+    for item in items:
+      field = form[item]
+      parts.append(thead_col_start)
+      parts.append(field.label.text)
+      parts.append(thead_col_end)
+    parts.append(thead_col_actions)
+    parts.append(thead_end)
+    parts.append(tbody_start)
+    for object in data:
+      parts.append(tbody_row_start)
+      for item in items:
+        field = form[item]
+        parts.append(tbody_col_start)
+        if isinstance(object[field.name], datetime.datetime):
+          parts.append(object[field.name].strftime('%m/%d/%Y'))
+        elif isinstance(object[field.name], list) or isinstance(field, QuerySelectField):
+          parts.append(db_lookup(field, data=object[field.name]))
+        else:
+          val = str(object[field.name])
+          parts.append(val)
+        parts.append(tbody_col_end)
+      parts.append(tbody_col_actions)
+      parts.append(tbody_row_end)
+    parts.append(tbody_end)
+    parts.append(table_end)
+
+    result = ''.join(parts)
+    return result
+
+
 def register_tags(templates):
   templates.env.add_extension(RenderColTag)
+  templates.env.add_extension(RenderTableTag)
 
 def configure_templates(directory='templates'):
   global templates

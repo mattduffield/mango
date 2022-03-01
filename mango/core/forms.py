@@ -23,7 +23,7 @@ from wtforms import (
 )
 from wtforms.validators	import DataRequired, NoneOf
 from mango.core.fields import QuerySelectField, QuerySelectMultipleField, ToggleSwitchField
-from mango.core.constants import chk_class, input_class, label_class, select_class, select_multiple_class, textarea_class, toggle_radio_class, toggle_switch_class, hs_element_type, hs_label, hs_config_tom_select
+from mango.core.constants import chk_class, input_class, label_class, select_class, select_multiple_class, textarea_class, toggle_radio_class, toggle_switch_class, hs_element_type, hs_config_tom_select
 from mango.core.choices import DATA_TYPES, FIELD_TYPES
 from mango.core.validators import DataRequiredIf, OptionalIfFieldEqualTo
 
@@ -88,7 +88,7 @@ class ModelForm(StarletteForm):
   label = StringField(
     'Label', 
     validators = [DataRequired()], 
-    render_kw = { 'autofocus': 'true', 'class': input_class },
+    render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
   )
   label_plural = StringField(
     'Plural Label', 
@@ -107,6 +107,7 @@ class ModelForm(StarletteForm):
   order_by = QuerySelectMultipleField(
     'Order By',
     collection = 'model_field', 
+    query = { 'model_name': lambda data: data["name"] },
     projection = { 'label': 1, 'name': 1 }, 
     display_member = lambda data: f'{data["label"]}', 
     value_member = lambda data: f'{data["_id"]}',
@@ -126,7 +127,7 @@ class ModelRecordTypeForm(StarletteForm):
   label = StringField(
     'Label', 
     validators = [DataRequired()], 
-    render_kw = { 'autofocus': 'true', 'class': input_class },
+    render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
   )
   name = StringField(
     'Name', 
@@ -154,7 +155,7 @@ class ModelFieldForm(StarletteForm):
   label = StringField(
     'Label', 
     validators = [DataRequired()], 
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
   )
   name = StringField(
     'Name', 
@@ -217,7 +218,7 @@ class ModelFieldAttributeForm(StarletteForm):
   model_field_id = QuerySelectField(
     'Model Field', 
     collection = 'model_field', 
-    projection = { 'label': 1 }, 
+    projection = { 'label': 1, 'name': 1 }, 
     display_member = lambda data: f'{data["label"]}', 
     value_member = lambda data: f'{data["_id"]}',
     validators = [DataRequired()], 
@@ -254,7 +255,7 @@ class ModelFieldChoiceForm(StarletteForm):
   model_field_id = QuerySelectField(
     'Model Field', 
     collection = 'model_field', 
-    projection = { 'label': 1 }, 
+    projection = { 'label': 1, 'name': 1 }, 
     display_member = lambda data: f'{data["label"]}', 
     value_member = lambda data: f'{data["_id"]}',
     validators = [DataRequired()], 
@@ -265,7 +266,7 @@ class ModelFieldChoiceForm(StarletteForm):
   label = StringField(
     'Label', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
   )
   name = StringField(
     'Name', 
@@ -291,7 +292,7 @@ class ModelFieldValidatorForm(StarletteForm):
   model_field_id = QuerySelectField(
     'Model Field', 
     collection = 'model_field', 
-    projection = { 'label': 1 }, 
+    projection = { 'label': 1, 'name': 1 }, 
     display_member = lambda data: f'{data["label"]}', 
     value_member = lambda data: f'{data["_id"]}',
     validators = [DataRequired()], 
@@ -553,7 +554,7 @@ class PageLayoutForm(StarletteForm):
   label = StringField(
     'Label', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class, 'data-script': hs_label },
+    render_kw = { 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
   )
   name = StringField(
     'Name', 
@@ -604,6 +605,67 @@ class PageLayoutForm(StarletteForm):
     render_kw = { 'class': chk_class },
   )
 
+  # def list_layout(self):
+  #   return [
+  #     'model_name',
+  #     'model_record_type',
+  #     'label',
+  #     'name',
+  #     'is_default',
+  #   ]
+
+
+class ListLayoutForm(StarletteForm):
+  model_name = QuerySelectField(
+    'Model', 
+    collection = 'model', 
+    projection = { 'label': 1, 'name': 1 }, 
+    display_member = lambda data: f'{data["label"]}', 
+    value_member = lambda data: f'{data["name"]}',
+    validators = [DataRequired()], 
+    allow_blank = True,
+    blank_text = 'Pick...',
+    render_kw = { 'autofocus': 'true', 'class': select_class },
+  )
+  model_record_type = QuerySelectField(
+    'Model Record Type', 
+    collection = 'model_record_type', 
+    projection = { 'label': 1 }, 
+    display_member = lambda data: f'{data["label"]}', 
+    value_member = lambda data: f'{data["_id"]}',
+    validators = [DataRequired()], 
+    allow_blank = True,
+    blank_text = 'Pick...',
+    render_kw = { 'autofocus': 'true', 'class': select_class },
+  )
+  label = StringField(
+    'Label', 
+    validators = [DataRequired()],
+    render_kw = { 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
+  )
+  name = StringField(
+    'Name', 
+    validators = [DataRequired('label')],
+    render_kw = { 'class': input_class },
+  )
+  field_list = QuerySelectMultipleField(
+    'Field List',
+    collection = 'model_field', 
+    query = { 'model_name': lambda data: data["model_name"] },
+    projection = { 'label': 1, 'name': 1 }, 
+    display_member = lambda data: f'{data["label"]}', 
+    value_member = lambda data: f'{data["name"]}',
+    render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
+  )
+  is_default = ToggleSwitchField(
+    'Is Default?', 
+    render_kw = { 'class': chk_class },
+  )
+  is_active = ToggleSwitchField(
+    'Is Active?', 
+    render_kw = { 'class': chk_class },
+  )
+
 
 class TabForm(StarletteForm):
   model_name = QuerySelectField(
@@ -641,7 +703,7 @@ class AppForm(StarletteForm):
   label = StringField(
     'Label', 
     validators=[DataRequired()],
-    render_kw = { 'autofocus': 'true', 'class': input_class },
+    render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
   )
   name = StringField(
     'Name', 

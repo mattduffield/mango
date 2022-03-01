@@ -41,8 +41,8 @@ class Action(BaseModel):
 class Role(BaseModel):
   label: str
   name: str  # usually lowercase with underscores instead of spaces
-  current_action: Optional[str] = ''
-  action_date: Optional[datetime.datetime]
+  # current_action: Optional[str] = ''
+  # action_date: Optional[datetime.datetime]
   action_list: List[str] = []  # list of authorized actions for the given role  
   is_locked: bool = False
   is_active: bool = True
@@ -127,7 +127,7 @@ class ModelRecordType(BaseModel):
   * Need to support Field enclosers: FormField, FieldList, custom fields, etc.
 '''
 class ModelField(BaseModel):
-  model_id: str
+  model_name: str
   label: str
   name: str  # usually lowercase with underscores instead of spaces
   data_type: str  # usually sourced from a List of tuples (value, label), e.g. str,int,bool
@@ -301,6 +301,35 @@ class PageLayout(BaseModel):
   class Meta:
     name = 'page_layout'
     search_index_name = 'page_layout_search'
+    order_by = [
+      'label',
+    ]
+    page_size = 0
+
+
+'''
+  The ListLayout class represents the list layout for a given Model object.
+  There can only be one list_layout that is_default set to True.
+'''
+class ListLayout(BaseModel):
+  model_name: str
+  model_record_type: str  # holds the record type for the Model
+  label: str
+  name: str  # usually lowercase with underscores instead of spaces
+  field_list: List[str] = []  # holds a list of available fields by name
+  is_default: bool = False
+  is_locked: bool = False
+  is_active: bool = True
+
+  def __str__(self):
+    return self.label
+  
+  def new_dict():
+    return {'model_name': '', 'model_record_type': '', 'label': '', 'name': '', 'field_list': [], 'is_default': False, 'is_locked': False, 'is_active': True}
+
+  class Meta:
+    name = 'list_layout'
+    search_index_name = 'list_layout_search'
     order_by = [
       'label',
     ]

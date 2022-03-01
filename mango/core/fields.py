@@ -148,21 +148,19 @@ class QuerySelectField(SelectField):
     self.db_query = Query(
       database=DATABASE_NAME,
       collection=collection,
-      query=query,
+      query=query.copy(),
       projection=projection
     )
     self.projection = projection
     self.display_member = display_member
     self.value_member = value_member
-
-    choices = self.load_choices()
-    if choices is not None:
-      self.choices = choices if isinstance(choices, dict) else list(choices)
-    else:
-      self.choices = None
     self.validate_choice = validate_choice
 
-  def load_choices(self):
+  def get_choices(self, data):
+    for prop in self.query:
+      if callable(self.query[prop]):
+        self.db_query.query[prop] = self.query[prop](data)
+    
     blank_choice = None
     raw = find_sync(self.db_query)
     if self.allow_blank:
@@ -170,6 +168,10 @@ class QuerySelectField(SelectField):
     choices = [(self.value_member(x), self.display_member(x)) for x in raw]
     if blank_choice:
       return blank_choice + choices
+    if choices is not None:
+      choices = choices if isinstance(choices, dict) else list(choices)
+    else:
+      choices = None
     return choices
 
 
@@ -197,23 +199,25 @@ class QuerySelectMultipleField(SelectMultipleField):
     self.db_query = Query(
       database=DATABASE_NAME,
       collection=collection,
-      query=query,
+      query=query.copy(),
       projection=projection
     )
     self.projection = projection
     self.display_member = display_member
     self.value_member = value_member
-
-    choices = self.load_choices()
-    if choices is not None:
-      self.choices = choices if isinstance(choices, dict) else list(choices)
-    else:
-      self.choices = None
     self.validate_choice = validate_choice
 
-  def load_choices(self):
+  def get_choices(self, data):
+    for prop in self.query:
+      if callable(self.query[prop]):
+        self.db_query.query[prop] = self.query[prop](data)
+            
     raw = find_sync(self.db_query)
     choices = [(self.value_member(x), self.display_member(x)) for x in raw]
+    if choices is not None:
+      choices = choices if isinstance(choices, dict) else list(choices)
+    else:
+      self.choices = None
     return choices
 
 

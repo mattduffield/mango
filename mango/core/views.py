@@ -11,8 +11,9 @@ from wtforms import Form
 from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 from mango.auth.models import Credentials
 from mango.auth.auth import can
-from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, ModelFieldAttribute, ModelFieldChoice, ModelFieldValidator, PageLayout, Tab, App
-from mango.core.forms import ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, ModelFieldAttributeForm, ModelFieldChoiceForm, ModelFieldValidatorForm, PageLayoutForm, TabForm, AppForm
+from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, ModelFieldAttribute, ModelFieldChoice, ModelFieldValidator, PageLayout, ListLayout, Tab, App
+from mango.core.fields import QuerySelectField, QuerySelectMultipleField
+from mango.core.forms import ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, ModelFieldAttributeForm, ModelFieldChoiceForm, ModelFieldValidatorForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm
 from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 from mango.db.api import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
 import settings
@@ -32,9 +33,12 @@ def get_controller(prefix: str = '', tags: List[str] = ['Views']):
 
 
 class StaticView():
+  def __init__(self):
+    self.can = can
+
   async def get(self, request: Request):
     self.request = request
-    context = {'request': request, 'settings': settings}
+    context = {'request': request, 'settings': settings, 'view': self}
     template_name = self.get_template_name()
     response = templates.TemplateResponse(template_name, context)
     return response
@@ -125,7 +129,8 @@ class BaseView():
     else:
       data = await self.get_data(get_type)
 
-    page_layout = await self.get_page_layout(get_type)
+    self.page_layout = await self.get_page_layout(get_type)
+    self.list_layout = await self.get_list_layout(get_type)
 
     if get_type in ['get_update', 'get_delete']:
       model_data = self.model_class(**data)
@@ -135,17 +140,27 @@ class BaseView():
       if  hasattr(self, 'form_class'):
         if issubclass(self.form_class, StarletteForm):
           form = self.form_class(request, data=data)
-          pass
         elif issubclass(self.form_class, Form):
           form = self.form_class(data=data)
+        # Now get all choices, including custom query criteria
+        for field in form:
+          if isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
+            field.choices = field.get_choices(data=data)
 
-    context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': page_layout}
+    context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
     return context
 
   async def get_page_layout(self, get_type: str):
     data = None
     if get_type in ['get_create', 'get_update']:
       query = self.get_query('find_one', collection='page_layout', query={'model_name': self.model_name})
+      data = await find_one(query)
+    return data
+
+  async def get_list_layout(self, get_type: str):
+    data = None
+    if get_type in ['get_list']:
+      query = self.get_query('find_one', collection='list_layout', query={'model_name': self.model_name})
       data = await find_one(query)
     return data
 
@@ -188,6 +203,10 @@ class BaseView():
       data = await self.get_data('get_update')
       model_data = self.model_class(**data)
       data_string = str(model_data)
+      # Now get all choices, including custom query criteria
+      for field in self.form:
+        if isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
+          field.choices = field.get_choices(data=data)
 
     if post_type == 'post_create':
       if await self.form.validate_on_submit():
@@ -629,6 +648,44 @@ class PageLayoutView(BaseView):
     return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
   @page_layout_controller.route.post('/page_layout/{_id}/delete', response_class=HTMLResponse, name='page_layout-delete')
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
+
+
+list_layout_controller = get_controller(tags=['List Layout Views'])
+@list_layout_controller.resource()
+class ListLayoutView(BaseView):
+  model_class = ListLayout
+  form_class = ListLayoutForm
+
+  def __init__(self):
+    super().__init__()
+
+  @list_layout_controller.route.get('/list_layout', response_class=HTMLResponse, name='list_layout-list')
+  async def get_list(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+
+  @list_layout_controller.route.get('/list_layout/create', response_class=HTMLResponse, name='list_layout-create')
+  async def get_create(self, request: Request, is_modal: bool=False):
+    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
+
+  @list_layout_controller.route.post('/list_layout/create', response_class=HTMLResponse, name='list_layout-create')
+  async def post_create(self, request: Request, is_modal: bool=False):
+    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
+
+  @list_layout_controller.route.get('/list_layout/{_id}', response_class=HTMLResponse, name='list_layout-update')
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
+
+  @list_layout_controller.route.post('/list_layout/{_id}', response_class=HTMLResponse, name='list_layout-update')
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
+
+  @list_layout_controller.route.get('/list_layout/{_id}/delete', response_class=HTMLResponse, name='list_layout-delete')
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
+
+  @list_layout_controller.route.post('/list_layout/{_id}/delete', response_class=HTMLResponse, name='list_layout-delete')
   async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 

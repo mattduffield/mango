@@ -114,11 +114,6 @@ on load
 end
 '''
 
-hs_label = f'''
-on input 
-  copyToLowerSnake(me, "name")
-'''
-
 hs_config_tom_select = f'''
 on load 
   configTomSelect(me)
