@@ -142,7 +142,6 @@ class BaseView():
           form = self.form_class(request, data=data)
         elif issubclass(self.form_class, Form):
           form = self.form_class(data=data)
-        # Now get all choices, including custom query criteria
         for field in form:
           if isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
             field.choices = field.get_choices(data=data)
@@ -203,12 +202,15 @@ class BaseView():
       data = await self.get_data('get_update')
       model_data = self.model_class(**data)
       data_string = str(model_data)
-      # Now get all choices, including custom query criteria
       for field in self.form:
         if isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
           field.choices = field.get_choices(data=data)
 
     if post_type == 'post_create':
+      data = await self.get_data('get_create')
+      for field in self.form:
+        if isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
+          field.choices = field.get_choices(data=data)
       if await self.form.validate_on_submit():
         payload = self.post_query(post_type)
         response = await self.post_data(post_type, payload=payload)
