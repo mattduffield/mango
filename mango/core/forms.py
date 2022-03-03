@@ -27,6 +27,20 @@ from mango.core.constants import chk_class, input_class, label_class, select_cla
 from mango.core.choices import DATA_TYPES, FIELD_TYPES
 from mango.core.validators import DataRequiredIf, OptionalIfFieldEqualTo
 
+
+class KeyValueForm(Form):
+  key = StringField(
+    'Key',
+    validators= [],
+    render_kw = { 'class': input_class },
+  )
+  value = StringField(
+    'Value',
+    validators= [],
+    render_kw = { 'class': input_class },
+  )
+
+
 class ActionForm(StarletteForm):
   topic = StringField(
     'Topic', 
@@ -162,12 +176,6 @@ class ModelFieldForm(StarletteForm):
     validators=[DataRequired()],
     render_kw = { 'class': input_class },
   )
-  # data_type = SelectField(
-  #   'Data Type', 
-  #   validators = [DataRequired()],
-  #   choices = DATA_TYPES,
-  #   render_kw = { 'class': select_class },
-  # )
   data_type = QuerySelectField(
     'Data Type', 
     collection = 'data_type', 
@@ -191,12 +199,6 @@ class ModelFieldForm(StarletteForm):
     'Default Value Use Quotes?', 
     render_kw = { 'class': chk_class },
   )
-  # field_type = SelectField(
-  #   'Field Type', 
-  #   validators = [DataRequired()],
-  #   choices = FIELD_TYPES,
-  #   render_kw = { 'class': select_class },
-  # )
   field_type = QuerySelectField(
     'Field Type', 
     collection = 'field_type', 
@@ -208,6 +210,16 @@ class ModelFieldForm(StarletteForm):
     blank_text = 'Pick...',
     render_kw = { 'class': select_class },
   )
+  validator_list = FieldList(
+    StringField('Validator')
+  )
+  attribute_list = FieldList(
+    FormField(KeyValueForm),
+    min_entries=1,
+  )
+  # choice_list = FieldList(
+  #   StringField('Choice')
+  # )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },

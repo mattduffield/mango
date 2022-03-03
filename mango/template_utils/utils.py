@@ -9,10 +9,11 @@ import os
 import datetime
 from fastapi.templating import Jinja2Templates
 from jinja2_simple_tags import StandaloneTag
-from wtforms import fields
+from wtforms import fields, FormField
 from mango.db.api import find_sync, find_one_sync
 from mango.db.models import Query, QueryOne
 from mango.core.fields import QuerySelectField, QuerySelectMultipleField
+from mango.core.forms import KeyValueForm
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
@@ -43,8 +44,14 @@ def is_fieldlist(value, *args, **kwargs):
 def is_list(value, *args, **kwargs):
   return isinstance(value, list)
 
+def is_form_field(value, *args, **kwargs):
+  return isinstance(value, FormField)
+
 def is_query_select_field(value, *args, **kwargs):
   return isinstance(value, QuerySelectField)
+
+def is_key_value_form(value, *args, **kwargs):
+  return isinstance(value, KeyValueForm)
 
 def to_proper_case(value, *args, **kwargs):
   if not value:
@@ -59,6 +66,12 @@ def to_string(value, *args, **kwargs):
 def to_date(value, *args, **kwargs):
   if isinstance(value, (datetime.datetime)):
     return value.strftime('%m/%d/%Y')
+
+def to_field_list_label(value, *args, **kwargs):
+  if not value:
+    return value
+  parts = value.rsplit('-', 1)
+  return parts[1]
 
 def load_sync(query):
   if not query.collection in lookup_cache:
@@ -109,7 +122,10 @@ class CustomJinja2Templates(Jinja2Templates):
       'is_datetime': is_datetime,
       'is_fieldlist': is_fieldlist,
       'is_list': is_list,
+      'is_form_field': is_form_field,
       'is_query_select_field': is_query_select_field,
+      'is_key_value_form': is_key_value_form,
+      'to_field_list_label': to_field_list_label,
       'to_proper_case': to_proper_case,
       'to_string': to_string,
       'to_date': to_date,
@@ -118,7 +134,10 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['is_datetime'] = is_datetime
     self.env.tests['is_fieldlist'] = is_fieldlist
     self.env.tests['is_list'] = is_list
+    self.env.tests['is_form_field'] = is_form_field
     self.env.tests['is_query_select_field'] = is_query_select_field
+    self.env.tests['is_key_value_form'] = is_key_value_form
+    self.env.tests['to_field_list_label'] = to_field_list_label
     self.env.tests['to_proper_case'] = to_proper_case
     self.env.tests['to_string'] = to_string
     self.env.tests['to_date'] = to_date

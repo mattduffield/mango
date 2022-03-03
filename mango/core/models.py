@@ -11,6 +11,12 @@ from typing import Any, Optional, Dict, List
 from pydantic import BaseModel, PositiveInt
 from wtforms import Field
 
+
+class KeyValue(BaseModel):
+  key: str
+  value: str
+
+
 '''
   This class represents a given action to perform.
 '''
@@ -135,6 +141,9 @@ class ModelField(BaseModel):
   default_value: str = ''  # this should be coerced by the data_type entry, e.g. str should have quotes
   default_value_use_quotes: bool = True  # wrap the default with quotes (") if True
   field_type: str  # usually sourced from a list of valid WTForms element types
+  validator_list: Optional[List[str]] = []
+  attribute_list: Optional[List[KeyValue]] = []
+  # choice_list: Optional[List[str]] = []
   is_locked: bool = False
   is_active: bool = True
 

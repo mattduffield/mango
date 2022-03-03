@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <link href="{{ url_for('static', path='/images/logo.svg') }}" rel="shortcut icon">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="htmx-config" content='{"useTemplateFragments": true}'>
     <title>FALM</title>
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <link href="{{ url_for('static', path='/css/midone.css') }}" rel="stylesheet">
@@ -12,10 +13,10 @@
     <link href="{{ url_for('static', path='/css/toggle-radios.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', path='/css/toggle-switch.css') }}" rel="stylesheet">
     <!-- <script src="{{ url_for('static', path='/external/js/htmx.js') }}"></script> -->
-    <script src="https://unpkg.com/htmx.org@1.6.1"></script>
-    <script src="https://unpkg.com/hyperscript.org@0.9.4"></script>
+    <script src="https://unpkg.com/htmx.org@1.7.0"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.5"></script>
     <script src="https://unpkg.com/feather-icons"></script>
-    <script type="module" src="{{ url_for('static', path='/js/components/multi-select.js') }}"></script>
+    <!-- <script type="module" src="{{ url_for('static', path='/js/components/multi-select.js') }}"></script> -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 
@@ -109,6 +110,22 @@
     </div>
 
     <script>
+      function configRome(elt) {
+        rome(elt, { time: true });
+      }
+      function configTomSelect(elt) {
+        var config = {
+          plugins: {
+            remove_button:{
+              title:'Remove this item',
+            }
+          }
+        };
+        new TomSelect(elt,config);
+      }
+      function updateFeatherIcons() {
+        feather.replace();
+      }
       function processModal(selector, is_modal) {
         const el = document.querySelector(selector);
         if (el && is_modal) {
@@ -128,7 +145,8 @@
       }
       function addHxVars(selector) {
         const el = document.querySelector(selector);
-        if (el) {
+        const processed = el.dataset.processed;
+        if (el && !processed) {
           let list = [];
           let vars = el.getAttribute('hx-vars') || '';
           if (vars) {
@@ -141,28 +159,9 @@
           if (list.length > 0) {
             el.setAttribute('hx-vars', list.join(','));
           }
+          //updateFeatherIcons();
+          el.dataset.processed = true;
         }
-
-        function configureTomSelect() {
-          var config = {
-            plugins: {
-              remove_button:{
-                title:'Remove this item',
-              }
-            }
-          };
-          new TomSelect('select[multiple]',config);
-        }
-        function configureRome() {
-          const els = document.querySelectorAll('input[data-type="datetime"]');
-          //const els = document.querySelectorAll('input[name="action_date"]');
-          Array.from(els).forEach(el => {
-            rome(el, { time: true });
-          });
-        }
-
-        configureTomSelect();
-        //configureRome();
       }
       function getComponentValues(selector) {
         const el = document.querySelector(selector);
@@ -172,6 +171,84 @@
         }
         return data;
       }
+      /*
+        Reference:
+          https://gist.github.com/kageurufu/6813878
+      */
+      function addDynamicRowByTemplate(elt, selector) {
+        const oldRow = document.querySelector(`tbody${selector} tr:last-child`);
+        rowInput = oldRow.querySelector("input");
+        let new_id = `${selector
+          .replace('#', '')
+          .replace('body', '0')}`;
+        if (rowInput) {
+          const elem_id = rowInput.id;
+          new_id = elem_id.replace(/.*-(\d).*/m, function(input, match) { 
+            const nextValue = parseInt(match) + 1;
+            return input.replace(match, nextValue);
+          });
+        }
+        const tpl = document.querySelector('#row-template');
+        const tplClone = tpl.cloneNode(true);
+        const newInput = tplClone.content.querySelector('input');
+        newInput.id = new_id;
+        newInput.setAttribute('name', new_id);
+        oldRow.insertAdjacentHTML('afterend', tplClone.innerHTML);
+        if (!rowInput) {
+          oldRow.remove();
+        }
+      }
+    </script>
+    <script type="text/hyperscript">
+      def addRowTemplate(elt)
+        get the #row-template's innerHTML then
+        put it at the end of the #validator-body
+        _hyperscript.processNode(the last <tr />)
+      end
+      def toggleVisibilityBy(elt, source, target, value)
+        set selector to elt.id.replace(source, target)
+        if elt.value == value
+          add .hidden to #{selector}.closest("tr")
+        else
+          remove .hidden from #{selector}.closest("tr")
+        end
+      end
+      def toggleTableRowHidden(elt, source, trueTargets, falseTargets, value)
+        for tgt in trueTargets
+          set selector to elt.id.replace(source, tgt)
+          if elt.value == value
+            remove .hidden from #{selector}.closest("tr")
+          else
+            add .hidden to #{selector}.closest("tr")
+          end
+        end
+        for tgt in falseTargets
+          set selector to elt.id.replace(source, tgt)
+          if elt.value == value
+            add .hidden to #{selector}.closest("tr")
+          else
+            remove .hidden from #{selector}.closest("tr")
+          end
+        end
+      end
+      def toLower(elt)
+        set elt.value to elt.value.toLowerCase()
+      end
+      def toLowerUri(elt)
+        set elt.value to elt.value.toLowerCase().replaceAll(" ", "/")
+      end
+      def toLowerSnake(elt)
+        set elt.value to elt.value.toLowerCase().replaceAll(" ", "_")
+      end
+      def copyToLower(elt, target)
+        set #{target}.value to elt.value.toLowerCase()
+      end
+      def copyToLowerUri(elt, target)
+        set #{target}.value to elt.value.toLowerCase().replaceAll(" ", "/")
+      end
+      def copyToLowerSnake(elt, target)
+        set #{target}.value to elt.value.toLowerCase().replaceAll(" ", "_")
+      end
     </script>
 
   </body>
