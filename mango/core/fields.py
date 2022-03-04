@@ -37,6 +37,29 @@ from mango.core.widgets import ToggleRadioWidget, ToggleSwitchWidget
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
 
+class StringField2(StringField):
+  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+    super(StringField2, self).__init__(label, validators, **kwargs)    
+    self.wrapper_class = wrapper_class
+
+
+class FieldList2(FieldList):
+  def __init__(
+    self,
+    unbound_field,
+    label=None,
+    validators=None,
+    min_entries=0,
+    max_entries=None,
+    separator='-',
+    default=(),
+    wrapper_class='',
+    **kwargs,
+  ):
+    super().__init__(unbound_field, label, validators, min_entries=min_entries, max_entries=max_entries, separator=separator, default=default, **kwargs)
+    self.wrapper_class = wrapper_class
+
+
 class DivField(Field):
 
   def __call__(self, **kwargs):
@@ -136,7 +159,8 @@ class QuerySelectField(SelectField):
     query={}, 
     projection={'name': 1, 'value': 1}, 
     display_member=lambda data: f'{data.get("name")}', 
-    value_member=lambda data: f'{data.get("value")}',     
+    value_member=lambda data: f'{data.get("value")}',
+    wrapper_class='',
     **kwargs,
   ):
     super().__init__(label, validators, **kwargs)
@@ -155,6 +179,7 @@ class QuerySelectField(SelectField):
     self.display_member = display_member
     self.value_member = value_member
     self.validate_choice = validate_choice
+    self.wrapper_class = wrapper_class
 
   def get_choices(self, data):
     for prop in self.query:
@@ -190,6 +215,7 @@ class QuerySelectMultipleField(SelectMultipleField):
     projection={'name': 1, 'value': 1}, 
     display_member=lambda data: f'{data.get("name")}', 
     value_member=lambda data: f'{data.get("value")}',     
+    wrapper_class='',
     **kwargs,
   ):
     super().__init__(label, validators, **kwargs)
@@ -206,6 +232,7 @@ class QuerySelectMultipleField(SelectMultipleField):
     self.display_member = display_member
     self.value_member = value_member
     self.validate_choice = validate_choice
+    self.wrapper_class = wrapper_class
 
   def get_choices(self, data):
     for prop in self.query:
@@ -224,15 +251,17 @@ class QuerySelectMultipleField(SelectMultipleField):
 class ToggleRadioField(RadioField):
   widget = ToggleRadioWidget()
 
-  def __init__(self, label='', validators=None, **kwargs):
+  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
     super(ToggleRadioField, self).__init__(label, validators, **kwargs)
+    self.wrapper_class = wrapper_class
 
 
 class ToggleSwitchField(BooleanField):
   widget = ToggleSwitchWidget()
 
-  def __init__(self, label='', validators=None, **kwargs):
+  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
     super(ToggleSwitchField, self).__init__(label, validators, **kwargs)    
+    self.wrapper_class = wrapper_class
 
 
 class WeeklyHoursField(Field):

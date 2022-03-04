@@ -200,6 +200,14 @@
       }
     </script>
     <script type="text/hyperscript">
+      def toggleElementVisibility(elt, selector, values)
+        if elt.value is not in values
+          add .hidden to #{selector}
+        else
+          remove .hidden from #{selector}
+        end
+      end
+
       def addRowTemplate(elt)
         get the #row-template's innerHTML then
         put it at the end of the #validator-body

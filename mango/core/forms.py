@@ -12,18 +12,22 @@ from wtforms import (
   RadioField,
   SelectField,
   SelectMultipleField,
-  StringField,
+  # StringField,
   SubmitField,
   HiddenField,
   PasswordField,
   TextAreaField,
   FormField,
-  FieldList,
+  # FieldList,
   Form,
 )
 from wtforms.validators	import DataRequired, NoneOf
 from mango.core.fields import QuerySelectField, QuerySelectMultipleField, ToggleSwitchField
-from mango.core.constants import chk_class, input_class, label_class, select_class, select_multiple_class, textarea_class, toggle_radio_class, toggle_switch_class, hs_element_type, hs_config_tom_select
+from mango.core.fields import (
+  StringField2 as StringField,
+  FieldList2 as FieldList
+)
+from mango.core.constants import chk_class, input_class, label_class, select_class, select_multiple_class, textarea_class, toggle_radio_class, toggle_switch_class, hs_element_type, hs_config_tom_select, hs_field_type
 from mango.core.choices import DATA_TYPES, FIELD_TYPES
 from mango.core.validators import DataRequiredIf, OptionalIfFieldEqualTo
 
@@ -165,16 +169,19 @@ class ModelFieldForm(StarletteForm):
     allow_blank = True,
     blank_text = 'Pick...',
     render_kw = { 'autofocus': 'true', 'class': select_class },
+    wrapper_class = 'flex-1',
   )
   label = StringField(
     'Label', 
     validators = [DataRequired()], 
     render_kw = { 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
+    wrapper_class = 'flex-1',
   )
   name = StringField(
     'Name', 
     validators=[DataRequired()],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   data_type = QuerySelectField(
     'Data Type', 
@@ -186,18 +193,27 @@ class ModelFieldForm(StarletteForm):
     allow_blank = True,
     blank_text = 'Pick...',
     render_kw = { 'class': select_class },
+    wrapper_class = 'flex-1',
   )
   is_optional = ToggleSwitchField(
     'Is Optional?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = '',
+  )
+  is_list = ToggleSwitchField(
+    'Is List?', 
+    render_kw = { 'class': chk_class },
+    wrapper_class = '',
   )
   default_value = StringField(
     'Default Value',
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   default_value_use_quotes = ToggleSwitchField(
     'Default Value Use Quotes?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
   field_type = QuerySelectField(
     'Field Type', 
@@ -208,22 +224,71 @@ class ModelFieldForm(StarletteForm):
     validators = [DataRequired()],
     allow_blank = True,
     blank_text = 'Pick...',
-    render_kw = { 'class': select_class },
+    render_kw = { 'class': select_class, 'data-script': hs_field_type },
+    wrapper_class = 'flex-1',
   )
   validator_list = FieldList(
-    StringField('Validator')
+    StringField(
+      'Validator',
+      render_kw = { 'class': input_class },
+    ),
+    min_entries=1,
+    wrapper_class = 'flex-1',
   )
   attribute_list = FieldList(
     FormField(KeyValueForm),
     min_entries=1,
+    wrapper_class = 'flex-1',
   )
-  # choice_list = FieldList(
-  #   StringField('Choice')
-  # )
+  collection = StringField(
+    'Collection',
+    render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
+  )
+  projection_list = FieldList(
+    FormField(KeyValueForm),
+    min_entries=1,
+    wrapper_class = 'flex-1',
+  )
+  query_list = FieldList(
+    FormField(KeyValueForm),
+    min_entries=1,
+    wrapper_class = 'flex-1',
+  )
+  order_by_list = FieldList(
+    FormField(KeyValueForm),
+    min_entries=1,
+    wrapper_class = 'flex-1',
+  )
+  display_member = StringField(
+    'Display Member',
+    render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
+  )
+  value_member = StringField(
+    'Value Member',
+    render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
+  )
+  allow_blank = ToggleSwitchField(
+    'Allow Blank?', 
+    render_kw = { 'class': chk_class },
+    wrapper_class = '',
+  )
+  blank_text = StringField(
+    'Blank Text',
+    render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
+  )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
+
+  # def __init__(self, request: StarletteRequest, *args, **kwargs):
+  #   self.allow_blank.wrapper_class = 'test-class'
+  #   super().__init__(request=request, args=args, kwargs=kwargs)
 
 
 class ModelFieldAttributeForm(StarletteForm):

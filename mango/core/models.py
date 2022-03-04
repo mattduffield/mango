@@ -138,12 +138,20 @@ class ModelField(BaseModel):
   name: str  # usually lowercase with underscores instead of spaces
   data_type: str  # usually sourced from a List of tuples (value, label), e.g. str,int,bool
   is_optional: bool = False  # Indicates if this field is Optional
+  is_list: bool = False  # Indicates if this field is List
   default_value: str = ''  # this should be coerced by the data_type entry, e.g. str should have quotes
   default_value_use_quotes: bool = True  # wrap the default with quotes (") if True
   field_type: str  # usually sourced from a list of valid WTForms element types
   validator_list: Optional[List[str]] = []
   attribute_list: Optional[List[KeyValue]] = []
-  # choice_list: Optional[List[str]] = []
+  collection: str = ''  # collection to query
+  projection_list: Optional[List[KeyValue]] = []  # fields to include in query
+  query_list: Optional[List[KeyValue]] = []  # criteria for executing query
+  order_by_list: Optional[List[KeyValue]] = []  # order criteria for query
+  display_member: str = ''  # what to display in QuerySelect or QuerySelectMultiple
+  value_member: str = ''  # what to store from QuerySelect or QuerySelectMultiple
+  allow_blank: bool = False  # option to include a blank <option>
+  blank_text: str = ''  # text to display for blank <option>
   is_locked: bool = False
   is_active: bool = True
 

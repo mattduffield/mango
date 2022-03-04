@@ -114,6 +114,30 @@ on load
 end
 '''
 
+hs_field_type = f'''
+on load 
+  toggleElementVisibility(me, "wrapper_collection", ["QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper_projection_list", ["QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper_query_list", ["QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper_order_by_list", ["QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper_display_member", ["QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper_value_member", ["QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper_allow_blank", ["QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper_blank_text", ["QuerySelectField", "QuerySelectMultipleField"])
+end
+on change 
+  toggleElementVisibility(me, "wrapper_collection", ["QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper_projection_list", ["QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper_query_list", ["QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper_order_by_list", ["QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper_display_member", ["QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper_value_member", ["QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper_allow_blank", ["QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper_blank_text", ["QuerySelectField", "QuerySelectMultipleField"])
+end
+'''
+
+
 hs_config_tom_select = f'''
 on load 
   configTomSelect(me)

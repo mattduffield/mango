@@ -11,6 +11,7 @@
 from markupsafe import Markup
 from wtforms.widgets.core import html_params
 
+
 class ToggleRadioWidget:
   def __init__(self):
     pass
