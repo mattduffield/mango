@@ -200,6 +200,21 @@
       }
     </script>
     <script type="text/hyperscript">
+      def toggleElementHidden(elt, prop, selector, values)
+        if Array.isArray(values)
+          if elt[prop] is not in values
+            add .hidden to #{selector}
+          else
+            remove .hidden from #{selector}
+          end
+        else
+          if elt[prop] == values
+            add .hidden to #{selector}
+          else
+            remove .hidden from #{selector}
+          end
+        end
+      end
       def toggleElementVisibility(elt, selector, values)
         if elt.value is not in values
           add .hidden to #{selector}

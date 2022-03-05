@@ -155,51 +155,30 @@
   {% endif %}
 {% endmacro %}
 
-{% macro crispy_form_layout_orig(form, items=[]) %}
-  {% for item in items %}
-    {% if item['element_type'] == 'element' %}
-      <div class="{{ item['css_class'] }}">
-        {% if item['items']|length > 0 %}
-          {{ crispy_form_layout(form, items=item['items']) }}
-        {% endif %}
-      </div>
-    {% else %}
-      {% set field = form[item['field']] %}
-      <div id="wrapper_{{ field.id }}" class="mb-4 flex-1">
-        {{ field.label(class=label_css) }}
-        {% if field|is_fieldlist %}
-          --FIELDLIST--
-          <button type="button" 
-            class="intro-x text-lg text-white bg-green-500 hover:bg-green-600 px-2 xpy-1 rounded-md">
-            +
-          </button>
-          {% for sub_field in field %}
-            --SUB FIELDLIST--
-            <button type="button" 
-              class="intro-x text-lg text-white bg-indigo-500 hover:bg-indigo-600 px-2 xpy-1 rounded-md">
-              +
-            </button>
-            {{ sub_field() }}
-          {% endfor %}
-        {% else %}
-          {{ field() }}
-        {% endif %}
-      </div>
-    {% endif %}
-  {% endfor %}
-{% endmacro %}
-
 {% macro crispy_form_layout(form, items=[]) %}
   {% for item in items %}
     {% if item['element_type'] == 'element' %}
-      <div class="{{ item['css_class'] }}">
+      <div class="{{ item['css_class'] }}"
+        {% for att in item['attribute_list'] %}
+          {% for key in att %}
+            {{key}}="{{att[key]}}"
+          {% endfor %}
+        {% endfor %}
+      >
+        {% if item['content'] %}{{ item['content'] }}{% endif %}
         {% if item['items']|length > 0 %}
           {{ crispy_form_layout(form, items=item['items']) }}
         {% endif %}
       </div>
     {% else %}
       {% set field = form[item['field']] %}
-      <div id="wrapper_{{ field.id }}" class="mb-4 {{ field.wrapper_class }}">
+      <div id="wrapper_{{ field.id }}" class="mb-4 {{ field.wrapper_class }}"
+        {% for att in item['attribute_list'] %}
+          {% for key in att %}
+            {{key}}="{{att[key]}}"
+          {% endfor %}
+        {% endfor %}
+      >
         {% if field|is_fieldlist %}
           <div class="flex flex-1">
             {{ field.label(class=list_label_css) }}        

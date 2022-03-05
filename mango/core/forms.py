@@ -213,7 +213,7 @@ class ModelFieldForm(StarletteForm):
   default_value_use_quotes = ToggleSwitchField(
     'Default Value Use Quotes?', 
     render_kw = { 'class': chk_class },
-    wrapper_class = 'flex-1',
+    wrapper_class = '',
   )
   field_type = QuerySelectField(
     'Field Type', 
@@ -272,7 +272,7 @@ class ModelFieldForm(StarletteForm):
   )
   allow_blank = ToggleSwitchField(
     'Allow Blank?', 
-    render_kw = { 'class': chk_class },
+    render_kw = { 'class': chk_class, 'data-script': 'on load set elt to first <input/> in me toggleElementHidden(elt, "checked", "wrapper_blank_text", false) end on change set elt to first <input/> in me toggleElementHidden(elt, "checked", "wrapper_blank_text", false) end' },
     wrapper_class = '',
   )
   blank_text = StringField(
