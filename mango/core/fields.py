@@ -37,6 +37,12 @@ from mango.core.widgets import ToggleRadioWidget, ToggleSwitchWidget
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
 
+class IntegerField2(IntegerField):
+  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+    super(IntegerField2, self).__init__(label, validators, **kwargs)    
+    self.wrapper_class = wrapper_class
+
+
 class StringField2(StringField):
   def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
     super(StringField2, self).__init__(label, validators, **kwargs)    

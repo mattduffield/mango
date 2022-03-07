@@ -322,31 +322,31 @@ class ActionView(BaseView):
     super().__init__()
 
   @action_controller.route.get('/action', response_class=HTMLResponse, name='action-list')
-  async def get_list(self, request: Request, is_modal: bool=False):
+  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_list', is_modal=is_modal)
 
   @action_controller.route.get('/action/create', response_class=HTMLResponse, name='action-create')
-  async def get_create(self, request: Request, is_modal: bool=False):
+  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_create', is_modal=is_modal)
 
   @action_controller.route.post('/action/create', response_class=HTMLResponse, name='action-create')
-  async def post_create(self, request: Request, is_modal: bool=False):
+  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_create', is_modal=is_modal)
 
   @action_controller.route.get('/action/{_id}', response_class=HTMLResponse, name='action-update')
-  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
 
   @action_controller.route.post('/action/{_id}', response_class=HTMLResponse, name='action-update')
-  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
 
   @action_controller.route.get('/action/{_id}/delete', response_class=HTMLResponse, name='action-delete')
-  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
   @action_controller.route.post('/action/{_id}/delete', response_class=HTMLResponse, name='action-delete')
-  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
@@ -360,31 +360,31 @@ class RoleView(BaseView):
     super().__init__()
 
   @role_controller.route.get('/role', response_class=HTMLResponse, name='role-list')
-  async def get_list(self, request: Request, is_modal: bool=False):
+  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_list', is_modal=is_modal)
 
   @role_controller.route.get('/role/create', response_class=HTMLResponse, name='role-create')
-  async def get_create(self, request: Request, is_modal: bool=False):
+  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_create', is_modal=is_modal)
 
   @role_controller.route.post('/role/create', response_class=HTMLResponse, name='role-create')
-  async def post_create(self, request: Request, is_modal: bool=False):
+  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_create', is_modal=is_modal)
 
   @role_controller.route.get('/role/{_id}', response_class=HTMLResponse, name='role-update')
-  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
 
   @role_controller.route.post('/role/{_id}', response_class=HTMLResponse, name='role-update')
-  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
 
   @role_controller.route.get('/role/{_id}/delete', response_class=HTMLResponse, name='role-delete')
-  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
   @role_controller.route.post('/role/{_id}/delete', response_class=HTMLResponse, name='role-delete')
-  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
@@ -398,31 +398,31 @@ class ModelView(BaseView):
     super().__init__()
 
   @model_controller.route.get('/model', response_class=HTMLResponse, name='model-list')
-  async def get_list(self, request: Request, is_modal: bool=False):
+  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_list', is_modal=is_modal)
 
   @model_controller.route.get('/model/create', response_class=HTMLResponse, name='model-create')
-  async def get_create(self, request: Request, is_modal: bool=False):
+  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_create', is_modal=is_modal)
 
   @model_controller.route.post('/model/create', response_class=HTMLResponse, name='model-create')
-  async def post_create(self, request: Request, is_modal: bool=False):
+  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_create', is_modal=is_modal)
 
   @model_controller.route.get('/model/{_id}', response_class=HTMLResponse, name='model-update')
-  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
 
   @model_controller.route.post('/model/{_id}', response_class=HTMLResponse, name='model-update')
-  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
 
   @model_controller.route.get('/model/{_id}/delete', response_class=HTMLResponse, name='model-delete')
-  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
   @model_controller.route.post('/model/{_id}/delete', response_class=HTMLResponse, name='model-delete')
-  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
@@ -436,31 +436,31 @@ class ModelRecordTypeView(BaseView):
     super().__init__()
 
   @model_record_type_controller.route.get('/model_record_type', response_class=HTMLResponse, name='model_record_type-list')
-  async def get_list(self, request: Request, is_modal: bool=False):
+  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_list', is_modal=is_modal)
 
   @model_record_type_controller.route.get('/model_record_type/create', response_class=HTMLResponse, name='model_record_type-create')
-  async def get_create(self, request: Request, is_modal: bool=False):
+  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_create', is_modal=is_modal)
 
   @model_record_type_controller.route.post('/model_record_type/create', response_class=HTMLResponse, name='model_record_type-create')
-  async def post_create(self, request: Request, is_modal: bool=False):
+  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_create', is_modal=is_modal)
 
   @model_record_type_controller.route.get('/model_record_type/{_id}', response_class=HTMLResponse, name='model_record_type-update')
-  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
 
   @model_record_type_controller.route.post('/model_record_type/{_id}', response_class=HTMLResponse, name='model_record_type-update')
-  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
 
   @model_record_type_controller.route.get('/model_record_type/{_id}/delete', response_class=HTMLResponse, name='model_record_type-delete')
-  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
   @model_record_type_controller.route.post('/model_record_type/{_id}/delete', response_class=HTMLResponse, name='model_record_type-delete')
-  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
@@ -474,31 +474,31 @@ class ModelFieldView(BaseView):
     super().__init__()
 
   @model_field_controller.route.get('/model_field', response_class=HTMLResponse, name='model_field-list')
-  async def get_list(self, request: Request, is_modal: bool=False):
+  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_list', is_modal=is_modal)
 
   @model_field_controller.route.get('/model_field/create', response_class=HTMLResponse, name='model_field-create')
-  async def get_create(self, request: Request, is_modal: bool=False):
+  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_create', is_modal=is_modal)
 
   @model_field_controller.route.post('/model_field/create', response_class=HTMLResponse, name='model_field-create')
-  async def post_create(self, request: Request, is_modal: bool=False):
+  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_create', is_modal=is_modal)
 
   @model_field_controller.route.get('/model_field/{_id}', response_class=HTMLResponse, name='model_field-update')
-  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
 
   @model_field_controller.route.post('/model_field/{_id}', response_class=HTMLResponse, name='model_field-update')
-  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
 
   @model_field_controller.route.get('/model_field/{_id}/delete', response_class=HTMLResponse, name='model_field-delete')
-  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
   @model_field_controller.route.post('/model_field/{_id}/delete', response_class=HTMLResponse, name='model_field-delete')
-  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
@@ -512,31 +512,31 @@ class ModelFieldAttributeView(BaseView):
     super().__init__()
 
   @model_field_attribute_controller.route.get('/model_field_attribute', response_class=HTMLResponse, name='model_field_attribute-list')
-  async def get_list(self, request: Request, is_modal: bool=False):
+  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_list', is_modal=is_modal)
 
   @model_field_attribute_controller.route.get('/model_field_attribute/create', response_class=HTMLResponse, name='model_field_attribute-create')
-  async def get_create(self, request: Request, is_modal: bool=False):
+  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_create', is_modal=is_modal)
 
   @model_field_attribute_controller.route.post('/model_field_attribute/create', response_class=HTMLResponse, name='model_field_attribute-create')
-  async def post_create(self, request: Request, is_modal: bool=False):
+  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_create', is_modal=is_modal)
 
   @model_field_attribute_controller.route.get('/model_field_attribute/{_id}', response_class=HTMLResponse, name='model_field_attribute-update')
-  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
 
   @model_field_attribute_controller.route.post('/model_field_attribute/{_id}', response_class=HTMLResponse, name='model_field_attribute-update')
-  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
 
   @model_field_attribute_controller.route.get('/model_field_attribute/{_id}/delete', response_class=HTMLResponse, name='model_field_attribute-delete')
-  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
   @model_field_attribute_controller.route.post('/model_field_attribute/{_id}/delete', response_class=HTMLResponse, name='model_field_attribute-delete')
-  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
@@ -550,31 +550,31 @@ class ModelFieldChoiceView(BaseView):
     super().__init__()
 
   @model_field_choice_controller.route.get('/model_field_choice', response_class=HTMLResponse, name='model_field_choice-list')
-  async def get_list(self, request: Request, is_modal: bool=False):
+  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_list', is_modal=is_modal)
 
   @model_field_choice_controller.route.get('/model_field_choice/create', response_class=HTMLResponse, name='model_field_choice-create')
-  async def get_create(self, request: Request, is_modal: bool=False):
+  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_create', is_modal=is_modal)
 
   @model_field_choice_controller.route.post('/model_field_choice/create', response_class=HTMLResponse, name='model_field_choice-create')
-  async def post_create(self, request: Request, is_modal: bool=False):
+  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_create', is_modal=is_modal)
 
   @model_field_choice_controller.route.get('/model_field_choice/{_id}', response_class=HTMLResponse, name='model_field_choice-update')
-  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
 
   @model_field_choice_controller.route.post('/model_field_choice/{_id}', response_class=HTMLResponse, name='model_field_choice-update')
-  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
 
   @model_field_choice_controller.route.get('/model_field_choice/{_id}/delete', response_class=HTMLResponse, name='model_field_choice-delete')
-  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
   @model_field_choice_controller.route.post('/model_field_choice/{_id}/delete', response_class=HTMLResponse, name='model_field_choice-delete')
-  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
@@ -588,31 +588,31 @@ class ModelFieldValidatorView(BaseView):
     super().__init__()
 
   @model_field_validator_controller.route.get('/model_field_validator', response_class=HTMLResponse, name='model_field_validator-list')
-  async def get_list(self, request: Request, is_modal: bool=False):
+  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_list', is_modal=is_modal)
 
   @model_field_validator_controller.route.get('/model_field_validator/create', response_class=HTMLResponse, name='model_field_validator-create')
-  async def get_create(self, request: Request, is_modal: bool=False):
+  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_create', is_modal=is_modal)
 
   @model_field_validator_controller.route.post('/model_field_validator/create', response_class=HTMLResponse, name='model_field_validator-create')
-  async def post_create(self, request: Request, is_modal: bool=False):
+  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_create', is_modal=is_modal)
 
   @model_field_validator_controller.route.get('/model_field_validator/{_id}', response_class=HTMLResponse, name='model_field_validator-update')
-  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
 
   @model_field_validator_controller.route.post('/model_field_validator/{_id}', response_class=HTMLResponse, name='model_field_validator-update')
-  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
 
   @model_field_validator_controller.route.get('/model_field_validator/{_id}/delete', response_class=HTMLResponse, name='model_field_validator-delete')
-  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
   @model_field_validator_controller.route.post('/model_field_validator/{_id}/delete', response_class=HTMLResponse, name='model_field_validator-delete')
-  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
@@ -626,31 +626,31 @@ class PageLayoutView(BaseView):
     super().__init__()
 
   @page_layout_controller.route.get('/page_layout', response_class=HTMLResponse, name='page_layout-list')
-  async def get_list(self, request: Request, is_modal: bool=False):
+  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_list', is_modal=is_modal)
 
   @page_layout_controller.route.get('/page_layout/create', response_class=HTMLResponse, name='page_layout-create')
-  async def get_create(self, request: Request, is_modal: bool=False):
+  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_create', is_modal=is_modal)
 
   @page_layout_controller.route.post('/page_layout/create', response_class=HTMLResponse, name='page_layout-create')
-  async def post_create(self, request: Request, is_modal: bool=False):
+  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_create', is_modal=is_modal)
 
   @page_layout_controller.route.get('/page_layout/{_id}', response_class=HTMLResponse, name='page_layout-update')
-  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
 
   @page_layout_controller.route.post('/page_layout/{_id}', response_class=HTMLResponse, name='page_layout-update')
-  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
 
   @page_layout_controller.route.get('/page_layout/{_id}/delete', response_class=HTMLResponse, name='page_layout-delete')
-  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
   @page_layout_controller.route.post('/page_layout/{_id}/delete', response_class=HTMLResponse, name='page_layout-delete')
-  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
@@ -664,31 +664,31 @@ class ListLayoutView(BaseView):
     super().__init__()
 
   @list_layout_controller.route.get('/list_layout', response_class=HTMLResponse, name='list_layout-list')
-  async def get_list(self, request: Request, is_modal: bool=False):
+  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_list', is_modal=is_modal)
 
   @list_layout_controller.route.get('/list_layout/create', response_class=HTMLResponse, name='list_layout-create')
-  async def get_create(self, request: Request, is_modal: bool=False):
+  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_create', is_modal=is_modal)
 
   @list_layout_controller.route.post('/list_layout/create', response_class=HTMLResponse, name='list_layout-create')
-  async def post_create(self, request: Request, is_modal: bool=False):
+  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_create', is_modal=is_modal)
 
   @list_layout_controller.route.get('/list_layout/{_id}', response_class=HTMLResponse, name='list_layout-update')
-  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
 
   @list_layout_controller.route.post('/list_layout/{_id}', response_class=HTMLResponse, name='list_layout-update')
-  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
 
   @list_layout_controller.route.get('/list_layout/{_id}/delete', response_class=HTMLResponse, name='list_layout-delete')
-  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
   @list_layout_controller.route.post('/list_layout/{_id}/delete', response_class=HTMLResponse, name='list_layout-delete')
-  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
@@ -702,31 +702,31 @@ class TabView(BaseView):
     super().__init__()
 
   @tab_controller.route.get('/tab', response_class=HTMLResponse, name='tab-list')
-  async def get_list(self, request: Request, is_modal: bool=False):
+  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_list', is_modal=is_modal)
 
   @tab_controller.route.get('/tab/create', response_class=HTMLResponse, name='tab-create')
-  async def get_create(self, request: Request, is_modal: bool=False):
+  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_create', is_modal=is_modal)
 
   @tab_controller.route.post('/tab/create', response_class=HTMLResponse, name='tab-create')
-  async def post_create(self, request: Request, is_modal: bool=False):
+  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_create', is_modal=is_modal)
 
   @tab_controller.route.get('/tab/{_id}', response_class=HTMLResponse, name='tab-update')
-  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
 
   @tab_controller.route.post('/tab/{_id}', response_class=HTMLResponse, name='tab-update')
-  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
 
   @tab_controller.route.get('/tab/{_id}/delete', response_class=HTMLResponse, name='tab-delete')
-  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
   @tab_controller.route.post('/tab/{_id}/delete', response_class=HTMLResponse, name='tab-delete')
-  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
@@ -740,29 +740,29 @@ class AppView(BaseView):
     super().__init__()
 
   @app_controller.route.get('/app', response_class=HTMLResponse, name='app-list')
-  async def get_list(self, request: Request, is_modal: bool=False):
+  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_list', is_modal=is_modal)
 
   @app_controller.route.get('/app/create', response_class=HTMLResponse, name='app-create')
-  async def get_create(self, request: Request, is_modal: bool=False):
+  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_create', is_modal=is_modal)
 
   @app_controller.route.post('/app/create', response_class=HTMLResponse, name='app-create')
-  async def post_create(self, request: Request, is_modal: bool=False):
+  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_create', is_modal=is_modal)
 
   @app_controller.route.get('/app/{_id}', response_class=HTMLResponse, name='app-update')
-  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
 
   @app_controller.route.post('/app/{_id}', response_class=HTMLResponse, name='app-update')
-  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
 
   @app_controller.route.get('/app/{_id}/delete', response_class=HTMLResponse, name='app-delete')
-  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
   @app_controller.route.post('/app/{_id}/delete', response_class=HTMLResponse, name='app-delete')
-  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False):
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)

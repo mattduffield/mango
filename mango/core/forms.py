@@ -8,7 +8,7 @@ from wtforms import (
   FileField,
   MultipleFileField,
   FloatField,
-  IntegerField,
+  #IntegerField,
   RadioField,
   SelectField,
   SelectMultipleField,
@@ -24,6 +24,7 @@ from wtforms import (
 from wtforms.validators	import DataRequired, NoneOf
 from mango.core.fields import QuerySelectField, QuerySelectMultipleField, ToggleSwitchField
 from mango.core.fields import (
+  IntegerField2 as IntegerField,
   StringField2 as StringField,
   FieldList2 as FieldList
 )
@@ -50,10 +51,12 @@ class ActionForm(StarletteForm):
     'Topic', 
     validators = [DataRequired()], 
     render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'on input toLowerUri(me)' },
+    wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
 
 
@@ -62,11 +65,13 @@ class RoleForm(StarletteForm):
     'Label', 
     validators = [DataRequired()], 
     render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
+    wrapper_class = 'flex-1',
   )
   name = StringField(
     'Name', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )  
   # current_action = QuerySelectField(
   #   'Current Action',
@@ -87,10 +92,12 @@ class RoleForm(StarletteForm):
     display_member = lambda data: f'{data["topic"]}', 
     value_member = lambda data: f'{data["topic"]}',
     render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
+    wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
 
   def validate_current_action(form, field):
@@ -107,20 +114,24 @@ class ModelForm(StarletteForm):
     'Label', 
     validators = [DataRequired()], 
     render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
+    wrapper_class = 'flex-1',
   )
   label_plural = StringField(
     'Plural Label', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   name = StringField(
     'Name', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   to_string = StringField(
     'To String',
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   order_by = QuerySelectMultipleField(
     'Order By',
@@ -130,14 +141,17 @@ class ModelForm(StarletteForm):
     display_member = lambda data: f'{data["label"]}', 
     value_member = lambda data: f'{data["_id"]}',
     render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
+    wrapper_class = 'flex-1',
   )
   page_size = IntegerField(
     'Page Size',
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
 
 
@@ -146,15 +160,18 @@ class ModelRecordTypeForm(StarletteForm):
     'Label', 
     validators = [DataRequired()], 
     render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
+    wrapper_class = 'flex-1',
   )
   name = StringField(
     'Name', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
 
 
@@ -302,29 +319,35 @@ class ModelFieldAttributeForm(StarletteForm):
     allow_blank = True,
     blank_text = 'Pick...',
     render_kw = { 'autofocus': 'true', 'class': select_class },
+    wrapper_class = 'flex-1',
   )
   attribute_key = StringField(
     'Key', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   attribute_value = StringField(
     'Value', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   attribute_value_use_quotes = ToggleSwitchField(
     'Attribute Value Use Quotes?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
   sequence = IntegerField(
     'Sequence', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
 
 
@@ -339,29 +362,35 @@ class ModelFieldChoiceForm(StarletteForm):
     allow_blank = True,
     blank_text = 'Pick...',
     render_kw = { 'autofocus': 'true', 'class': select_class },
+    wrapper_class = 'flex-1',
   )
   label = StringField(
     'Label', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
+    wrapper_class = 'flex-1',
   )
   name = StringField(
     'Name', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   name_use_quotes = ToggleSwitchField(
     'Name Use Quotes?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
   sequence = IntegerField(
     'Sequence', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
 
 
@@ -376,20 +405,24 @@ class ModelFieldValidatorForm(StarletteForm):
     allow_blank = True,
     blank_text = 'Pick...',
     render_kw = { 'autofocus': 'true', 'class': select_class },
+    wrapper_class = 'flex-1',
   )
   label = StringField(
     'Label', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   sequence = IntegerField(
     'Sequence', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
 
 
@@ -398,38 +431,47 @@ class LayoutLevel4Form(Form):
     'Element Type', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class, 'data-script': hs_element_type },
+    wrapper_class = 'flex-1',
   )
   field = StringField(
     'Field', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   css_class = StringField(
     'CSS Class', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   css_class_use_quotes = ToggleSwitchField(
     'CSS Class Use Quotes?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
   inner_text = StringField(
     'InnerText', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   inner_html = StringField(
     'InnerHTML', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   label_class = StringField(
     'Label Class', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   label_class_use_quotes = ToggleSwitchField(
     'Label Class Use Quotes?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
 
 
@@ -438,41 +480,51 @@ class LayoutLevel3Form(Form):
     'Element Type', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class, 'data-script': hs_element_type },
+    wrapper_class = 'flex-1',
   )
   field = StringField(
     'Field', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   css_class = StringField(
     'CSS Class', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   css_class_use_quotes = ToggleSwitchField(
     'CSS Class Use Quotes?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
   inner_text = StringField(
     'InnerText', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   inner_html = StringField(
     'InnerHTML', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   label_class = StringField(
     'Label Class', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   label_class_use_quotes = ToggleSwitchField(
     'Label Class Use Quotes?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
   items = FieldList(
-    FormField(LayoutLevel4Form)
+    FormField(LayoutLevel4Form),
+    wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
 
 
@@ -481,41 +533,51 @@ class LayoutLevel2Form(Form):
     'Element Type', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class, 'data-script': hs_element_type },
+    wrapper_class = 'flex-1',
   )
   field = StringField(
     'Field', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   css_class = StringField(
     'CSS Class', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   css_class_use_quotes = ToggleSwitchField(
     'CSS Class Use Quotes?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
   inner_text = StringField(
     'InnerText', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   inner_html = StringField(
     'InnerHTML', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   label_class = StringField(
     'Label Class', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   label_class_use_quotes = ToggleSwitchField(
     'Label Class Use Quotes?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
   items = FieldList(
-    FormField(LayoutLevel3Form)
+    FormField(LayoutLevel3Form),
+    wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
 
 
@@ -524,41 +586,51 @@ class LayoutLevel1Form(Form):
     'Element Type', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class, 'data-script': hs_element_type },
+    wrapper_class = 'flex-1',
   )
   field = StringField(
     'Field', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   css_class = StringField(
     'CSS Class', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   css_class_use_quotes = ToggleSwitchField(
     'CSS Class Use Quotes?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
   inner_text = StringField(
     'InnerText', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   inner_html = StringField(
     'InnerHTML', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   label_class = StringField(
     'Label Class', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   label_class_use_quotes = ToggleSwitchField(
     'Label Class Use Quotes?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
   items = FieldList(
-    FormField(LayoutLevel2Form)
+    FormField(LayoutLevel2Form),
+    wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
 
 
@@ -567,41 +639,51 @@ class LayoutForm(Form):
     'Element Type', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class, 'data-script': hs_element_type },
+    wrapper_class = 'flex-1',
   )
   field = StringField(
     'Field', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   css_class = StringField(
     'CSS Class', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   css_class_use_quotes = ToggleSwitchField(
     'CSS Class Use Quotes?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
   inner_text = StringField(
     'InnerText', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   inner_html = StringField(
     'InnerHTML', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   label_class = StringField(
     'Label Class', 
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   label_class_use_quotes = ToggleSwitchField(
     'Label Class Use Quotes?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
   items = FieldList(
-    FormField(LayoutLevel1Form)
+    FormField(LayoutLevel1Form),
+    wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
 
 
@@ -616,6 +698,7 @@ class PageLayoutForm(StarletteForm):
     allow_blank = True,
     blank_text = 'Pick...',
     render_kw = { 'autofocus': 'true', 'class': select_class },
+    wrapper_class = 'flex-1',
   )
   model_record_type = QuerySelectField(
     'Model Record Type', 
@@ -627,23 +710,28 @@ class PageLayoutForm(StarletteForm):
     allow_blank = True,
     blank_text = 'Pick...',
     render_kw = { 'autofocus': 'true', 'class': select_class },
+    wrapper_class = 'flex-1',
   )
   label = StringField(
     'Label', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
+    wrapper_class = 'flex-1',
   )
   name = StringField(
     'Name', 
     validators = [DataRequired('label')],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
-  element_list = FieldList(StringField(
-    'Element',
-  ))
-  field_list = FieldList(FormField(
-    ModelFieldForm
-  ))
+  element_list = FieldList(
+    StringField('Element'),
+    wrapper_class = 'flex-1',
+  )
+  field_list = FieldList(
+    FormField(ModelFieldForm),
+    wrapper_class = 'flex-1',
+  )
   # related_list = FieldList(FormField(
   #   ModelForm
   # ))
@@ -654,6 +742,7 @@ class PageLayoutForm(StarletteForm):
     display_member = lambda data: f'{data["label"]}', 
     value_member = lambda data: f'{data["_id"]}',
     render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
+    wrapper_class = 'flex-1',
   )
   # role_list = FieldList(FormField(
   #   RoleForm
@@ -665,21 +754,25 @@ class PageLayoutForm(StarletteForm):
     display_member = lambda data: f'{data["label"]}', 
     value_member = lambda data: f'{data["_id"]}',
     render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
+    wrapper_class = 'flex-1',
   )
   # items = TextAreaField(
   #   'Items',
   #   render_kw = { 'class': textarea_class },
   # )
   items = FieldList(
-    FormField(LayoutForm)
+    FormField(LayoutForm),
+    wrapper_class = 'flex-1',
   )
   is_default = ToggleSwitchField(
     'Is Default?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
 
   # def list_layout(self):
@@ -703,6 +796,7 @@ class ListLayoutForm(StarletteForm):
     allow_blank = True,
     blank_text = 'Pick...',
     render_kw = { 'autofocus': 'true', 'class': select_class },
+    wrapper_class = 'flex-1',
   )
   model_record_type = QuerySelectField(
     'Model Record Type', 
@@ -714,16 +808,19 @@ class ListLayoutForm(StarletteForm):
     allow_blank = True,
     blank_text = 'Pick...',
     render_kw = { 'autofocus': 'true', 'class': select_class },
+    wrapper_class = 'flex-1',
   )
   label = StringField(
     'Label', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
+    wrapper_class = 'flex-1',
   )
   name = StringField(
     'Name', 
     validators = [DataRequired('label')],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   field_list = QuerySelectMultipleField(
     'Field List',
@@ -733,14 +830,17 @@ class ListLayoutForm(StarletteForm):
     display_member = lambda data: f'{data["label"]}', 
     value_member = lambda data: f'{data["name"]}',
     render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
+    wrapper_class = 'flex-1',
   )
   is_default = ToggleSwitchField(
     'Is Default?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
 
 
@@ -755,24 +855,29 @@ class TabForm(StarletteForm):
     allow_blank = True,
     blank_text = 'Pick...',
     render_kw = { 'autofocus': 'true', 'class': select_class },
+    wrapper_class = 'flex-1',
   )
   label = StringField(
     'Label', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   sequence = IntegerField(
     'Sequence', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   is_default = ToggleSwitchField(
     'Is Default?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
 
 
@@ -781,27 +886,34 @@ class AppForm(StarletteForm):
     'Label', 
     validators=[DataRequired()],
     render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
+    wrapper_class = 'flex-1',
   )
   name = StringField(
     'Name', 
     validators = [DataRequired()],
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   description = StringField(
     'Description',
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
   logo = StringField(
     'Logo',
     render_kw = { 'class': input_class },
+    wrapper_class = 'flex-1',
   )
-  tab_list = FieldList(FormField(
-    TabForm
-  ))
-  role_list = FieldList(FormField(
-    RoleForm
-  ))
+  tab_list = FieldList(
+    FormField(TabForm),
+    wrapper_class = 'flex-1',
+  )
+  role_list = FieldList(
+    FormField(RoleForm),
+    wrapper_class = 'flex-1',
+  )
   is_active = ToggleSwitchField(
     'Is Active?', 
     render_kw = { 'class': chk_class },
+    wrapper_class = 'flex-1',
   )
