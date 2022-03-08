@@ -174,30 +174,19 @@
       /*
         Reference:
           https://gist.github.com/kageurufu/6813878
-      */
-      function addDynamicRowByTemplate(elt, selector) {
-        const oldRow = document.querySelector(`tbody${selector} tr:last-child`);
-        rowInput = oldRow.querySelector("input");
-        let new_id = `${selector
-          .replace('#', '')
-          .replace('body', '0')}`;
-        if (rowInput) {
-          const elem_id = rowInput.id;
-          new_id = elem_id.replace(/.*-(\d).*/m, function(input, match) { 
-            const nextValue = parseInt(match) + 1;
-            return input.replace(match, nextValue);
-          });
+      */      
+      async function addDynamicRowByTemplate(elt, selector) {
+        const formName = elt.dataset.formName;
+        const bodySelector = `#${selector}-body`;
+        let pos = -1;
+        if (document.querySelector('tbody#projection_list-body')) {
+          pos = document.querySelectorAll(`tbody${bodySelector} tr`).length;
         }
-        const tpl = document.querySelector('#row-template');
-        const tplClone = tpl.cloneNode(true);
-        const newInput = tplClone.content.querySelector('input');
-        newInput.id = new_id;
-        newInput.setAttribute('name', new_id);
-        oldRow.insertAdjacentHTML('afterend', tplClone.innerHTML);
-        if (!rowInput) {
-          oldRow.remove();
-        }
-      }
+        const response = await fetch(`/table_row/create/${formName}/${selector}/${pos}`);
+        const tmpl = await response.text();
+        const oldRow = document.querySelector(`tbody${bodySelector} tr:last-child`);
+        oldRow.insertAdjacentHTML('afterend', tmpl);
+      }      
     </script>
     <script type="text/hyperscript">
       def toggleElementHidden(elt, prop, selector, values)

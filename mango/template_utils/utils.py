@@ -53,6 +53,15 @@ def is_query_select_field(value, *args, **kwargs):
 def is_key_value_form(value, *args, **kwargs):
   return isinstance(value, KeyValueForm)
 
+def contains(value:str, pattern:str, *args, **kwargs):
+  return pattern in value
+
+def endswith(value:str, pattern:str, *args, **kwargs):
+  return value.endswith(pattern)
+
+def startswith(value:str, pattern:str, *args, **kwargs):
+  return value.startswith(pattern)
+
 def to_proper_case(value, *args, **kwargs):
   if not value:
     return value
@@ -125,6 +134,9 @@ class CustomJinja2Templates(Jinja2Templates):
       'is_form_field': is_form_field,
       'is_query_select_field': is_query_select_field,
       'is_key_value_form': is_key_value_form,
+      'contains': contains,
+      'endswith': endswith,
+      'startswith': startswith,
       'to_field_list_label': to_field_list_label,
       'to_proper_case': to_proper_case,
       'to_string': to_string,
@@ -137,6 +149,9 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['is_form_field'] = is_form_field
     self.env.tests['is_query_select_field'] = is_query_select_field
     self.env.tests['is_key_value_form'] = is_key_value_form
+    self.env.tests['contains'] = contains
+    self.env.tests['endswith'] = endswith
+    self.env.tests['startswith'] = startswith
     self.env.tests['to_field_list_label'] = to_field_list_label
     self.env.tests['to_proper_case'] = to_proper_case
     self.env.tests['to_string'] = to_string

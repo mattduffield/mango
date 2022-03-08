@@ -13,7 +13,7 @@ from mango.auth.models import Credentials
 from mango.auth.auth import can
 from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, ModelFieldAttribute, ModelFieldChoice, ModelFieldValidator, PageLayout, ListLayout, Tab, App
 from mango.core.fields import QuerySelectField, QuerySelectMultipleField
-from mango.core.forms import ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, ModelFieldAttributeForm, ModelFieldChoiceForm, ModelFieldValidatorForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm
+from mango.core.forms import ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, ModelFieldAttributeForm, ModelFieldChoiceForm, ModelFieldValidatorForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm
 from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 from mango.db.api import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
 import settings
@@ -31,6 +31,15 @@ def get_controller(prefix: str = '', tags: List[str] = ['Views']):
   controller = Controller(router)
   return controller
 
+def get_class(class_str: str):
+  from importlib import import_module
+  try:
+    module_path, class_name = class_str.rsplit('.', 1)
+    module = import_module(module_path)
+    return getattr(module, class_name)
+  except (ImportError, AttributeError) as e:
+    raise ImportError(class_str)
+
 
 class StaticView():
   def __init__(self):
@@ -45,6 +54,23 @@ class StaticView():
 
   def get_template_name(self):
     pass
+
+
+router = APIRouter(
+  prefix = '',
+  tags = ['Helper Views']
+)
+
+@router.get('/table_row/create/{form_name}/{prefix}/{pos}', response_class=HTMLResponse, name='get_table_row_create')
+async def get_new_table_row(request: Request, form_name: str, prefix: str = '', pos: int = -1):
+  if pos > -1:
+    prefix = f'{prefix}-{str(pos)}'
+  instance = get_class(form_name)
+  form = instance(prefix=prefix)
+  context = {'request': request, 'form': form, 'prefix': prefix}
+  template_name = f'core/list/partials/new_table_row.html'
+  response = templates.TemplateResponse(template_name, context)
+  return response
 
 
 class BaseView():

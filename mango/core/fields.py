@@ -65,6 +65,15 @@ class FieldList2(FieldList):
     super().__init__(unbound_field, label, validators, min_entries=min_entries, max_entries=max_entries, separator=separator, default=default, **kwargs)
     self.wrapper_class = wrapper_class
 
+  def get_form_name(self):
+    if issubclass(self.unbound_field.field_class, FormField):
+      module_name = self.unbound_field.args[0].__module__
+      name = self.unbound_field.args[0].__name__
+    else:
+      module_name = self.unbound_field.field_class.__module__
+      name = self.unbound_field.field_class.__name__
+    return f'{module_name}.{name}'
+
 
 class DivField(Field):
 
