@@ -1,5 +1,21 @@
 {% set label_css = "block text-gray-700 text-sm font-bold mb-2" %}
+{% set auth_label_css = "block xl:text-emerald-50 text-sm font-bold mb-2" %}
 {% set list_label_css = "flex-1 text-gray-700 text-sm font-bold mb-2" %}
+
+{% macro crispy_form_auth(form) %}
+  {% for field in form %}
+    <div class="mb-4">
+      {{ field.label(class=auth_label_css) }}
+      {{ field() }}
+      {% if field.errors %}
+        <ul class="errors">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+      {% endif %}
+      {% if field.description %}
+        <small>{{field.description}}</small>
+      {% endif %}
+    </div>
+  {% endfor %}
+{% endmacro %}
 
 {% macro crispy_form_view(form) %}
   {% for field in form %}

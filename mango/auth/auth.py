@@ -29,7 +29,7 @@ auth_handler = AuthHandler()
 #   hashed_password = auth_handler.get_password_hash(password)
 #   payload = {
 #     'database': database,
-#     'collection': 'users', 
+#     'collection': 'user', 
 #     'insert_type': 'insert_one',
 #     'data': {
 #       'email': email,
@@ -75,11 +75,11 @@ def can(request:Request, role:str = '', action:str = ''):
   current_user = request.state.user
   if current_user:
     if role and action:
-      return role in current_user['role_list'] and action in current_user['action_list']
+      return role in current_user.get('role_list', []) and action in current_user.get('action_list', [])
     elif action:
-      return action in current_user['action_list']
+      return action in current_user.get('action_list', [])
     elif role:
-        return role in current_user['role_list']
+        return role in current_user.get('role_list', [])
   return False
 
 @router.get('/login', response_class=HTMLResponse)

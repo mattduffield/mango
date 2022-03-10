@@ -39,7 +39,7 @@ async def approve_user(request: Request, database: str, workflow_run_id: str):
 
   payload = {
     'database': database,
-    'collection': 'workflow-runs',
+    'collection': 'workflow_run',
     'query_type': 'find_one',
     'projection': {},
     'query': {'_id': workflow_run_id}
@@ -56,7 +56,7 @@ async def reset_password(request: Request, database: str, workflow_run_id: str):
 
   payload = {
     'database': database,
-    'collection': 'workflow-runs',
+    'collection': 'workflow_run',
     'query_type': 'find_one',
     'projection': {},
     'query': {'_id': workflow_run_id}

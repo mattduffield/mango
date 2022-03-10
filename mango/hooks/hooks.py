@@ -29,7 +29,7 @@ async def create_user(database:str, id:str, hookData:dict, data:dict):
   data['is_active'] = False
   payload = {
     "database": database,
-    "collection": "users",
+    "collection": "user",
     "insert_type": "insert_one",
     "data": data
   }
@@ -42,7 +42,7 @@ async def activate_user(database:str, id:str, hookData:dict, data:dict):
   upd = {'$set': {'is_active': True}}
   payload = {
     "database": database,
-    "collection": "users",
+    "collection": "user",
     "udpate_type": "update_one",
     "query": query,
     "data": upd
@@ -57,7 +57,7 @@ async def update_password(database:str, id:str, hookData:dict, data:dict):
   upd = {'$set': {'password': password}}
   payload = {
     "database": database,
-    "collection": "users",
+    "collection": "user",
     "udpate_type": "update_one",
     "query": query,
     "data": upd
@@ -81,7 +81,7 @@ async def send_email(database:str, id:str, hookData:dict, data:dict):
     # Need to find all emails based on permission
     payload = {
       "database": database,
-      "collection": "users",
+      "collection": "user",
       "query_type": "find",
       "projection": {"email": 1},
       "query": {
@@ -117,6 +117,13 @@ async def send_email(database:str, id:str, hookData:dict, data:dict):
       html = email.html
       print(err)
       pass
+
+  print(f'''
+    Sending the following email
+      to:       {to_block}
+      from:     {from_block}
+      subject:  {subject}
+  ''')
 
   if email.html:
     return requests.post(

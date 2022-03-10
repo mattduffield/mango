@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" class="" style="background-image: linear-gradient(#059669, #065f46);">
+  <head>
+    <meta charset="utf-8">
+    <link href="{{ url_for('static', path='/images/logo.svg') }}" rel="shortcut icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="htmx-config" content='{"useTemplateFragments": true}'>
+    <title>FALM</title>
+    <!-- <link href="{{ url_for('static', path='/css/bundle.css') }}" rel="stylesheet"> -->
+    <link href="{{ url_for('static', path='/css/animation.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='/css/toggle-radios.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='/css/toggle-switch.css') }}" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <style type="text/tailwindcss">
+      @layer components {
+        .btn {
+          @apply cursor-pointer rounded-md;
+        }
+        .btn-primary {
+          @apply text-white bg-emerald-500 hover:bg-emerald-600;
+        }
+        .btn-outline {
+          @apply border bg-emerald-700 hover:bg-emerald-900;
+        }
+        .btn-emerald-outline {
+          @apply border bg-emerald-700 hover:bg-emerald-900;
+        }
+      }
+      .login:before {
+        content: "";
+        margin-left: -48%;
+        background-image: url({{ url_for('static', path='/images/bg-login-page.svg') }});
+        background-repeat: no-repeat;
+        background-size: auto 100%;
+        background-position: right;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        height: 100%;
+        width: 100%;
+      }
+      @media (max-width: 1279px) {
+       .login:before {
+		      display: none;
+	      }
+        .btn-outline {
+          @apply bg-transparent hover:bg-gray-50 text-black;
+        }
+      }
+    </style>    
+  </head>
+  <!-- END: Head -->
+  <body class="login">
+    <div class="container mx-auto sm:px-10">
+      <div class="block xl:grid grid-cols-2 gap-4">
+        <!-- BEGIN: Login Info -->
+        {% include 'auth/login_info.html' %}
+        <!-- END: Login Info -->
+        <!-- BEGIN: Login Form -->
+        {% block content %}
+        {% endblock content %}
+      </div>
+    </div>
+  </body>
+</html>

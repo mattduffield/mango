@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en" 
+  class="h-full"
+  _="on htmx:pushedIntoHistory
+      set element_id to the first of window.location.pathname.replace('/', '').split('/')
+      if element_id
+        take .{'side-bar--active'} from <a/> in #side-bar for #{element_id}
+        take .{'side-bar-icon--active'} from <svg/> in #side-bar for <svg/> in #{element_id}
+      end
+      if window.location.pathname == '/' then
+        remove .bg-gray-100 from me
+        add .bg-white to me
+      else
+        remove .bg-white from me
+        add .bg-gray-100 to me
+      end
+    on load
+      set element_id to the first of window.location.pathname.replace('/', '').split('/')
+      if element_id
+        take .{'side-bar--active'} from <a/> in #side-bar for #{element_id}
+        take .{'side-bar-icon--active'} from <svg/> in #side-bar for <svg/> in #{element_id}
+      end
+      if window.location.pathname == '/' then
+        remove .bg-gray-100 from me
+        add .bg-white to me
+      else
+        remove .bg-white from me
+        add .bg-gray-100 to me
+      end
+  ">
+  <head>
+    <meta charset="utf-8">
+    <link href="{{ url_for('static', path='/images/logo.svg') }}" rel="shortcut icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="htmx-config" content='{"useTemplateFragments": true}'>
+    <title>FALM</title>
+    <!-- <link href="{{ url_for('static', path='/css/bundle.css') }}" rel="stylesheet"> -->
+    <link href="{{ url_for('static', path='/css/animation.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='/css/toggle-radios.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='/css/toggle-switch.css') }}" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@1.7.0"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.5"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <style type="text/tailwindcss">
+      @layer components {
+        .side-bar--active {
+          @apply bg-gray-100 text-gray-900 !important;
+        }
+        .side-bar-icon--active {
+          @apply text-gray-600 !important;
+        }
+      }
+
+      input:invalid {
+        box-shadow: 0 0 5px 1px red;
+      }
+      input:focus:invalid {
+        box-shadow: none;
+      }
+      .errors {
+        color: red;
+      }
+      
+      .htmx-indicator {
+        display: none;
+      }
+      .htmx-request {
+        display: flex;
+      }
+      
+      .loader {
+        border-top-color: #3498db;
+        -webkit-animation: spinner 1.5s linear infinite;
+        animation: spinner 1.5s linear infinite;
+      }
+
+      @-webkit-keyframes spinner {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+      }
+      @keyframes spinner {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body class="h-full"
+    _="on keydown[key=='Escape']
+        add .hidden to #user-menu
+        add .hidden to #modal
+      on click
+       if not ['user-menu-button', 'user-menu-item-0', 'user-menu-item-1', 'user-menu-item-2'].includes(target.id)
+         add .hidden to #user-menu
+       end">
+    <!--
+      This example requires Tailwind CSS v2.0+ 
+      
+      This example requires some changes to your config:
+      
+      ```
+      // tailwind.config.js
+      module.exports = {
+        // ...
+        plugins: [
+          // ...
+          require('@tailwindcss/forms'),
+        ],
+      }
+      ```
+    -->
+    <div>
+      <!-- Off-canvas menu for mobile, show/hide based on off-canvas menu state. -->
+      <div class="fixed inset-0 flex z-40 md:hidden" role="dialog" aria-modal="true">
+        <!--
+          Off-canvas menu overlay, show/hide based on off-canvas menu state.
+
+          Entering: "transition-opacity ease-linear duration-300"
+            From: "opacity-0"
+            To: "opacity-100"
+          Leaving: "transition-opacity ease-linear duration-300"
+            From: "opacity-100"
+            To: "opacity-0"
+        -->
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-75" aria-hidden="true"></div>
+
+        <!--
+          Off-canvas menu, show/hide based on off-canvas menu state.
+
+          Entering: "transition ease-in-out duration-300 transform"
+            From: "-translate-x-full"
+            To: "translate-x-0"
+          Leaving: "transition ease-in-out duration-300 transform"
+            From: "translate-x-0"
+            To: "-translate-x-full"
+        -->
+        <div class="relative flex-1 flex flex-col max-w-xs w-full pt-5 pb-4 bg-white">
+          <!--
+            Close button, show/hide based on off-canvas menu state.
+
+            Entering: "ease-in-out duration-300"
+              From: "opacity-0"
+              To: "opacity-100"
+            Leaving: "ease-in-out duration-300"
+              From: "opacity-100"
+              To: "opacity-0"
+          -->
+          <div class="absolute top-0 right-0 -mr-12 pt-2">
+            <button type="button" class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+              <span class="sr-only">Close sidebar</span>
+              <!-- Heroicon name: outline/x -->
+              <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="flex-shrink-0 flex items-center px-4">
+            <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/workflow-logo-indigo-600-mark-gray-800-text.svg" alt="Workflow">
+          </div>
+          <div class="mt-5 flex-1 h-0 overflow-y-auto">
+            <nav class="px-2 space-y-1">
+              <!-- Current: "bg-gray-100 text-gray-900", Default: "text-gray-600 hover:bg-gray-50 hover:text-gray-900" -->
+              <a href="#" class="bg-gray-100 text-gray-900 group flex items-center px-2 py-2 text-base font-medium rounded-md">
+                <!--
+                  Heroicon name: outline/home
+
+                  Current: "text-gray-500", Default: "text-gray-400 group-hover:text-gray-500"
+                -->
+                <svg class="text-gray-500 mr-4 flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Dashboard
+              </a>
+
+              <a href="#" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-base font-medium rounded-md">
+                <!-- Heroicon name: outline/users -->
+                <svg class="text-gray-400 group-hover:text-gray-500 mr-4 flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                Team
+              </a>
+
+              <a href="#" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-base font-medium rounded-md">
+                <!-- Heroicon name: outline/folder -->
+                <svg class="text-gray-400 group-hover:text-gray-500 mr-4 flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                </svg>
+                Projects
+              </a>
+
+              <a href="#" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-base font-medium rounded-md">
+                <!-- Heroicon name: outline/calendar -->
+                <svg class="text-gray-400 group-hover:text-gray-500 mr-4 flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Calendar
+              </a>
+
+              <a href="#" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-base font-medium rounded-md">
+                <!-- Heroicon name: outline/inbox -->
+                <svg class="text-gray-400 group-hover:text-gray-500 mr-4 flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+                Documents
+              </a>
+
+              <a href="#" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-base font-medium rounded-md">
+                <!-- Heroicon name: outline/chart-bar -->
+                <svg class="text-gray-400 group-hover:text-gray-500 mr-4 flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Reports
+              </a>
+            </nav>
+          </div>
+        </div>
+
+        <div class="flex-shrink-0 w-14" aria-hidden="true">
+          <!-- Dummy element to force sidebar to shrink to fit close icon -->
+        </div>
+      </div>
+
+      <!-- Static sidebar for desktop -->
+      <!-- side-bar -->
+      {% include 'shell/side-bar.html' %}
+      <div class="md:pl-64 flex flex-col flex-1">
+        <!-- nav-bar -->
+        {% include 'shell/nav-bar.html' %}
+        <!-- content -->
+        <div class="grid">
+          {# {% include 'messages.html' %} #}
+          <div id="viewport">
+            {% block content %}
+            {% endblock content %}
+          </div>
+        </div>
+      </div>
+
+<!--
+        <main class="flex-1">
+          <div class="py-6">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+              <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
+            </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+              
+              <div class="py-4">
+                <div class="border-4 border-dashed border-gray-200 rounded-lg h-96"></div>
+              </div>
+              
+            </div>
+          </div>
+        </main>
+-->
+      </div>
+    </div>
+
+    <div id="modal" 
+      class="hidden fixed z-30 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <!--
+          Background overlay, show/hide based on modal state.
+
+          Entering: "ease-out duration-300"
+            From: "opacity-0"
+            To: "opacity-100"
+          Leaving: "ease-in duration-200"
+            From: "opacity-100"
+            To: "opacity-0"
+        -->
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+
+        <!-- This element is to trick the browser into centering the modal contents. -->
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        <!--
+          Modal panel, show/hide based on modal state.
+
+          Entering: "ease-out duration-300"
+            From: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            To: "opacity-100 translate-y-0 sm:scale-100"
+          Leaving: "ease-in duration-200"
+            From: "opacity-100 translate-y-0 sm:scale-100"
+            To: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        -->
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-4xl sm:w-full">
+          <div id="modal-content">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="content-loader" 
+      class="absolute top-0 left-0 w-full h-full flex justify-center items-center htmx-indicator"
+      style="z-index: 999999;">
+      <div class="absolute top-0 left-0 w-full h-full bg-blue-50 opacity-50"></div>
+      <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 m-2 h-36 w-36"></div>
+    </div>
+    <script>
+      function configRome(elt) {
+        rome(elt, { time: true });
+      }
+      function configTomSelect(elt) {
+        var config = {
+          plugins: {
+            remove_button:{
+              title:'Remove this item',
+            }
+          }
+        };
+        new TomSelect(elt,config);
+      }
+      function processModal(selector, is_modal) {
+        const el = document.querySelector(selector);
+        if (el && is_modal) {
+          let is_processed = el.dataset.processed;
+          if (!is_processed) {
+            let post = el.getAttribute('hx-post');
+            let path = location.pathname;
+            let url = `${post}?redirect_url='${path}'`;
+            el.setAttribute('hx-post', url);
+            el.dataset.processed = true;
+            if (el['htmx-internal-data']) {
+              el['htmx-internal-data'].path = url;
+            }
+            htmx.process(el.parentElement);
+          }
+        }
+      }
+      function addHxVars(selector) {
+        const el = document.querySelector(selector);
+        const processed = el.dataset.processed;
+        if (el && !processed) {
+          let list = [];
+          let vars = el.getAttribute('hx-vars') || '';
+          if (vars) {
+            list.push(vars);
+          }
+          const multiSelects = Array.from(el.querySelectorAll('multi-select'));
+          for (m of multiSelects) {      
+            list.push(`'${m.id}':getComponentValues('#${m.id}')`);
+          }
+          if (list.length > 0) {
+            el.setAttribute('hx-vars', list.join(','));
+          }
+          el.dataset.processed = true;
+        }
+      }
+      function getComponentValues(selector) {
+        const el = document.querySelector(selector);
+        let data = null;
+        if (el) {
+          data = el.getValues();
+        }
+        return data;
+      }
+      /*
+        Reference:
+          https://gist.github.com/kageurufu/6813878
+      */      
+      async function addDynamicRowByTemplate(elt, selector) {
+        const formName = elt.dataset.formName;
+        const bodySelector = `#${selector}-body`;
+        let pos = -1;
+        if (document.querySelector('tbody#projection_list-body')) {
+          pos = document.querySelectorAll(`tbody${bodySelector} tr`).length;
+        }
+        const response = await fetch(`/table_row/create/${formName}/${selector}/${pos}`);
+        const tmpl = await response.text();
+        const oldRow = document.querySelector(`tbody${bodySelector} tr:last-child`);
+        oldRow.insertAdjacentHTML('afterend', tmpl);
+      }      
+    </script>
+    <script type="text/hyperscript">
+      def toggleElementHidden(elt, prop, selector, values)
+        if Array.isArray(values)
+          if elt[prop] is not in values
+            add .hidden to #{selector}
+          else
+            remove .hidden from #{selector}
+          end
+        else
+          if elt[prop] == values
+            add .hidden to #{selector}
+          else
+            remove .hidden from #{selector}
+          end
+        end
+      end
+      def toggleElementVisibility(elt, selector, values)
+        if elt.value is not in values
+          add .hidden to #{selector}
+        else
+          remove .hidden from #{selector}
+        end
+      end
+
+      def addRowTemplate(elt)
+        get the #row-template's innerHTML then
+        put it at the end of the #validator-body
+        _hyperscript.processNode(the last <tr />)
+      end
+      def toggleVisibilityBy(elt, source, target, value)
+        set selector to elt.id.replace(source, target)
+        if elt.value == value
+          add .hidden to #{selector}.closest("tr")
+        else
+          remove .hidden from #{selector}.closest("tr")
+        end
+      end
+      def toggleTableRowHidden(elt, source, trueTargets, falseTargets, value)
+        for tgt in trueTargets
+          set selector to elt.id.replace(source, tgt)
+          if elt.value == value
+            remove .hidden from #{selector}.closest("tr")
+          else
+            add .hidden to #{selector}.closest("tr")
+          end
+        end
+        for tgt in falseTargets
+          set selector to elt.id.replace(source, tgt)
+          if elt.value == value
+            add .hidden to #{selector}.closest("tr")
+          else
+            remove .hidden from #{selector}.closest("tr")
+          end
+        end
+      end
+      def toLower(elt)
+        set elt.value to elt.value.toLowerCase()
+      end
+      def toLowerUri(elt)
+        set elt.value to elt.value.toLowerCase().replaceAll(" ", "/")
+      end
+      def toLowerSnake(elt)
+        set elt.value to elt.value.toLowerCase().replaceAll(" ", "_")
+      end
+      def copyToLower(elt, target)
+        set #{target}.value to elt.value.toLowerCase()
+      end
+      def copyToLowerUri(elt, target)
+        set #{target}.value to elt.value.toLowerCase().replaceAll(" ", "/")
+      end
+      def copyToLowerSnake(elt, target)
+        set #{target}.value to elt.value.toLowerCase().replaceAll(" ", "_")
+      end
+    </script>
+  </body>
+</html>
