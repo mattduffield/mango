@@ -47,6 +47,18 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <style type="text/tailwindcss">
       @layer components {
+        .btn {
+          @apply cursor-pointer rounded-md;
+        }
+        .btn-primary {
+          @apply text-white bg-emerald-500 hover:bg-emerald-600;
+        }
+        .btn-outline {
+          @apply border bg-emerald-700 hover:bg-emerald-900;
+        }
+        .btn-emerald-outline {
+          @apply border bg-emerald-700 hover:bg-emerald-900;
+        }
         .breadcrumb {
           @apply cursor-pointer text-gray-600 hover:text-gray-900 flex items-center px-2 py-2 text-sm font-medium;
         }
@@ -73,6 +85,9 @@
         }
         .nav-bar-menu {
           @apply block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900;
+        }
+        .ring-primary {
+          @apply ring-emerald-400 !important;
         }
       }
 

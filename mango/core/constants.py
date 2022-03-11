@@ -17,6 +17,7 @@ input_class = '''
   ease-in-out
   m-0
   focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+  ring-primary
 '''
 textarea_class = '''
   form-control
@@ -35,6 +36,7 @@ textarea_class = '''
   m-0
   h-48
   focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+  ring-primary
 '''
 chk_class = '''
   form-check-input
@@ -58,6 +60,7 @@ chk_class = '''
   float-left
   mr-2
   cursor-pointer
+  ring-primary
 '''
 select_class = '''form-select appearance-none
   block
@@ -73,7 +76,9 @@ select_class = '''form-select appearance-none
   transition
   ease-in-out
   m-0
-  focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none'''
+  focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+  ring-primary
+'''
 select_multiple_class = '''
   form-control
   block
@@ -90,6 +95,7 @@ select_multiple_class = '''
   ease-in-out
   m-0
   focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+  ring-primary
 '''
 toggle_radio_class = '''
   w-full
@@ -97,10 +103,12 @@ toggle_radio_class = '''
   ease-in-out
   focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
   toggle-radio
+  ring-primary
 '''
 toggle_switch_class = '''
   toggle-switch-container
   cursor-pointer
+  ring-primary
 '''
 
 hs_element_type_true_targets = ["inner_text", "inner_html"]

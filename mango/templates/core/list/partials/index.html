@@ -17,7 +17,7 @@
               </svg>
             </div>
             <input id="search" name="search" 
-              class="block w-full pl-10 pr-3 py-2 textinput border border-gray-300 rounded-md leading-5 bg-white focus:outline-none sm:text-sm"
+              class="ring-primary block w-full pl-10 pr-3 py-2 textinput border border-gray-300 rounded-md leading-5 bg-white focus:outline-none sm:text-sm"
               placeholder="Search"
               type="search"
               value="{{ search }}"
@@ -36,7 +36,8 @@
           hx-swap="innerHTML"
           hx-push-url="true"
           hx-indicator="#content-loader"
-          class="intro-x flex flex-row text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md cursor-pointer">
+          class="intro-x btn btn-primary py-3 px-4 flex flex-row"
+          class2="intro-x flex flex-row text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
           </svg>
