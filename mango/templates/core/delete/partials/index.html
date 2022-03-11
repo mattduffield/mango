@@ -1,8 +1,8 @@
-{% set parent_url = "__"+view.model_name+"__"+data["_id"] %}
+{% set parent_url = "__"+view.model_name+"__"+data["_id"]|to_string %}
 {% if is_modal %}
-  {% set post_url = "/"+view.model_name+"/"+data["_id"]+"/delete?redirect_url="+redirect_url %}
+  {% set post_url = "/"+view.model_name+"/"+data["_id"]|to_string+"/delete?redirect_url="+redirect_url %}
 {% else %}
-  {% set post_url = "/"+view.model_name+"/"+data["_id"]+"/delete" %}
+  {% set post_url = "/"+view.model_name+"/"+data["_id"]|to_string+"/delete" %}
 {% endif %}
 
 <div class="intro-y p-6 mx-auto max-w-2xl">

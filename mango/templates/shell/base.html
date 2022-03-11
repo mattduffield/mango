@@ -3,10 +3,11 @@
   class="h-full"
   _="on htmx:pushedIntoHistory
       set element_id to the first of window.location.pathname.replace('/', '').split('/')
-      if element_id
-        take .{'side-bar--active'} from <a/> in #side-bar for #{element_id}
-        take .{'side-bar-icon--active'} from <svg/> in #side-bar for <svg/> in #{element_id}
+      if not element_id then
+        set element_id to 'dashboard'
       end
+      take .{'side-bar--active'} from <a/> in #side-bar for #{element_id}
+      take .{'side-bar-icon--active'} from <svg/> in #side-bar for <svg/> in #{element_id}
       if window.location.pathname == '/' then
         remove .bg-gray-100 from me
         add .bg-white to me
@@ -16,10 +17,11 @@
       end
     on load
       set element_id to the first of window.location.pathname.replace('/', '').split('/')
-      if element_id
-        take .{'side-bar--active'} from <a/> in #side-bar for #{element_id}
-        take .{'side-bar-icon--active'} from <svg/> in #side-bar for <svg/> in #{element_id}
+      if not element_id then
+        set element_id to 'dashboard'
       end
+      take .{'side-bar--active'} from <a/> in #side-bar for #{element_id}
+      take .{'side-bar-icon--active'} from <svg/> in #side-bar for <svg/> in #{element_id}
       if window.location.pathname == '/' then
         remove .bg-gray-100 from me
         add .bg-white to me
@@ -45,11 +47,32 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <style type="text/tailwindcss">
       @layer components {
+        .breadcrumb {
+          @apply cursor-pointer text-gray-600 hover:text-gray-900 flex items-center px-2 py-2 text-sm font-medium;
+        }
+        .breadcrumb-icon {
+          @apply text-gray-400 group-hover:text-gray-500 flex-shrink-0 h-6 w-6;
+        }
+        .breadcrumb-chevron {
+          @apply text-gray-400 flex-shrink-0 h-4 w-4;
+        }
+        .breadcrumb--active {
+          @apply text-gray-600 flex items-center px-2 py-2 text-sm font-medium;
+        }
+        .side-bar-menu {
+          @apply cursor-pointer text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center px-2 py-2 text-sm font-medium rounded-md;
+        }
+        .side-bar-icon {
+          @apply text-gray-400 group-hover:text-gray-500 mr-3 flex-shrink-0 h-6 w-6;
+        }
         .side-bar--active {
           @apply bg-gray-100 text-gray-900 !important;
         }
         .side-bar-icon--active {
           @apply text-gray-600 !important;
+        }
+        .nav-bar-menu {
+          @apply block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900;
         }
       }
 

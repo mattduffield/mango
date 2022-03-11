@@ -1,127 +1,144 @@
-<!-- <div class="sticky top-0 z-10 flex-shrink-0 flex items-center h-16 bg-white shadow"> -->
-  <div class="sticky top-0 z-10 intro-x xmx-4 xrelative flex-shrink-0 flex flex-1 items-center justify-end h-16 bg-white shadow">
-    <div class="m-4">
-      <button type="button" 
-        class="bg-white shadow-lg rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" 
-        _="on click toggle .hidden on #user-menu"
-        id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-        <span class="sr-only">Open user menu</span>
-        <span class=" pointer-events-none inline-block h-8 w-8 rounded-full overflow-hidden bg-gray-100">
-          <svg class="pointer-events-none h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-        </span>
-      </button>
-    </div>
-    <!--
-      Dropdown menu, show/hide based on menu state.
-
-      Entering: "transition ease-out duration-100"
-        From: "transform opacity-0 scale-95"
-        To: "transform opacity-100 scale-100"
-      Leaving: "transition ease-in duration-75"
-        From: "transform opacity-100 scale-100"
-        To: "transform opacity-0 scale-95"
-    -->
-    <div class="hidden xorigin-top-right absolute top-14 right-6 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50" 
-      id="user-menu"
-      role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
-      <!-- Active: "bg-gray-100", Not Active: "" -->
-
-
-      {% if view and view.can(request, role='super_admin') %}
-      <a id="user-menu-action"
-        role="menuitem"
-        tabindex="-1"
-        href="/action"
-        class="block px-4 py-2 text-sm text-gray-700">
-        Action 
-      </a>
-      <a id="user-menu-role"
-        role="menuitem"
-        tabindex="-1"
-        href="/role"
-        class="block px-4 py-2 text-sm text-gray-700">
-        Role 
-      </a>
-      <a id="user-menu-model"
-        role="menuitem"
-        tabindex="-1"
-        href="/model"
-        class="block px-4 py-2 text-sm text-gray-700">
-        Model 
-      </a>
-      <a id="user-menu-model_record_type"
-        role="menuitem"
-        tabindex="-1"
-        href="/model_record_type"
-        class="block px-4 py-2 text-sm text-gray-700">
-        Model Record Type 
-      </a>
-      <a id="user-menu-model_field"
-        role="menuitem"
-        tabindex="-1"
-        href="/model_field"
-        class="block px-4 py-2 text-sm text-gray-700">
-        Model Field 
-      </a>
-      <!--
-      <a id="user-menu-model_field_attribute"
-        role="menuitem"
-        tabindex="-1"
-        href="/model_field_attribute"
-        class="block px-4 py-2 text-sm text-gray-700">
-        Model Field Attribute 
-      </a>
-      <a id="user-menu-model_field_choice"
-        role="menuitem"
-        tabindex="-1"
-        href="/model_field_choice"
-        class="block px-4 py-2 text-sm text-gray-700">
-        Model Field Choice 
-      </a>
-      <a id="user-menu-model_field_validator"
-        role="menuitem"
-        tabindex="-1"
-        href="/model_field_validator"
-        class="block px-4 py-2 text-sm text-gray-700">
-        Model Field Validator
-      </a>
-      -->
-      <a id="user-menu-page_layout"
-        role="menuitem"
-        tabindex="-1"
-        href="/page_layout"
-        class="block px-4 py-2 text-sm text-gray-700">
-        Page Layout
-      </a>
-      <a id="user-menu-list_layout"
-        role="menuitem"
-        tabindex="-1"
-        href="/list_layout"
-        class="block px-4 py-2 text-sm text-gray-700">
-        List Layout
-      </a>
-      <a id="user-menu-tab"
-        role="menuitem"
-        tabindex="-1"
-        href="/tab"
-        class="block px-4 py-2 text-sm text-gray-700">
-        Tab
-      </a>
-      <a id="user-menu-app"
-        role="menuitem"
-        tabindex="-1"
-        href="/app"
-        class="block px-4 py-2 text-sm text-gray-700">
-        App
-      </a>
-      {% endif %}
-      <!--
-      <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-0">Your Profile</a>
-      <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-1">Settings</a>
-      -->
-      <a href="/auth/logout" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-2">Sign out</a>
-    </div>
+<div class="sticky top-0 z-10 flex-shrink-0 flex flex-1 items-center justify-end h-16 bg-white shadow">
+  <div id="breadcrumbs" class="m-4 intro-x mr-auto hidden sm:flex sm:flex-1 sm:items-center">
+    <a hx-get="{{url_for(name='landing-page')}}"
+      hx-target="#viewport"
+      hx-swap="innerHTML"
+      hx-push-url="true"
+      hx-indicator="#content-loader"
+      data-target="dashboard"
+      class="breadcrumb group"
+    >
+      <svg class="breadcrumb-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    </a>
+    <svg class="breadcrumb-chevron" id="chevron-right" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+    </svg>
+    <span class="breadcrumb--active">Dashboard</span>
   </div>
-<!-- </div> -->
+
+  <div class="-intro-x m-4">
+    <button type="button" 
+      class="bg-white shadow-lg rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" 
+      _="on click toggle .hidden on #user-menu"
+      id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+      <span class="sr-only">Open user menu</span>
+      <span class=" pointer-events-none inline-block h-8 w-8 rounded-full overflow-hidden bg-gray-100">
+        <svg class="pointer-events-none h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      </span>
+    </button>
+  </div>
+  <!--
+    Dropdown menu, show/hide based on menu state.
+
+    Entering: "transition ease-out duration-100"
+      From: "transform opacity-0 scale-95"
+      To: "transform opacity-100 scale-100"
+    Leaving: "transition ease-in duration-75"
+      From: "transform opacity-100 scale-100"
+      To: "transform opacity-0 scale-95"
+  -->
+  <div class="hidden origin-top-right absolute top-14 right-6 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50" 
+    id="user-menu"
+    role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
+    <!-- Active: "bg-gray-100", Not Active: "" -->
+
+
+    {% if view and view.can(request, role='super_admin') %}
+    <a id="user-menu-action"
+      role="menuitem"
+      tabindex="-1"
+      href="/action"
+      class="nav-bar-menu">
+      Action 
+    </a>
+    <a id="user-menu-role"
+      role="menuitem"
+      tabindex="-1"
+      href="/role"
+      class="nav-bar-menu">
+      Role 
+    </a>
+    <a id="user-menu-model"
+      role="menuitem"
+      tabindex="-1"
+      href="/model"
+      class="nav-bar-menu">
+      Model 
+    </a>
+    <a id="user-menu-model_record_type"
+      role="menuitem"
+      tabindex="-1"
+      href="/model_record_type"
+      class="nav-bar-menu">
+      Model Record Type 
+    </a>
+    <a id="user-menu-model_field"
+      role="menuitem"
+      tabindex="-1"
+      href="/model_field"
+      class="nav-bar-menu">
+      Model Field 
+    </a>
+    <!--
+    <a id="user-menu-model_field_attribute"
+      role="menuitem"
+      tabindex="-1"
+      href="/model_field_attribute"
+      class="nav-bar-menu">
+      Model Field Attribute 
+    </a>
+    <a id="user-menu-model_field_choice"
+      role="menuitem"
+      tabindex="-1"
+      href="/model_field_choice"
+      class="nav-bar-menu">
+      Model Field Choice 
+    </a>
+    <a id="user-menu-model_field_validator"
+      role="menuitem"
+      tabindex="-1"
+      href="/model_field_validator"
+      class="nav-bar-menu">
+      Model Field Validator
+    </a>
+    -->
+    <a id="user-menu-page_layout"
+      role="menuitem"
+      tabindex="-1"
+      href="/page_layout"
+      class="nav-bar-menu">
+      Page Layout
+    </a>
+    <a id="user-menu-list_layout"
+      role="menuitem"
+      tabindex="-1"
+      href="/list_layout"
+      class="nav-bar-menu">
+      List Layout
+    </a>
+    <a id="user-menu-tab"
+      role="menuitem"
+      tabindex="-1"
+      href="/tab"
+      class="nav-bar-menu">
+      Tab
+    </a>
+    <a id="user-menu-app"
+      role="menuitem"
+      tabindex="-1"
+      href="/app"
+      class="nav-bar-menu">
+      App
+    </a>
+    {% endif %}
+    <!--
+    <a href="#" class="nav-bar-menu" role="menuitem" tabindex="-1" id="user-menu-item-0">Your Profile</a>
+    <a href="#" class="nav-bar-menu" role="menuitem" tabindex="-1" id="user-menu-item-1">Settings</a>
+    -->
+    <a href="/auth/logout" class="nav-bar-menu" role="menuitem" tabindex="-1" id="user-menu-item-2">Sign out</a>
+  </div>
+</div>
