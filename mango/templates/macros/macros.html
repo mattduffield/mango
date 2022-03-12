@@ -186,9 +186,11 @@
             {% endif %}
           {% endfor %}
         {% else %}
+          {% if sub_field.name|contains('-0') %}
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
             {{ sub_field.label.text }}
           </th>
+          {% endif %}
         {% endif %}
       {% else %}
         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">

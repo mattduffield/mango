@@ -11,9 +11,9 @@ from wtforms import Form
 from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 from mango.auth.models import Credentials
 from mango.auth.auth import can
-from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, ModelFieldAttribute, ModelFieldChoice, ModelFieldValidator, PageLayout, ListLayout, Tab, App
-from mango.core.fields import QuerySelectField, QuerySelectMultipleField
-from mango.core.forms import ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, ModelFieldAttributeForm, ModelFieldChoiceForm, ModelFieldValidatorForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm
+from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, PageLayout, ListLayout, Tab, App
+from mango.core.fields import QuerySelectField, QuerySelectMultipleField, StringField2
+from mango.core.forms import get_string_form, ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm
 from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 from mango.db.api import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
 import settings
@@ -65,8 +65,11 @@ router = APIRouter(
 async def get_new_table_row(request: Request, form_name: str, prefix: str = '', pos: int = -1):
   if pos > -1:
     prefix = f'{prefix}-{str(pos)}'
-  instance = get_class(form_name)
-  form = instance(prefix=prefix)
+  if form_name.endswith('Form'):
+    instance = get_class(form_name)
+    form = instance(prefix=prefix)
+  else:
+    form = get_string_form(prefix=prefix)
   context = {'request': request, 'form': form, 'prefix': prefix}
   template_name = f'core/list/partials/new_table_row.html'
   response = templates.TemplateResponse(template_name, context)
@@ -524,120 +527,6 @@ class ModelFieldView(BaseView):
     return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
   @model_field_controller.route.post('/model_field/{_id}/delete', response_class=HTMLResponse, name='model_field-delete')
-  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
-    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
-
-
-model_field_attribute_controller = get_controller(tags=['Model Field Attribute Views'])
-@model_field_attribute_controller.resource()
-class ModelFieldAttributeView(BaseView):
-  model_class = ModelFieldAttribute
-  form_class = ModelFieldAttributeForm
-
-  def __init__(self):
-    super().__init__()
-
-  @model_field_attribute_controller.route.get('/model_field_attribute', response_class=HTMLResponse, name='model_field_attribute-list')
-  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
-
-  @model_field_attribute_controller.route.get('/model_field_attribute/create', response_class=HTMLResponse, name='model_field_attribute-create')
-  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
-
-  @model_field_attribute_controller.route.post('/model_field_attribute/create', response_class=HTMLResponse, name='model_field_attribute-create')
-  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
-
-  @model_field_attribute_controller.route.get('/model_field_attribute/{_id}', response_class=HTMLResponse, name='model_field_attribute-update')
-  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
-
-  @model_field_attribute_controller.route.post('/model_field_attribute/{_id}', response_class=HTMLResponse, name='model_field_attribute-update')
-  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
-    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
-
-  @model_field_attribute_controller.route.get('/model_field_attribute/{_id}/delete', response_class=HTMLResponse, name='model_field_attribute-delete')
-  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
-
-  @model_field_attribute_controller.route.post('/model_field_attribute/{_id}/delete', response_class=HTMLResponse, name='model_field_attribute-delete')
-  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
-    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
-
-
-model_field_choice_controller = get_controller(tags=['Model Field Choice Views'])
-@model_field_choice_controller.resource()
-class ModelFieldChoiceView(BaseView):
-  model_class = ModelFieldChoice
-  form_class = ModelFieldChoiceForm
-
-  def __init__(self):
-    super().__init__()
-
-  @model_field_choice_controller.route.get('/model_field_choice', response_class=HTMLResponse, name='model_field_choice-list')
-  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
-
-  @model_field_choice_controller.route.get('/model_field_choice/create', response_class=HTMLResponse, name='model_field_choice-create')
-  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
-
-  @model_field_choice_controller.route.post('/model_field_choice/create', response_class=HTMLResponse, name='model_field_choice-create')
-  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
-
-  @model_field_choice_controller.route.get('/model_field_choice/{_id}', response_class=HTMLResponse, name='model_field_choice-update')
-  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
-
-  @model_field_choice_controller.route.post('/model_field_choice/{_id}', response_class=HTMLResponse, name='model_field_choice-update')
-  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
-    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
-
-  @model_field_choice_controller.route.get('/model_field_choice/{_id}/delete', response_class=HTMLResponse, name='model_field_choice-delete')
-  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
-
-  @model_field_choice_controller.route.post('/model_field_choice/{_id}/delete', response_class=HTMLResponse, name='model_field_choice-delete')
-  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
-    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
-
-
-model_field_validator_controller = get_controller(tags=['Model Field Validator Views'])
-@model_field_validator_controller.resource()
-class ModelFieldValidatorView(BaseView):
-  model_class = ModelFieldValidator
-  form_class = ModelFieldValidatorForm
-
-  def __init__(self):
-    super().__init__()
-
-  @model_field_validator_controller.route.get('/model_field_validator', response_class=HTMLResponse, name='model_field_validator-list')
-  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
-
-  @model_field_validator_controller.route.get('/model_field_validator/create', response_class=HTMLResponse, name='model_field_validator-create')
-  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
-
-  @model_field_validator_controller.route.post('/model_field_validator/create', response_class=HTMLResponse, name='model_field_validator-create')
-  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
-
-  @model_field_validator_controller.route.get('/model_field_validator/{_id}', response_class=HTMLResponse, name='model_field_validator-update')
-  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
-
-  @model_field_validator_controller.route.post('/model_field_validator/{_id}', response_class=HTMLResponse, name='model_field_validator-update')
-  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
-    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
-
-  @model_field_validator_controller.route.get('/model_field_validator/{_id}/delete', response_class=HTMLResponse, name='model_field_validator-delete')
-  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
-
-  @model_field_validator_controller.route.post('/model_field_validator/{_id}/delete', response_class=HTMLResponse, name='model_field_validator-delete')
   async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 

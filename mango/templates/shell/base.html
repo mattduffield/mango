@@ -41,6 +41,31 @@
     <link href="{{ url_for('static', path='/css/toggle-radios.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', path='/css/toggle-switch.css') }}" rel="stylesheet">
     <script src="https://unpkg.com/htmx.org@1.7.0"></script>
+    <script type="text/hyperscript">
+      behavior HandleValidity
+        on blur 
+          if me.validity.valid then 
+            remove .invalid from me
+          else 
+            add .invalid to me
+          end 
+        end
+        on input
+          if me.validity.valid then 
+            remove .invalid from me
+          else 
+            add .invalid to me
+          end 
+        end
+        on invalid
+          if me.validity.valid then
+            remove .invalid from me
+          else
+            add .invalid to me
+          end
+        end
+      end
+    </script>
     <script src="https://unpkg.com/hyperscript.org@0.9.5"></script>
     <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
@@ -91,6 +116,13 @@
         }
       }
 
+      .invalid {
+        box-shadow: 0 0 5px 1px red;
+      }
+      .invalid:focus {
+        box-shadow: none;
+      }
+      /*
       input:invalid {
         box-shadow: 0 0 5px 1px red;
       }
@@ -100,7 +132,7 @@
       .errors {
         color: red;
       }
-      
+      */      
       .htmx-indicator {
         display: none;
       }
@@ -109,7 +141,7 @@
       }
       
       .loader {
-        border-top-color: #3498db;
+        border-top-color: #10B981;
         -webkit-animation: spinner 1.5s linear infinite;
         animation: spinner 1.5s linear infinite;
       }
@@ -482,6 +514,7 @@
       end
       def copyToLowerSnake(elt, target)
         set #{target}.value to elt.value.toLowerCase().replaceAll(" ", "_")
+        trigger input on #{target}
       end
     </script>
   </body>

@@ -33,16 +33,33 @@ from mango.core.choices import DATA_TYPES, FIELD_TYPES
 from mango.core.validators import DataRequiredIf, OptionalIfFieldEqualTo
 
 
+def get_string_form(prefix: str):
+  class StaticForm(Form):
+    pass
+
+  setattr(
+    StaticForm, 
+    prefix, 
+    StringField(
+      'StringField',
+      validators= [DataRequired()],
+      render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
+    )
+  )
+  result = StaticForm()
+  return result
+
+
 class KeyValueForm(Form):
   key = StringField(
     'Key',
-    validators= [],
-    render_kw = { 'class': input_class },
+    # validators= [DataRequired()],
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
   )
   value = StringField(
     'Value',
-    validators= [],
-    render_kw = { 'class': input_class },
+    # validators= [DataRequired()],
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
   )
 
 
@@ -50,12 +67,12 @@ class ActionForm(StarletteForm):
   topic = StringField(
     'Topic', 
     validators = [DataRequired()], 
-    render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'on input toLowerUri(me)' },
+    render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'install HandleValidity end on input toLowerUri(me) end' },
     wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
 
@@ -70,7 +87,7 @@ class RoleForm(StarletteForm):
   name = StringField(
     'Name', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )  
   # current_action = QuerySelectField(
@@ -79,7 +96,7 @@ class RoleForm(StarletteForm):
   #   projection = { 'topic': 1 }, 
   #   display_member = lambda data: f'{data["topic"]}', 
   #   value_member = lambda data: f'{data["_id"]}',
-  #   render_kw = { 'class': select_class },
+  #   render_kw = { 'class': select_class, 'data-script': 'install HandleValidity end' },
   # )
   # action_date = DateField(
   #   'Action Date', 
@@ -96,7 +113,7 @@ class RoleForm(StarletteForm):
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
-    render_kw = { 'class': chk_class },
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
 
@@ -113,24 +130,24 @@ class ModelForm(StarletteForm):
   label = StringField(
     'Label', 
     validators = [DataRequired()], 
-    render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
+    render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'install HandleValidity end on input copyToLowerSnake(me, "name") end' },
     wrapper_class = 'flex-1',
   )
   label_plural = StringField(
     'Plural Label', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   name = StringField(
     'Name', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   to_string = StringField(
     'To String',
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   order_by = QuerySelectMultipleField(
@@ -145,12 +162,12 @@ class ModelForm(StarletteForm):
   )
   page_size = IntegerField(
     'Page Size',
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
-    render_kw = { 'class': chk_class },
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
 
@@ -159,18 +176,18 @@ class ModelRecordTypeForm(StarletteForm):
   label = StringField(
     'Label', 
     validators = [DataRequired()], 
-    render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
+    render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'install HandleValidity end on input copyToLowerSnake(me, "name") end' },
     wrapper_class = 'flex-1',
   )
   name = StringField(
     'Name', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
 
@@ -185,19 +202,19 @@ class ModelFieldForm(StarletteForm):
     validators = [DataRequired()], 
     allow_blank = True,
     blank_text = 'Pick...',
-    render_kw = { 'autofocus': 'true', 'class': select_class },
+    render_kw = { 'autofocus': 'true', 'class': select_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   label = StringField(
     'Label', 
     validators = [DataRequired()], 
-    render_kw = { 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end on input copyToLowerSnake(me, "name") end' },
     wrapper_class = 'flex-1',
   )
   name = StringField(
     'Name', 
     validators=[DataRequired()],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   data_type = QuerySelectField(
@@ -209,27 +226,27 @@ class ModelFieldForm(StarletteForm):
     validators = [DataRequired()],
     allow_blank = True,
     blank_text = 'Pick...',
-    render_kw = { 'class': select_class },
+    render_kw = { 'class': select_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   is_optional = ToggleSwitchField(
     'Is Optional?', 
-    render_kw = { 'class': chk_class },
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = '',
   )
   is_list = ToggleSwitchField(
     'Is List?', 
-    render_kw = { 'class': chk_class },
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = '',
   )
   default_value = StringField(
     'Default Value',
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   default_value_use_quotes = ToggleSwitchField(
     'Default Value Use Quotes?', 
-    render_kw = { 'class': chk_class },
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = '',
   )
   field_type = QuerySelectField(
@@ -241,13 +258,13 @@ class ModelFieldForm(StarletteForm):
     validators = [DataRequired()],
     allow_blank = True,
     blank_text = 'Pick...',
-    render_kw = { 'class': select_class, 'data-script': hs_field_type },
+    render_kw = { 'class': select_class, 'data-script': f'install HandleValidity end {hs_field_type}', 'data-script2': hs_field_type },
     wrapper_class = 'flex-1',
   )
   validator_list = FieldList(
     StringField(
       'Validator',
-      render_kw = { 'class': input_class },
+      render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     ),
     min_entries=1,
     wrapper_class = 'flex-1',
@@ -259,7 +276,7 @@ class ModelFieldForm(StarletteForm):
   )
   collection = StringField(
     'Collection',
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   projection_list = FieldList(
@@ -279,27 +296,27 @@ class ModelFieldForm(StarletteForm):
   )
   display_member = StringField(
     'Display Member',
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   value_member = StringField(
     'Value Member',
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   allow_blank = ToggleSwitchField(
     'Allow Blank?', 
-    render_kw = { 'class': chk_class, 'data-script': 'on load set elt to first <input/> in me toggleElementHidden(elt, "checked", "wrapper_blank_text", false) end on change set elt to first <input/> in me toggleElementHidden(elt, "checked", "wrapper_blank_text", false) end' },
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end on load set elt to first <input/> in me toggleElementHidden(elt, "checked", "wrapper_blank_text", false) end on change set elt to first <input/> in me toggleElementHidden(elt, "checked", "wrapper_blank_text", false) end' },
     wrapper_class = '',
   )
   blank_text = StringField(
     'Blank Text',
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
-    render_kw = { 'class': chk_class },
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
 
@@ -308,123 +325,10 @@ class ModelFieldForm(StarletteForm):
   #   super().__init__(request=request, args=args, kwargs=kwargs)
 
 
-class ModelFieldAttributeForm(StarletteForm):
-  model_field_id = QuerySelectField(
-    'Model Field', 
-    collection = 'model_field', 
-    projection = { 'label': 1, 'name': 1 }, 
-    display_member = lambda data: f'{data["label"]}', 
-    value_member = lambda data: f'{data["_id"]}',
-    validators = [DataRequired()], 
-    allow_blank = True,
-    blank_text = 'Pick...',
-    render_kw = { 'autofocus': 'true', 'class': select_class },
-    wrapper_class = 'flex-1',
-  )
-  attribute_key = StringField(
-    'Key', 
-    validators = [DataRequired()],
-    render_kw = { 'class': input_class },
-    wrapper_class = 'flex-1',
-  )
-  attribute_value = StringField(
-    'Value', 
-    validators = [DataRequired()],
-    render_kw = { 'class': input_class },
-    wrapper_class = 'flex-1',
-  )
-  attribute_value_use_quotes = ToggleSwitchField(
-    'Attribute Value Use Quotes?', 
-    render_kw = { 'class': chk_class },
-    wrapper_class = 'flex-1',
-  )
-  sequence = IntegerField(
-    'Sequence', 
-    validators = [DataRequired()],
-    render_kw = { 'class': input_class },
-    wrapper_class = 'flex-1',
-  )
-  is_active = ToggleSwitchField(
-    'Is Active?', 
-    render_kw = { 'class': chk_class },
-    wrapper_class = 'flex-1',
-  )
 
-
-class ModelFieldChoiceForm(StarletteForm):
-  model_field_id = QuerySelectField(
-    'Model Field', 
-    collection = 'model_field', 
-    projection = { 'label': 1, 'name': 1 }, 
-    display_member = lambda data: f'{data["label"]}', 
-    value_member = lambda data: f'{data["_id"]}',
-    validators = [DataRequired()], 
-    allow_blank = True,
-    blank_text = 'Pick...',
-    render_kw = { 'autofocus': 'true', 'class': select_class },
-    wrapper_class = 'flex-1',
-  )
-  label = StringField(
-    'Label', 
-    validators = [DataRequired()],
-    render_kw = { 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
-    wrapper_class = 'flex-1',
-  )
-  name = StringField(
-    'Name', 
-    validators = [DataRequired()],
-    render_kw = { 'class': input_class },
-    wrapper_class = 'flex-1',
-  )
-  name_use_quotes = ToggleSwitchField(
-    'Name Use Quotes?', 
-    render_kw = { 'class': chk_class },
-    wrapper_class = 'flex-1',
-  )
-  sequence = IntegerField(
-    'Sequence', 
-    validators = [DataRequired()],
-    render_kw = { 'class': input_class },
-    wrapper_class = 'flex-1',
-  )
-  is_active = ToggleSwitchField(
-    'Is Active?', 
-    render_kw = { 'class': chk_class },
-    wrapper_class = 'flex-1',
-  )
-
-
-class ModelFieldValidatorForm(StarletteForm):
-  model_field_id = QuerySelectField(
-    'Model Field', 
-    collection = 'model_field', 
-    projection = { 'label': 1, 'name': 1 }, 
-    display_member = lambda data: f'{data["label"]}', 
-    value_member = lambda data: f'{data["_id"]}',
-    validators = [DataRequired()], 
-    allow_blank = True,
-    blank_text = 'Pick...',
-    render_kw = { 'autofocus': 'true', 'class': select_class },
-    wrapper_class = 'flex-1',
-  )
-  label = StringField(
-    'Label', 
-    validators = [DataRequired()],
-    render_kw = { 'class': input_class },
-    wrapper_class = 'flex-1',
-  )
-  sequence = IntegerField(
-    'Sequence', 
-    validators = [DataRequired()],
-    render_kw = { 'class': input_class },
-    wrapper_class = 'flex-1',
-  )
-  is_active = ToggleSwitchField(
-    'Is Active?', 
-    render_kw = { 'class': chk_class },
-    wrapper_class = 'flex-1',
-  )
-
+'''
+  TODO: Need to support HandleValidity for the LayoutForm and LayoutLevel[x]Form classes
+'''
 
 class LayoutLevel4Form(Form):
   element_type = StringField(
@@ -697,7 +601,7 @@ class PageLayoutForm(StarletteForm):
     validators = [DataRequired()], 
     allow_blank = True,
     blank_text = 'Pick...',
-    render_kw = { 'autofocus': 'true', 'class': select_class },
+    render_kw = { 'autofocus': 'true', 'class': select_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   model_record_type = QuerySelectField(
@@ -709,69 +613,62 @@ class PageLayoutForm(StarletteForm):
     validators = [DataRequired()], 
     allow_blank = True,
     blank_text = 'Pick...',
-    render_kw = { 'autofocus': 'true', 'class': select_class },
+    render_kw = { 'autofocus': 'true', 'class': select_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   label = StringField(
     'Label', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end on input copyToLowerSnake(me, "name") end' },
     wrapper_class = 'flex-1',
   )
   name = StringField(
     'Name', 
     validators = [DataRequired('label')],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   element_list = FieldList(
-    StringField('Element'),
+    StringField(
+      'Element',
+      render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
+    ),
     wrapper_class = 'flex-1',
   )
   field_list = FieldList(
     FormField(ModelFieldForm),
     wrapper_class = 'flex-1',
   )
-  # related_list = FieldList(FormField(
-  #   ModelForm
-  # ))
   related_list = QuerySelectMultipleField(
     'Related List',
     collection = 'model', 
     projection = { 'label': 1 }, 
     display_member = lambda data: f'{data["label"]}', 
     value_member = lambda data: f'{data["_id"]}',
-    render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
+    render_kw = { 'class': select_class, 'data-script': f'install HandleValidity end {hs_config_tom_select}' },
     wrapper_class = 'flex-1',
   )
-  # role_list = FieldList(FormField(
-  #   RoleForm
-  # ))
   role_list = QuerySelectMultipleField(
     'Roles',
     collection = 'role', 
     projection = { 'label': 1 }, 
     display_member = lambda data: f'{data["label"]}', 
     value_member = lambda data: f'{data["_id"]}',
-    render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
+    render_kw = { 'class': select_class, 'data-script': f'install HandleValidity end {hs_config_tom_select}' },
     wrapper_class = 'flex-1',
   )
-  # items = TextAreaField(
-  #   'Items',
-  #   render_kw = { 'class': textarea_class },
-  # )
   items = FieldList(
     FormField(LayoutForm),
     wrapper_class = 'flex-1',
   )
   is_default = ToggleSwitchField(
     'Is Default?', 
-    render_kw = { 'class': chk_class },
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
-    render_kw = { 'class': chk_class },
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
 
@@ -795,7 +692,7 @@ class ListLayoutForm(StarletteForm):
     validators = [DataRequired()], 
     allow_blank = True,
     blank_text = 'Pick...',
-    render_kw = { 'autofocus': 'true', 'class': select_class },
+    render_kw = { 'autofocus': 'true', 'class': select_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   model_record_type = QuerySelectField(
@@ -807,19 +704,19 @@ class ListLayoutForm(StarletteForm):
     validators = [DataRequired()], 
     allow_blank = True,
     blank_text = 'Pick...',
-    render_kw = { 'autofocus': 'true', 'class': select_class },
+    render_kw = { 'autofocus': 'true', 'class': select_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   label = StringField(
     'Label', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end on input copyToLowerSnake(me, "name") end' },
     wrapper_class = 'flex-1',
   )
   name = StringField(
     'Name', 
     validators = [DataRequired('label')],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   field_list = QuerySelectMultipleField(
@@ -829,17 +726,17 @@ class ListLayoutForm(StarletteForm):
     projection = { 'label': 1, 'name': 1 }, 
     display_member = lambda data: f'{data["label"]}', 
     value_member = lambda data: f'{data["name"]}',
-    render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
+    render_kw = { 'class': select_class, 'data-script': f'install HandleValidity end {hs_config_tom_select}' },
     wrapper_class = 'flex-1',
   )
   is_default = ToggleSwitchField(
     'Is Default?', 
-    render_kw = { 'class': chk_class },
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
-    render_kw = { 'class': chk_class },
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
 
@@ -854,29 +751,29 @@ class TabForm(StarletteForm):
     validators = [DataRequired()], 
     allow_blank = True,
     blank_text = 'Pick...',
-    render_kw = { 'autofocus': 'true', 'class': select_class },
+    render_kw = { 'autofocus': 'true', 'class': select_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   label = StringField(
     'Label', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   sequence = IntegerField(
     'Sequence', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   is_default = ToggleSwitchField(
     'Is Default?', 
-    render_kw = { 'class': chk_class },
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
-    render_kw = { 'class': chk_class },
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
 
@@ -885,35 +782,45 @@ class AppForm(StarletteForm):
   label = StringField(
     'Label', 
     validators=[DataRequired()],
-    render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'on input copyToLowerSnake(me, "name")' },
+    render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'install HandleValidity end on input copyToLowerSnake(me, "name") end' },
     wrapper_class = 'flex-1',
   )
   name = StringField(
     'Name', 
     validators = [DataRequired()],
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   description = StringField(
     'Description',
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   logo = StringField(
     'Logo',
-    render_kw = { 'class': input_class },
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
-  tab_list = FieldList(
-    FormField(TabForm),
+  tab_list = QuerySelectMultipleField(
+    'Tabs',
+    collection = 'tab', 
+    projection = { 'label': 1 }, 
+    display_member = lambda data: f'{data["label"]}', 
+    value_member = lambda data: f'{data["_id"]}',
+    render_kw = { 'class': select_class, 'data-script': f'install HandleValidity end {hs_config_tom_select}' },
     wrapper_class = 'flex-1',
   )
-  role_list = FieldList(
-    FormField(RoleForm),
+  role_list = QuerySelectMultipleField(
+    'Roles',
+    collection = 'role', 
+    projection = { 'label': 1 }, 
+    display_member = lambda data: f'{data["label"]}', 
+    value_member = lambda data: f'{data["_id"]}',
+    render_kw = { 'class': select_class, 'data-script': f'install HandleValidity end {hs_config_tom_select}' },
     wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
     'Is Active?', 
-    render_kw = { 'class': chk_class },
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )

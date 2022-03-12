@@ -1,4 +1,4 @@
-{% from 'macros/macros.html' import crispy_form_view %}
+{% from 'macros/macros.html' import crispy_form_view, crispy_form_page_layout, crispy_form_layout %}
 
 {% if is_modal %}
   {% set post_url = "/"+view.model_name+"/create?redirect_url="+redirect_url %}
@@ -22,7 +22,11 @@
         addHxVars('#{{view.model_name}}FormCreate')
         "
       >
-      {{ crispy_form_view(form) }}
+      {% if page_layout %}
+        {{ crispy_form_page_layout(form, page_layout) }}
+      {% else %}
+        {{ crispy_form_view(form) }}
+      {% endif %}
       {% if is_modal %}
         <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
           <button class="mt-3 w-full inline-flex justify-center rounded-md shadow-sm px-4 py-2 intro-x bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:col-start-1 sm:text-sm"
