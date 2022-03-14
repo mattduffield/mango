@@ -4,6 +4,7 @@ import json
 import os
 from pymongo import MongoClient
 from bson import json_util, ObjectId
+from typing import List, Tuple
 
 DATABASE_CLUSTER = os.environ.get('DATABASE_CLUSTER')
 DATABASE_USERNAME = os.environ.get('DATABASE_USERNAME')
@@ -55,6 +56,23 @@ def drop_collection(database:str, collection:str):
   entity.drop()
   return {'msg': f'Collection: {collection} dropped from database: {database}!'}
 
+def list_collection_indexes(database:str, collection:str):
+  db = client[database]
+  entity = db[collection]
+  result = entity.index_information()
+  return result
+
+def create_collection_index(database:str, collection:str, fields:List[Tuple[str, int]]):
+  db = client[database]
+  entity = db[collection]
+  result = entity.create_index(fields)
+  return result
+
+def drop_collection_index(database:str, collection:str, index_name:str):
+  db = client[database]
+  entity = db[collection]
+  entity.drop_index(index_name)
+  return {'msg': f'Index: {index_name} dropped from collection: {collection} in database: {database}!'}
 
 def create_atlas_search_index(collection:str, index_name:str):
   url = f'https://cloud.mongodb.com/api/atlas/v1.0/groups/{MONGODB_GROUP_ID}/clusters/{MONGODB_CLUSTER_NAME}/fts/indexes?pretty=true'
@@ -70,7 +88,13 @@ def create_atlas_search_index(collection:str, index_name:str):
   # r = requests.post(url, auth=HTTPDigestAuth(PUBLIC_KEY, PRIVATE_KEY), verify=False, json=data)
   return r.json()
 
-def get_atlas_search_indexes(collection:str):
+def list_atlas_search_indexes(collection:str):
   url = f'https://cloud.mongodb.com/api/atlas/v1.0/groups/{MONGODB_GROUP_ID}/clusters/{MONGODB_CLUSTER_NAME}/fts/indexes/{DATABASE_NAME}/{collection}?pretty=true'
   r = requests.get(url, auth=HTTPDigestAuth(MONGODB_PUBLIC_KEY, MONGODB_PRIVATE_KEY), verify=False, headers=HEADERS)
   return r.json()
+
+def delete_atlas_search_index(index_id:str):
+  url = f'https://cloud.mongodb.com/api/atlas/v1.0/groups/{MONGODB_GROUP_ID}/clusters/{MONGODB_CLUSTER_NAME}/fts/indexes/{index_id}?pretty=true'
+  r = requests.delete(url, auth=HTTPDigestAuth(MONGODB_PUBLIC_KEY, MONGODB_PRIVATE_KEY), verify=False, headers=HEADERS)
+  return r.json()
+
