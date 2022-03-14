@@ -125,11 +125,15 @@ class BaseView():
     if not self.list_url:
       self.list_url = f'/{self.model_name}'
 
-  async def get(self, request: Request, get_type: str, _id: str = '', is_modal: bool = False):
+  async def get(self, request: Request, get_type: str, _id: str = '', search: str = '', is_modal: bool = False):
     self.request = request
     self._id = _id
+    self.search = search
     self.initialize_route_urls(_id)
-    context = await self.get_context_data(request, get_type=get_type, _id=_id)
+    if search:
+      context = await self.get_search_context_data(request, search)
+    else:
+      context = await self.get_context_data(request, get_type=get_type, _id=_id)
     context['is_modal'] = is_modal
     if self.redirect_url:
       context['redirect_url'] = self.redirect_url
@@ -137,6 +141,15 @@ class BaseView():
     template_name = self.get_template_name(get_type)
     response = templates.TemplateResponse(template_name, context)
     return response
+
+  async def get_search_context_data(self, request: Request, search: str):
+    form = self.form_class(request)
+    self.list_layout = await self.get_list_layout(get_type='get_list')
+    pipeline = self.get_pipeline(field_list=self.list_layout['field_list'])
+    batch = await run_pipeline(pipeline)
+    data = batch['cursor']['firstBatch']
+    context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'form': form, 'search': search}
+    return context
 
   async def get_context_data(self, request: Request, get_type: str, _id: str = ''):
     form = None
@@ -219,6 +232,46 @@ class BaseView():
       )
 
     return query
+
+  def get_pipeline(self, field_list:[str] = []):
+    search_index_name = self.model_class.Meta.search_index_name
+    page_size = self.model_class.Meta.page_size
+    if page_size == 0:
+      page_size = 100
+    keys = [x for x in field_list]
+    projection = {keys[i]: 1 for i in range(0, len(keys), 1)}
+    project = {
+      "_id": {
+        "$toString": "$_id"
+      }
+    }
+    project = project | projection
+    pipeline = AggregatePipeline(
+      database=DATABASE_NAME,
+      aggregate=self.model_class.Meta.name,
+      pipeline=[
+        {
+          "$search": {
+            "index": search_index_name,
+            "text": {
+              "query": self.search,
+              "path": {
+                "wildcard": "*"
+              },
+              "fuzzy": {}
+            }
+          }
+        },
+        {
+          "$project": project
+        },
+        {
+          "$limit": page_size
+        }
+      ],
+      cursor={}
+    )
+    return pipeline
 
   async def post(self, request: Request, post_type: str, _id: str = '', is_modal: bool = False):
     self.request = request
@@ -351,8 +404,8 @@ class ActionView(BaseView):
     super().__init__()
 
   @action_controller.route.get('/action', response_class=HTMLResponse, name='action-list')
-  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+  async def get_list(self, request: Request, search: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_list', search=search, is_modal=is_modal)
 
   @action_controller.route.get('/action/create', response_class=HTMLResponse, name='action-create')
   async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
@@ -389,8 +442,8 @@ class RoleView(BaseView):
     super().__init__()
 
   @role_controller.route.get('/role', response_class=HTMLResponse, name='role-list')
-  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+  async def get_list(self, request: Request, search: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_list', search=search, is_modal=is_modal)
 
   @role_controller.route.get('/role/create', response_class=HTMLResponse, name='role-create')
   async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
@@ -427,8 +480,8 @@ class ModelView(BaseView):
     super().__init__()
 
   @model_controller.route.get('/model', response_class=HTMLResponse, name='model-list')
-  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+  async def get_list(self, request: Request, search: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_list', search=search, is_modal=is_modal)
 
   @model_controller.route.get('/model/create', response_class=HTMLResponse, name='model-create')
   async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
@@ -465,8 +518,8 @@ class ModelRecordTypeView(BaseView):
     super().__init__()
 
   @model_record_type_controller.route.get('/model_record_type', response_class=HTMLResponse, name='model_record_type-list')
-  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+  async def get_list(self, request: Request, search: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_list', search=search, is_modal=is_modal)
 
   @model_record_type_controller.route.get('/model_record_type/create', response_class=HTMLResponse, name='model_record_type-create')
   async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
@@ -503,8 +556,8 @@ class ModelFieldView(BaseView):
     super().__init__()
 
   @model_field_controller.route.get('/model_field', response_class=HTMLResponse, name='model_field-list')
-  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+  async def get_list(self, request: Request, search: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_list', search=search, is_modal=is_modal)
 
   @model_field_controller.route.get('/model_field/create', response_class=HTMLResponse, name='model_field-create')
   async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
@@ -541,8 +594,8 @@ class PageLayoutView(BaseView):
     super().__init__()
 
   @page_layout_controller.route.get('/page_layout', response_class=HTMLResponse, name='page_layout-list')
-  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+  async def get_list(self, request: Request, search: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_list', search=search, is_modal=is_modal)
 
   @page_layout_controller.route.get('/page_layout/create', response_class=HTMLResponse, name='page_layout-create')
   async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
@@ -579,8 +632,8 @@ class ListLayoutView(BaseView):
     super().__init__()
 
   @list_layout_controller.route.get('/list_layout', response_class=HTMLResponse, name='list_layout-list')
-  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+  async def get_list(self, request: Request, search: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_list', search=search, is_modal=is_modal)
 
   @list_layout_controller.route.get('/list_layout/create', response_class=HTMLResponse, name='list_layout-create')
   async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
@@ -617,8 +670,8 @@ class TabView(BaseView):
     super().__init__()
 
   @tab_controller.route.get('/tab', response_class=HTMLResponse, name='tab-list')
-  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+  async def get_list(self, request: Request, search: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_list', search=search, is_modal=is_modal)
 
   @tab_controller.route.get('/tab/create', response_class=HTMLResponse, name='tab-create')
   async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
@@ -655,8 +708,8 @@ class AppView(BaseView):
     super().__init__()
 
   @app_controller.route.get('/app', response_class=HTMLResponse, name='app-list')
-  async def get_list(self, request: Request, is_modal: bool=False, user=Depends(manager)):
-    return await super().get(request=request, get_type='get_list', is_modal=is_modal)
+  async def get_list(self, request: Request, search: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_list', search=search, is_modal=is_modal)
 
   @app_controller.route.get('/app/create', response_class=HTMLResponse, name='app-create')
   async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
