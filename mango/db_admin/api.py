@@ -22,9 +22,9 @@ def create_atlas_search_index(collection:str, index_name:str):
   }
   r = requests.post(url, auth=HTTPDigestAuth(MONGODB_PUBLIC_KEY, MONGODB_PRIVATE_KEY), verify=False, data=json.dumps(data), headers=HEADERS)
   # r = requests.post(url, auth=HTTPDigestAuth(PUBLIC_KEY, PRIVATE_KEY), verify=False, json=data)
-  return r
+  return r.json()
 
 def get_atlas_search_indexes(collection:str):
   url = f'https://cloud.mongodb.com/api/atlas/v1.0/groups/{MONGODB_GROUP_ID}/clusters/{MONGODB_CLUSTER_NAME}/fts/indexes/{DATABASE_NAME}/{collection}?pretty=true'
   r = requests.get(url, auth=HTTPDigestAuth(MONGODB_PUBLIC_KEY, MONGODB_PRIVATE_KEY), verify=False, headers=HEADERS)
-  return r
+  return r.json()
