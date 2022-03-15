@@ -21,7 +21,7 @@ from wtforms import (
   # FieldList,
   Form,
 )
-from wtforms.validators	import DataRequired, NoneOf
+from wtforms.validators	import DataRequired, AnyOf, NoneOf
 from mango.core.fields import QuerySelectField, QuerySelectMultipleField, ToggleSwitchField
 from mango.core.fields import (
   IntegerField2 as IntegerField,
@@ -108,7 +108,7 @@ class RoleForm(StarletteForm):
     projection = { 'topic': 1 }, 
     display_member = lambda data: f'{data["topic"]}', 
     value_member = lambda data: f'{data["topic"]}',
-    render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
+    render_kw = { 'class': select_multiple_class, 'data-script': hs_config_tom_select },
     wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(
@@ -202,7 +202,7 @@ class ModelFieldForm(StarletteForm):
     validators = [DataRequired()], 
     allow_blank = True,
     blank_text = 'Pick...',
-    render_kw = { 'autofocus': 'true', 'class': select_class, 'data-script': 'install HandleValidity end' },
+    render_kw = { 'autofocus': 'true', 'pattern': 'myvalue', 'class': select_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   label = StringField(
@@ -266,7 +266,7 @@ class ModelFieldForm(StarletteForm):
       'Validator',
       render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     ),
-    min_entries=1,
+    min_entries=0,
     wrapper_class = 'flex-1',
   )
   attribute_list = FieldList(

@@ -204,7 +204,7 @@ class QuerySelectField(SelectField):
     blank_choice = None
     raw = find_sync(self.db_query)
     if self.allow_blank:
-      blank_choice = [('__None', self.blank_text)]
+      blank_choice = [('', self.blank_text)]
     choices = [(self.value_member(x), self.display_member(x)) for x in raw]
     if blank_choice:
       return blank_choice + choices

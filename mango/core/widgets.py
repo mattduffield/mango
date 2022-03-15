@@ -48,10 +48,10 @@ class ToggleSwitchWidget:
         html = ['<div class="toggle-switch-container" %s>' % html_params(**kwargs)]
         html.append(f'<label for="{field.id}" class="toggle-switch">')
         if field.data:
-            html.append(f'<input type="checkbox" id="{field.id}" name="{field.id}" class="toggle-switch-input" checked="checked">')
+            html.append(f'<input type="checkbox" id="{field.id}" name="{field.id}" class="peer toggle-switch-input focus:border-none focus:shadow-none focus:rounded-none focus:ring-transparent" checked="checked">')
         else:
-            html.append(f'<input type="checkbox" id="{field.id}" name="{field.id}" class="toggle-switch-input">')
-        html.append(f'<span data-on="Yes" data-off="No" class="toggle-switch-label"></span>')
+            html.append(f'<input type="checkbox" id="{field.id}" name="{field.id}" class="peer toggle-switch-input focus:border-none focus:shadow-none focus:rounded-none focus:ring-transparent">')
+        html.append(f'<span data-on="Yes" data-off="No" class="toggle-switch-label peer-focus:border peer-focus:border-emerald-600"></span>')
         html.append('<span class="toggle-switch-handle"></span>')
         html.append('</label>')
         html.append('</div>')

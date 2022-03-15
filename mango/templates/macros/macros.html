@@ -174,7 +174,7 @@
       +
     </button>
   </div>
-  <table class="min-w-full divide-y divide-gray-200 shadow-md">
+  <table id="{{ field.name }}-table" class="min-w-full divide-y divide-gray-200 shadow-md">
     <thead class="bg-gray-50">
       {% for sub_field in field %}
         {% if sub_field|is_form_field %}
@@ -194,7 +194,7 @@
         {% endif %}
       {% else %}
         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-          N/A {{ field.name }}
+          {{ field.name }}
         </th>
       {% endfor %}
       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-5">
@@ -235,7 +235,7 @@
           </tr>
         {% endif %}
       {% else %}
-        <tr class="intro-y">
+        <tr class="ignore-row intro-y">
           <td colspan="100%" class="px-6 py-4 text-center h-36">
             No Data
           </td>
@@ -269,7 +269,8 @@
       </div>
     {% else %}
       {% set field = form[item['field']] %}
-      <div id="wrapper_{{ field.id }}" class="mb-4 {{ field.wrapper_class }}"
+      <div id="wrapper_{{ field.id }}" 
+        class="mb-4 {{ field.wrapper_class }} {% if field.errors %}wrapper-invalid{% endif %}"
         {% for att in item['attribute_list'] %}
           {% for key in att %}
             {{key}}="{{att[key]}}"
@@ -281,6 +282,13 @@
         {% else %}
           {{ field.label(class=label_css) }}
           {{ field() }}
+          {% if field.errors %}
+            <ul class="errors">
+              {% for error in field.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
         {% endif %}
       </div>
     {% endif %}

@@ -46,22 +46,28 @@
         on blur 
           if me.validity.valid then 
             remove .invalid from me
+            remove .wrapper-invalid from closest <div/>
           else 
             add .invalid to me
+            add .wrapper-invalid to closest <div/>
           end 
         end
         on input
           if me.validity.valid then 
             remove .invalid from me
+            remove .wrapper-invalid from closest <div/>
           else 
             add .invalid to me
+            add .wrapper-invalid to closest <div/>
           end 
         end
         on invalid
           if me.validity.valid then
             remove .invalid from me
+            remove .wrapper-invalid from closest <div/>
           else
             add .invalid to me
+            add .wrapper-invalid to closest <div/>
           end
         end
       end
@@ -112,10 +118,19 @@
           @apply block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900;
         }
         .ring-primary {
-          @apply ring-emerald-400 !important;
+          @apply ring-emerald-400 focus:border-emerald-600 !important;
+        }
+        .ts-wrapper {
+          @apply border border-2 border-transparent focus-within:rounded focus-within:border-emerald-400 !important;
         }
       }
 
+      .wrapper-invalid label {
+        color: red;
+      }
+      xinput[type='checkbox']:focus ~ .toggle-switch-label {
+        border: 1px solid red;
+      }
       .invalid {
         box-shadow: 0 0 5px 1px red;
       }
@@ -433,13 +448,20 @@
         const formName = elt.dataset.formName;
         const bodySelector = `#${selector}-body`;
         let pos = -1;
-        if (document.querySelector('tbody#projection_list-body')) {
-          pos = document.querySelectorAll(`tbody${bodySelector} tr`).length;
+        if (document.querySelector(`tbody#${selector}-body`)) {
+          pos = document.querySelectorAll(`tbody${bodySelector} tr:not(.ignore-row)`).length;
         }
+        console.log('pos', pos);
         const response = await fetch(`/table_row/create/${formName}/${selector}/${pos}`);
         const tmpl = await response.text();
         const oldRow = document.querySelector(`tbody${bodySelector} tr:last-child`);
         oldRow.insertAdjacentHTML('afterend', tmpl);
+        //const tbl = document.querySelector(`#${selector}-table`);
+        //tbl.deleteRow(0);
+        const rmRow = document.querySelector(`#${selector}-table .ignore-row`);
+        if (rmRow) {
+          rmRow.remove();
+        }
       }      
     </script>
     <script type="text/hyperscript">

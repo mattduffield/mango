@@ -80,22 +80,17 @@ select_class = '''form-select appearance-none
   ring-primary
 '''
 select_multiple_class = '''
-  form-control
-  block
-  w-full
-  px-2
-  py-0.5
-  text-base
-  font-normal
-  text-gray-700
-  bg-white bg-clip-padding
-  border border-solid border-gray-300
-  rounded
-  transition
-  ease-in-out
-  m-0
-  focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
-  ring-primary
+  xblock
+  xw-full
+  xtext-base
+  xfont-normal
+  xtext-gray-700
+  xbg-white bg-clip-padding
+  xborder border-solid border-transparent
+  xrounded
+  xtransition
+  xease-in-out
+  xm-0
 '''
 toggle_radio_class = '''
   w-full
@@ -124,6 +119,15 @@ end
 
 hs_field_type = f'''
 on load 
+  toggleElementVisibility(me, "query-tab-container", ["QuerySelectField", "QuerySelectMultipleField"])
+end
+on change 
+  toggleElementVisibility(me, "query-tab-container", ["QuerySelectField", "QuerySelectMultipleField"])
+end
+'''
+
+hs_field_type2 = f'''
+on load 
   toggleElementVisibility(me, "wrapper_collection", ["QuerySelectField", "QuerySelectMultipleField"])
   toggleElementVisibility(me, "wrapper_projection_list", ["QuerySelectField", "QuerySelectMultipleField"])
   toggleElementVisibility(me, "wrapper_query_list", ["QuerySelectField", "QuerySelectMultipleField"])
@@ -144,7 +148,6 @@ on change
   toggleElementVisibility(me, "wrapper_blank_text", ["QuerySelectField", "QuerySelectMultipleField"])
 end
 '''
-
 
 hs_config_tom_select = f'''
 on load 
