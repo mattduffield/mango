@@ -272,7 +272,7 @@ class ListLayout(BaseModel):
   This class represents navigation to a given Model object.
 '''
 class Tab(BaseModel):
-  model_id: str  # references the a given Model object
+  model_name: str  # references the a given Model object
   label: str  # this can override the Model label
   sequence: PositiveInt = 0  # used for ordering
   is_default: bool = False
@@ -303,8 +303,8 @@ class App(BaseModel):
   name: str  # usually lowercase with underscores instead of spaces
   description: str = ''
   logo: str = ''  # must be less than 20kb and 300px x 55px max size.
-  tab_list: List[Tab] = []
-  role_list: List[Role] = []
+  tab_list: List[str] = []
+  role_list: List[str] = []
   is_locked: bool = False
   is_active: bool = True
 
