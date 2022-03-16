@@ -50,15 +50,15 @@
         hx-swap="innerHTML"
         hx-push-url="true"
         class="cursor-pointer">
-      <img class="h-8 w-auto" src="{{ url_for('static', path='/images/nav-letters.png') }}" alt="Pallet Tracker">
+        <img class="h-8 w-auto" src="{{ url_for('static', path='/images/nav-letters.png') }}" alt="Pallet Tracker">
       </a>
     </div>
     <div class="mt-5 flex-grow flex flex-col">
-      <nav id="side-bar"
+      <nav id="mobile-side-bar"
         class="flex-1 px-2 pb-4 space-y-1"
         hx-indicator="#content-loader">
         <!-- Current: "bg-gray-100 text-gray-900", Default: "text-gray-600 hover:bg-gray-50 hover:text-gray-900" -->
-        <a id="dashboard"
+        <a id="mobile-dashboard"
           hx-get="{{url_for(name='landing-page')}}"
           hx-target="#viewport"
           hx-swap="innerHTML"
@@ -75,7 +75,7 @@
           Dashboard
         </a>
         {% if view and view.can(request, role='super_admin') %}
-        <a id="action" 
+        <a id="mobile-action" 
           hx-get="{{ url_for(name='action-list') }}"
           hx-target="#viewport"
           hx-swap="innerHTML"
@@ -86,7 +86,7 @@
           </svg>
           Action
         </a>
-        <a id="role" 
+        <a id="mobile-role" 
           hx-get="{{ url_for(name='role-list') }}"
           hx-target="#viewport"
           hx-swap="innerHTML"
@@ -97,7 +97,7 @@
           </svg>
           Role
         </a>
-        <a id="model" 
+        <a id="mobile-model" 
           hx-get="{{ url_for(name='model-list') }}"
           hx-target="#viewport"
           hx-swap="innerHTML"
@@ -108,7 +108,7 @@
           </svg>
           Model
         </a>
-        <a id="model_record_type" 
+        <a id="mobile-model_record_type" 
           hx-get="{{ url_for(name='model_record_type-list') }}"
           hx-target="#viewport"
           hx-swap="innerHTML"
@@ -119,7 +119,7 @@
           </svg>
           Model Record Type
         </a>
-        <a id="model_field" 
+        <a id="mobile-model_field" 
           hx-get="{{ url_for(name='model_field-list') }}"
           hx-target="#viewport"
           hx-swap="innerHTML"
@@ -130,7 +130,7 @@
           </svg>
           Model Field
         </a>
-        <a id="page_layout" 
+        <a id="mobile-page_layout" 
           hx-get="{{ url_for(name='page_layout-list') }}"
           hx-target="#viewport"
           hx-swap="innerHTML"
@@ -141,7 +141,7 @@
           </svg>
           Page Layout
         </a>
-        <a id="list_layout" 
+        <a id="mobile-list_layout" 
           hx-get="{{ url_for(name='list_layout-list') }}"
           hx-target="#viewport"
           hx-swap="innerHTML"
@@ -152,7 +152,7 @@
           </svg>
           List Layout
         </a>
-        <a id="tab" 
+        <a id="mobile-tab" 
           hx-get="{{ url_for(name='tab-list') }}"
           hx-target="#viewport"
           hx-swap="innerHTML"
@@ -163,7 +163,7 @@
           </svg>
           Tab
         </a>
-        <a id="app" 
+        <a id="mobile-app" 
           hx-get="{{ url_for(name='app-list') }}"
           hx-target="#viewport"
           hx-swap="innerHTML"
@@ -175,7 +175,7 @@
           App
         </a>
         <!-- 
-        <a id="calendar" 
+        <a id="mobile-calendar" 
           xhx-target="#viewport"
           xhx-swap="innerHTML"
           xhx-push-url="true"
@@ -185,7 +185,7 @@
           </svg>
           Calendar
         </a>
-        <a id="report" 
+        <a id="mobile-report" 
           xhx-target="#viewport"
           xhx-swap="innerHTML"
           xhx-push-url="true"

@@ -6,7 +6,6 @@
       if not element_id or no #{element_id} then
         set element_id to 'dashboard'
       end
-      log(element_id)
       take .{'side-bar--active'} from <a/> in #side-bar for #{element_id}
       take .{'side-bar-icon--active'} from <svg/> in #side-bar for <svg/> in #{element_id}
       if window.location.pathname == '/' then
@@ -16,7 +15,6 @@
         remove .bg-white from me
         add .bg-gray-100 to me
       end
-    end
     on load
       set element_id to the first of window.location.pathname.replace('/', '').split('/')
       if not element_id or no #{element_id} then
