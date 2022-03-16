@@ -1,135 +1,72 @@
-from fastapi import Request, Depends
-from fastapi.responses import HTMLResponse
-from typing import (
-    Deque, Dict, FrozenSet, List, Optional, Sequence, Set, Tuple, Union
-)
+import datetime
+from dateutil import parser
+import json
+from bson import json_util, ObjectId
+from fastapi import APIRouter, Depends, Request, status
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi_router_controller import Controller
-from mango.core.views import (
-  CreateView,
-  UpdateView,
-  DeleteView, 
-  ListView, 
-  get_controller,
-  GenericListView,
-)
+from starlette_wtf import StarletteForm
+from starlette.datastructures import MultiDict
+from wtforms import Form
+from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 from mango.auth.models import Credentials
-from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
-from mango.db.api import find, find_one
+from mango.auth.auth import can
+from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, PageLayout, ListLayout, Tab, App
+from mango.core.fields import QuerySelectField, QuerySelectMultipleField, StringField2
+from mango.core.forms import get_string_form, ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm
+from mango.core.views import BaseView, StaticView
+from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
+from mango.db.api import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
+import settings
 from settings import manager, templates, DATABASE_NAME
 
-create_controller = get_controller()
-update_controller = get_controller()
-delete_controller = get_controller()
-list_controller = get_controller()
 
+def get_router(prefix: str = '', tags: List[str] = ['Views']):
+  return APIRouter(
+   prefix = prefix,
+    tags = tags
+  )
 
-edit_button = '''
-<a hx-get="{{ra.name_plural}}/{% raw %}{{object._id}}{% endraw %}"
-    hx-target="#viewport"
-    hx-swap="innerHTML"
-    hx-push-url="true"
-    hx-indicator="#content-loader"
-    class="cursor-pointer"
-    >
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" 
-    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-    </svg>
-</a>
-'''
-delete_button = '''
-<a hx-get="{{ra.name_plural}}/{% raw %}{{object._id}}{% endraw %}/delete"
-    hx-target="#viewport"
-    hx-swap="innerHTML"
-    hx-push-url="true"
-    hx-indicator="#content-loader"
-    class="cursor-pointer"
-    >
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" 
-    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-    </svg>
-</a>
-'''
+def get_controller(prefix: str = '', tags: List[str] = ['Views']):
+  router = get_router(prefix=prefix, tags=tags)
+  controller = Controller(router)
+  return controller
 
-@create_controller.resource()
-class {{ra.label}}CreateView(CreateView):
-    form_class = {{ra.label}}Form
-    model_class = {{ra.label}}
-    object_display = lambda self, object: f'New'
+{{ra.model.name}}_controller = get_controller(tags=['{{ra.model.label}} Views'])
+@{{ra.model.name}}_controller.resource()
+class {{ra.model.label}}View(BaseView):
+  model_class = {{ra.model.label}}
+  form_class = {{ra.model.label}}Form
 
-    @create_controller.route.get('/{{ra.name_plural}}/create', response_class=HTMLResponse, name='{{ra.name}}-create')
-    async def get(self, request: Request, user=Depends(manager)):
-        return await super().get(request=request)
+  def __init__(self):
+    super().__init__()
 
-    @create_controller.route.post('/{{ra.name_plural}}/create', response_class=HTMLResponse, name='{{ra.name}}-create')
-    async def post(self, request: Request, user=Depends(manager)):
-        return await super().post(request=request)
+  @{{ra.model.name}}_controller.route.get('/{{ra.model.name}}', response_class=HTMLResponse, name='{{ra.model.name}}-list')
+  async def get_list(self, request: Request, search: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_list', search=search, is_modal=is_modal)
 
+  @{{ra.model.name}}_controller.route.get('/{{ra.model.name}}/create', response_class=HTMLResponse, name='{{ra.model.name}}-create')
+  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
 
-@update_controller.resource()
-class {{ra.label}}UpdateView(UpdateView):
-  form_class = {{ra.label}}Form
-  model_class = {{ra.label}}
-  object_display = {{ra.funcs.object_display | safe}}
+  @{{ra.model.name}}_controller.route.post('/{{ra.model.name}}/create', response_class=HTMLResponse, name='{{ra.model.name}}-create')
+  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
+    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
 
-  @update_controller.route.get('/{{ra.name_plural}}/{_id}', response_class=HTMLResponse, name='{{ra.name}}-item')
-  async def get(self, request: Request, _id: str, user=Depends(manager)):
-    return await super().get(request=request, _id=_id)
+  @{{ra.model.name}}_controller.route.get('/{{ra.model.name}}/{_id}', response_class=HTMLResponse, name='{{ra.model.name}}-update')
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
 
-  @update_controller.route.post('/{{ra.name_plural}}/{_id}', response_class=HTMLResponse, name='{{ra.name}}-item')
-  async def post(self, request: Request, _id: str, user=Depends(manager)):
-    return await super().post(request=request, _id=_id)
+  @{{ra.model.name}}_controller.route.post('/{{ra.model.name}}/{_id}', response_class=HTMLResponse, name='{{ra.model.name}}-update')
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
 
+  @{{ra.model.name}}_controller.route.get('/{{ra.model.name}}/{_id}/delete', response_class=HTMLResponse, name='{{ra.model.name}}-delete')
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
-@delete_controller.resource()
-class {{ra.label}}DeleteView(DeleteView):
-  model_class = {{ra.label}}
-  object_display = {{ra.funcs.object_display | safe}}
+  @{{ra.model.name}}_controller.route.post('/{{ra.model.name}}/{_id}/delete', response_class=HTMLResponse, name='{{ra.model.name}}-delete')
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
-  @delete_controller.route.get('/{{ra.name_plural}}/{_id}/delete', response_class=HTMLResponse, name='{{ra.name}}-delete')
-  async def get(self, request: Request, _id: str, user=Depends(manager)):
-    return await super().get(request=request, _id=_id)
-
-  @delete_controller.route.post('/{{ra.name_plural}}/{_id}/delete', response_class=HTMLResponse, name='{{ra.name}}-delete')
-  async def post(self, request: Request, _id: str, user=Depends(manager)):
-    return await super().post(request=request, _id=_id)
-
-
-@list_controller.resource()
-class {{ra.label}}ListView(ListView):
-    model_class = {{ra.label}}
-    create_url = ''
-    delete_url = lambda self, object: f''
-
-    @list_controller.route.get('/{{ra.name_plural}}', response_class=HTMLResponse, name='{{ra.name}}-list')
-    async def get(self, request: Request, search: Optional[str] = '', user=Depends(manager)):
-        return await super().get(request=request, search=search)
-
-    def get_table_definition(self, context):
-        context['table_header'] = [
-            {% for field in ra.list_layout.table_header %}
-                {
-                    '{% if field.name %}name{% else %}html{% endif %}': '{% if field.name %}{{field.name}}{% else %}{{field.html | safe}}{% endif %}', 
-                    'class': '{{field.css_class}}',
-                    {% if field.format %}'format': '{{field.format}}',{% endif %}
-                },
-            {% endfor %}
-        ]
-        context['table_body'] = [
-            {% for field in ra.list_layout.table_body %}
-                {
-                    {% if field.name %}'name': '{{field.name}}',{% endif %}
-                    {% if field.html %}'html': '{{field.html | safe}}',{% endif %}
-                    {% if field.actions %}'actions': [
-                        {% for act in field.actions %}
-                            {{act | safe}},
-                        {% endfor %}
-                    ],
-                    {% endif %}
-                    'class': '{{field.css_class}}',
-                    {% if field.format %}'format': '{{field.format}}',{% endif %}
-                },
-            {% endfor %}
-        ]
 

@@ -72,6 +72,21 @@ def insert_one_sync(payload: InsertOne):
   data = json.loads(json_util.dumps({'acknowledged': result.acknowledged, 'inserted_id': result.inserted_id}))
   return data
 
+def bulk_read_sync(batch: List[Union[Query, QueryOne]]):
+  payload = []
+  for query in batch:
+    database = query.database
+    if not database:
+      database = DATABASE_NAME
+    db = client[database]
+    expr = query.buildExpression()
+    entity = db[query.collection]
+    cursor = eval(expr)
+    results = list(cursor)
+    data = json.loads(json.dumps(results, default=json_from_mongo))
+    payload.append(data)
+  return payload
+
 
 @router.post('/findOne')
 async def find_one(query: QueryOne):

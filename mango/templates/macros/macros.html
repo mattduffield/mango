@@ -19,14 +19,16 @@
 
 {% macro crispy_form_view(form) %}
   {% for field in form %}
-    <div class="mb-4">
+    <div id="wrapper_{{ field.id }}" 
+      class="mb-4 {{ field.wrapper_class }} {% if field.errors %}wrapper-invalid{% endif %}">
       {{ field.label(class=label_css) }}
       {{ field() }}
       {% if field.errors %}
-        <ul class="errors">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>
-      {% endif %}
-      {% if field.description %}
-        <small>{{field.description}}</small>
+        <ul class="errors">
+          {% for error in field.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
       {% endif %}
     </div>
   {% endfor %}

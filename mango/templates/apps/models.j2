@@ -1,32 +1,27 @@
+import datetime
 from enum import Enum
-from typing import Optional, List
-from pydantic import BaseModel
-from pydantic.types import PositiveInt
+from typing import Any, Optional, Dict, List
+from pydantic import BaseModel, PositiveInt
+from wtforms import Field
 
 
-class {{ra.label}}(BaseModel):
-  {% for field in ra.fields %}
-  {{field.name}}:{{field.data_type}} = {% if field.default_value_use_quotes %}'{{field.default_value}}'{% else %}{{field.default_value}}{% endif %}
-  {% endfor %}
+class {{ra.model.label}}(BaseModel):
+  {%- for field in ra.fields %}
+  {{ field.name }}: {{ field.data_type }} = {% if field.default_value_use_quotes %}'{{field.default_value}}'{% else %}{{field.default_value}}{% endif %}
+  {%- endfor %}
 
-  {% if ra.funcs.str_func %}
+  {% if ra.model.to_string -%}
   def __str__(self):
-      return self.{{ra.funcs.str_func}}
-  {% endif %}
+    return {{ ra.model.to_string|safe }}
+  {%- endif %}
 
   class Meta:
-    model_name = '{{ra.name}}'
-    model_name_plural = '{{ra.name_plural}}'
-    search_index_name = '{{ra.meta_data.search_index_name}}'
-    search_fields = [
-      {% for item in ra.meta_data.search_fields %}
-      '{{item}}',
-      {% endfor %}
-    ]
+    name = '{{ra.model.name}}'
+    search_index_name = '{{ra.model.name}}_search'
     order_by = [
-      {% for item in ra.meta_data.order_by %}
-      '{{item}}',
-      {% endfor %}
+    {%- for item in ra.model.order_by %}
+      '{{ item }}',
+    {% endfor -%}
     ]
-    page_size = {{ra.meta_data.page_size}}
+    page_size = {{ra.model.page_size}}
 

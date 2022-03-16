@@ -61,6 +61,10 @@ class KeyValueForm(Form):
     # validators= [DataRequired()],
     render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
   )
+  use_quotes = BooleanField(
+    'Use Quotes?',
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
+  )
 
 
 class ActionForm(StarletteForm):
@@ -156,13 +160,18 @@ class ModelForm(StarletteForm):
     query = { 'model_name': lambda data: data["name"] },
     projection = { 'label': 1, 'name': 1 }, 
     display_member = lambda data: f'{data["label"]}', 
-    value_member = lambda data: f'{data["_id"]}',
+    value_member = lambda data: f'{data["name"]}',
     render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
     wrapper_class = 'flex-1',
   )
   page_size = IntegerField(
     'Page Size',
     render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
+    wrapper_class = 'flex-1',
+  )
+  is_custom = ToggleSwitchField(
+    'Is Custom?', 
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(

@@ -15,6 +15,7 @@ from wtforms import Field
 class KeyValue(BaseModel):
   key: str
   value: str
+  use_quotes: bool = True
 
 
 '''
@@ -85,6 +86,7 @@ class Model(BaseModel):
   to_string: str  # string for representing current object instance, e.g. f'{self.label}'
   order_by: List[str] = []  # holds the order sequence for sorting
   page_size: int = 0  # if zero, then no pagination
+  is_custom: bool = True
   is_locked: bool = False
   is_active: bool = True
 

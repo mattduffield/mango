@@ -70,6 +70,7 @@ def insert_one_sync(payload: InsertOne):
   data = json.loads(json_util.dumps({'acknowledged': result.acknowledged, 'inserted_id': result.inserted_id}))
   return data
 
+
 @router.post('/findOne')
 async def find_one(query: QueryOne):
   database = query.database

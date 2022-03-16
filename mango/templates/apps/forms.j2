@@ -10,48 +10,39 @@ from wtforms import (
   FileField,
   MultipleFileField,
   FloatField,
-  IntegerField,
+  #IntegerField,
   RadioField,
   SelectField,
   SelectMultipleField,
-  StringField,
+  # StringField,
   SubmitField,
   HiddenField,
   PasswordField,
   TextAreaField,
   FormField,
-  FieldList,
+  # FieldList,
   Form,
 )
-from wtforms.validators	import DataRequired, NoneOf
-from wtforms.widgets import Select
-from mango.core.forms import (
-  label_class, 
-  chk_class, 
-  input_class, 
-  select_class, 
-  textarea_class, 
-  multi_select_class,
-  toggle_radio_class,
-  toggle_switch_class,
-  FieldForm,
-  QuerySelectField,
-  TagListField,
-  TagsField,
-  ToggleRadioField,
-  ToggleSwitchField,
+from wtforms.validators	import DataRequired, AnyOf, NoneOf
+from mango.core.fields import QuerySelectField, QuerySelectMultipleField, ToggleSwitchField
+from mango.core.fields import (
+  IntegerField2 as IntegerField,
+  StringField2 as StringField,
+  FieldList2 as FieldList
 )
-from mango.core.widgets import TagsWidget, ToggleRadioWidget
+from mango.core.constants import chk_class, input_class, label_class, select_class, select_multiple_class, textarea_class, toggle_radio_class, toggle_switch_class, hs_element_type, hs_config_tom_select, hs_field_type
+from mango.core.choices import DATA_TYPES, FIELD_TYPES
+from mango.core.validators import DataRequiredIf, OptionalIfFieldEqualTo
 
 
-{% for field in ra.fields %}
-  {% if field.element_type == 'FormField' %}
+{% for field in ra.fields -%}
+{%- if field.element_type == 'FormField' -%}
 class {{field.label}}Form(Form):
   {% for form_field in field.fields %}
-    {% if form_field.element_type == 'FieldList' %}
-    {{form_field.name}} = {{form_field.element_type}}(StringField(
+    {% if form_field.field_type == 'FieldList' %}
+    {{form_field.name}} = {{form_field.field_type}}(StringField(
       '{{form_field.label}}',
-      {% if form_field.element_type == 'TagsField' %}
+      {% if form_field.field_type == 'TagsField' %}
       separator=',',
       choices=[
         {% for choice in form_field.choices %}
@@ -59,20 +50,20 @@ class {{field.label}}Form(Form):
         {% endfor %}
       ],
       {% endif %}
-      {% if form_field.element_type == 'RadioField' or form_field.element_type == 'ToggleRadioField' %}
+      {% if form_field.field_type == 'RadioField' or form_field.field_type == 'ToggleRadioField' %}
       choices=[
         {% for choice in form_field.choices %}
           ('{{choice['name']}}', '{{choice['label']}}'),
         {% endfor %}
       ],
       {% endif %}
-      {% if form_field.validators %}validators=[{% for val in form_field.validators %}{{val}}{% endfor %}]{% if form_field.element_attributes %},{% endif %}{% endif %}
-      {% if form_field.element_attributes %}render_kw={ {% for k, v in form_field.element_attributes.items() %} "{{k}}":"{{v}}", {% endfor %} }{% endif %}
+      {% if form_field.validator_list %}validators=[{% for val in form_field.validator_list %}{{val}}{% endfor %}]{% if form_field.attribute_list %},{% endif %}{% endif %}
+      {% if form_field.attribute_list %}render_kw={ {% for k, v in form_field.attribute_list.items() %} "{{k}}":"{{v}}", {% endfor %} }{% endif %}
     ))
     {% else %}
-    {{form_field.name}} = {{form_field.element_type}}(
+    {{form_field.name}} = {{form_field.field_type}}(
       '{{form_field.label}}',
-      {% if form_field.element_type == 'TagsField' %}
+      {% if form_field.field_type == 'TagsField' %}
       separator=',',
       choices=[
         {% for choice in form_field.choices %}
@@ -80,90 +71,56 @@ class {{field.label}}Form(Form):
         {% endfor %}
       ],
       {% endif %}
-      {% if form_field.element_type == 'RadioField' or form_field.element_type == 'ToggleRadioField' %}
+      {% if form_field.field_type == 'RadioField' or form_field.field_type == 'ToggleRadioField' %}
       choices=[
         {% for choice in form_field.choices %}
           ('{{choice['name']}}', '{{choice['label']}}'),
         {% endfor %}
       ],
       {% endif %}
-      {% if form_field.validators %}validators=[{% for val in form_field.validators %}{{val}}{% endfor %}]{% if form_field.element_attributes %},{% endif %}{% endif %}
-      {% if form_field.element_attributes %}render_kw={ {% for k, v in form_field.element_attributes.items() %} "{{k}}":"{{v}}", {% endfor %} }{% endif %}
+      {% if form_field.validator_list %}validators=[{% for val in form_field.validator_list %}{{val}}{% endfor %}]{% if form_field.attribute_list %},{% endif %}{% endif %}
+      {% if form_field.attribute_list %}render_kw={ {% for k, v in form_field.attribute_list.items() %} "{{k}}":"{{v}}", {% endfor %} }{% endif %}
     )
     {% endif %}
   {% endfor %}
-  {% endif %}
-{% endfor %}
+{%- endif -%}
+{%- endfor -%}
 
-class {{ra.label}}Form(StarletteForm):
-  {% for field in ra.fields %}
-  {% if field.element_type == 'FormField' %}
-  {{field.name}} = {{field.element_type}}({{field.label}}Form)
-  {% elif field.element_type.startswith('FieldList') %}
-  {{field.name}} = {{field.element_type}}
-  {% else %}
-  {{field.name}} = {{field.element_type}}(
-    '{{field.label}}', 
-    {% if field.element_type == 'RadioField' or field.element_type == 'ToggleRadioField' %}
-    choices=[
-      {% for choice in field.choices %}
-        ('{{choice['name']}}', '{{choice['label']}}'),
-      {% endfor %}
-    ],
-    {% endif %}
-    {% if field.validators %}validators=[{% for val in field.validators %}{{val}}{% endfor %}]{% if field.element_attributes %},{% endif %}{% endif %} 
-    {% if field.element_attributes %}render_kw={ {% for k, v in field.element_attributes.items() %} "{{k}}":"{{v}}", {% endfor %} }{% endif %}
+class {{ra.model.label}}Form(StarletteForm):
+  {% for field in ra.fields -%}
+    {%- if field.field_type == 'FormField' -%}
+      {{- field.name -}} = {{- field.field_type -}}({{- field.label -}}Form)
+    {%- elif field.field_type.startswith('FieldList') -%}
+      {{- field.name -}} = {{- field.field_type -}}
+    {%- else -%}
+  {{- field.name }} = {{ field.field_type -}}(
+    '{{ field.label }}', 
+    {%- if field.field_type == 'RadioField' or field.field_type == 'ToggleRadioField' -%}
+      choices=[
+        {# {% for choice in field.choices %} #}
+          {# ('{{choice['name']}}', '{{choice['label']}}'), #}
+        {# {% endfor %} #}
+      ],
+    {%- else -%}
+    {%- endif -%}
+    {%- if field.validator_list -%}
+      validators = [
+        {% for val in field.validator_list %}
+          {{val}}
+        {% endfor %}
+      ],
+    {%- else -%}
+    {%- endif %} 
+    {% if field.attribute_list -%}
+      render_kw = {
+      {% for kvp in field.attribute_list -%}
+      {% if kvp.key and kvp.value %}
+      '{{kvp.key}}' : {% if kvp.use_quotes %}'{{kvp.value}}'{% else %}{{kvp.value}}{% endif %},
+      {% endif %}
+      {%- endfor %}
+    },
+    {%- else -%}
+    {%- endif %}
   )
-  {% endif %}
-  {% endfor %}
-
-  def layout_fields(self):
-    fields = [
-      {% for field in ra.page_layout %}
-        {
-          '{{field.field_type}}': '{{field.name}}', 
-          {% if field.content %}'content': '{{field.content}}',{% endif %}
-          'css_class': {% if field.css_class_use_quotes %}'{% endif %}{{field.css_class}}{% if field.css_class_use_quotes %}'{% endif %}, 
-          'fields': [
-            {% for inner in field.page_layout %}
-              {
-                {% if inner.field_type == 'html' %}
-                  'html': markupsafe.Markup('''{{inner.name | safe }}'''),
-                {% elif inner.field_type == 'macro' %}
-                  'macro': markupsafe.Markup('''{{inner.name | safe }}'''),
-                {% else %}
-                  '{{inner.field_type}}': {% if inner.field_type == 'type' %}'{{inner.name}}'{% else %}self.{{inner.name}}{% endif %}, 
-                  {% if inner.content %}'content': '{{inner.content}}',{% endif %}
-                  'css_class': {% if inner.css_class_use_quotes %}'{% endif %}{{inner.css_class}}{% if inner.css_class_use_quotes %}'{% endif %},
-                {% endif %}
-                {% if inner.page_layout %}
-                'fields': [
-                  {% for inner_inner in inner.page_layout %}
-                    {
-                      {% if inner_inner.field_type == 'html' %}
-                        'html': markupsafe.Markup('''{{inner_inner.name | safe }}'''),
-                      {% elif inner_inner.field_type == 'macro' %}
-                        'macro': markupsafe.Markup('''{{inner_inner.name | safe }}'''),
-                      {% else %}
-                        '{{inner_inner.field_type}}': {% if inner_inner.field_type == 'type' %}'{{inner_inner.name}}'{% else %}self.{{inner_inner.name}}{% endif %}, 
-                        {% if inner_inner.content %}'content': '{{inner_inner.content}}',{% endif %}
-                        'css_class': {% if inner_inner.css_class_use_quotes %}'{% endif %}{{inner_inner.css_class}}{% if inner_inner.css_class_use_quotes %}'{% endif %},
-                        'label_class': {% if inner_inner.label_class_use_quotes %}'{% endif %}{{inner_inner.label_class}}{% if inner_inner.label_class_use_quotes %}'{% endif %}
-                      {% endif %}
-                    },
-                  {% endfor %}
-                ],
-
-                {% else %}
-
-                {% if inner.label_class %}'label_class': {% if inner.label_class_use_quotes %}'{% endif %}{{inner.label_class}}{% if inner.label_class_use_quotes %}'{% endif %}{% endif %}
-
-                {% endif %}
-              },
-            {% endfor %}
-          ]
-        },
-      {% endfor %}
-    ]
-    return fields
-
+  {% endif -%}
+  {%- endfor %}
