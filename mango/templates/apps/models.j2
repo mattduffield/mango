@@ -7,13 +7,22 @@ from wtforms import Field
 
 class {{ra.model.label}}(BaseModel):
   {%- for field in ra.fields %}
-  {{ field.name }}: {{ field.data_type }} = {% if field.default_value_use_quotes %}'{{field.default_value}}'{% else %}{{field.default_value}}{% endif %}
+  {{ field.name }}: {% if field.is_optional %}Optional[{{ field.data_type }}]{% else %}{{ field.data_type }}{% endif %}{% if field.default_value %} = {% if field.default_value_use_quotes %}'{{field.default_value}}'{% else %}{{field.default_value}}{% endif %}{% endif %}
   {%- endfor %}
 
   {% if ra.model.to_string -%}
   def __str__(self):
     return {{ ra.model.to_string|safe }}
   {%- endif %}
+
+  def new_dict():
+    return {
+      {%- for field in ra.fields %}
+      {%- if not field.is_optional %}
+      '{{ field.name }}': {% if field.data_type == 'str' %}''{% elif field.data_type in ['PositiveInt', 'int'] %}1{% elif field.data_type == 'bool' %}False{% endif %},
+      {%- endif %}
+      {%- endfor %}
+    }
 
   class Meta:
     name = '{{ra.model.name}}'

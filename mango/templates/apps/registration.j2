@@ -2,8 +2,8 @@ import sys
 from mango.core import reloader
 
 
-@app.get('/reload_{{ra.model.name_plural}}')
-async def reload_{{ra.model.name_plural}}():
+@app.get('/reload_{{ra.model.name}}')
+async def reload_{{ra.model.name}}():
   create_route = next((x for x in app.routes if x.name == '{{ra.model.name}}-create'), None)
   update_route = next((x for x in app.routes if x.name == '{{ra.model.name}}-item'), None)
   delete_route = next((x for x in app.routes if x.name == '{{ra.model.name}}-delete'), None)
@@ -20,7 +20,7 @@ async def reload_{{ra.model.name_plural}}():
 
   module = sys.modules['{{ra.model.name}}__c']
   reloader.reload_all(module)
-  return {"msg": "reload {{ra.model.name_plural}} successful!"}
+  return {"msg": "reload {{ra.model.name}} successful!"}
 
 
 create_route = next((x for x in app.routes if x.name == '{{ra.model.name}}-create'), None)
