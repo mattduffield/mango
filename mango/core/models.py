@@ -323,3 +323,29 @@ class App(BaseModel):
       'label',
     ]
     page_size = 0
+
+
+'''
+  This class represents a single lookup for hyrdrating Select elements.
+'''
+class Lookup(BaseModel):
+  label: str
+  name: str  # usually lowercase with underscores instead of spaces
+  description: str = ''
+  item_list: Optional[List[KeyValue]] = []
+  is_locked: bool = False
+  is_active: bool = True
+
+  def __str__(self):
+    return self.label
+  
+  def new_dict():
+    return {'label': '', 'name': '', 'description': '', 'item_list': [], 'is_locked': False, 'is_active': True}
+
+  class Meta:
+    name = 'lookup'
+    search_index_name = 'lookup_search'
+    order_by = [
+      'label',
+    ]
+    page_size = 0

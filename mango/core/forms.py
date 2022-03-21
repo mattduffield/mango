@@ -833,3 +833,33 @@ class AppForm(StarletteForm):
     render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
+
+
+class LookupForm(StarletteForm):
+  label = StringField(
+    'Label', 
+    validators=[DataRequired()],
+    render_kw = { 'autofocus': 'true', 'class': input_class, 'data-script': 'install HandleValidity end on input copyToLowerSnake(me, "name") end' },
+    wrapper_class = 'flex-1',
+  )
+  name = StringField(
+    'Name', 
+    validators = [DataRequired()],
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
+    wrapper_class = 'flex-1',
+  )
+  description = StringField(
+    'Description',
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
+    wrapper_class = 'flex-1',
+  )
+  item_list = FieldList(
+    FormField(KeyValueForm),
+    min_entries=0,
+    wrapper_class = 'flex-1',
+  )
+  is_active = ToggleSwitchField(
+    'Is Active?', 
+    render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
+    wrapper_class = 'flex-1',
+  )

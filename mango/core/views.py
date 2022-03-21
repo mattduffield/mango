@@ -11,9 +11,9 @@ from wtforms import Form
 from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 from mango.auth.models import Credentials
 from mango.auth.auth import can
-from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, PageLayout, ListLayout, Tab, App
+from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, PageLayout, ListLayout, Tab, App, Lookup
 from mango.core.fields import QuerySelectField, QuerySelectMultipleField, StringField2
-from mango.core.forms import get_string_form, ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm
+from mango.core.forms import get_string_form, ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm, LookupForm
 from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 from mango.db.api import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
 import settings
@@ -742,5 +742,43 @@ class AppView(BaseView):
     return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
   @app_controller.route.post('/app/{_id}/delete', response_class=HTMLResponse, name='app-delete')
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
+
+
+lookup_controller = get_controller(tags=['Lookup Views'])
+@lookup_controller.resource()
+class LookupView(BaseView):
+  model_class = Lookup
+  form_class = LookupForm
+
+  def __init__(self):
+    super().__init__()
+
+  @lookup_controller.route.get('/lookup', response_class=HTMLResponse, name='lookup-list')
+  async def get_list(self, request: Request, search: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_list', search=search, is_modal=is_modal)
+
+  @lookup_controller.route.get('/lookup/create', response_class=HTMLResponse, name='lookup-create')
+  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
+
+  @lookup_controller.route.post('/lookup/create', response_class=HTMLResponse, name='lookup-create')
+  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
+    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
+
+  @lookup_controller.route.get('/lookup/{_id}', response_class=HTMLResponse, name='lookup-update')
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
+
+  @lookup_controller.route.post('/lookup/{_id}', response_class=HTMLResponse, name='lookup-update')
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
+
+  @lookup_controller.route.get('/lookup/{_id}/delete', response_class=HTMLResponse, name='lookup-delete')
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
+
+  @lookup_controller.route.post('/lookup/{_id}/delete', response_class=HTMLResponse, name='lookup-delete')
   async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
