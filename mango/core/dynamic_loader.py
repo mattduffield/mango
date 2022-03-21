@@ -6,7 +6,6 @@ from pydantic import BaseModel
 from typing import List
 from mango.core.models import App, Model, ModelField
 from mango.db.models import Query, QueryOne
-# from mango.db.api import find_sync
 from mango.db.rest import find_sync, bulk_read_sync
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
@@ -50,7 +49,6 @@ def get_registered_apps():
   model_result = find_sync(query=model_query)
   for item in model_result:
     model_list.append(Model(**item))
-  batch = []
   for model in model_list:
     model_field_query = Query(
       database=DATABASE_NAME,
@@ -103,8 +101,10 @@ def get_registered_app(name):
 def load_templates():
   forms_j2 = templates.get_template('apps/forms.j2')
   models_j2 = templates.get_template('apps/models.j2')
-  views_j2 = templates.get_template('apps/views.j2')
-  registration_j2 = templates.get_template('apps/registration.j2')
+  # views_j2 = templates.get_template('apps/views.j2')
+  # registration_j2 = templates.get_template('apps/registration.j2')
+  views_j2 = templates.get_template('apps/views_dynamic.j2')
+  registration_j2 = templates.get_template('apps/registration_dynamic.j2')
   return forms_j2, models_j2, views_j2, registration_j2
 
 def compile_code(module, code, global_dict = {}):
@@ -117,8 +117,6 @@ def import_apps():
   apps = get_apps()
   for item in apps:
     importlib.import_module(f'{item.model.name}__c')
-    # script = f'import {name}'
-    # exec(script, globals(), locals())
 
 
 class CodeLoader(_Loader):
@@ -136,25 +134,27 @@ class CodeLoader(_Loader):
     ra = get_registered_app(name)
     if ra is None:
       return
-    forms_tmpl = forms_j2.render(ra = ra)
-    # f = open(f'/Users/summit/Documents/{name}_form.py', 'w')
+    # forms_tmpl = forms_j2.render(ra = ra)
+    # os.makedirs(os.path.dirname(f'custom/{name}/forms.py'), exist_ok=True)
+    # f = open(f'custom/{name}/forms.py', 'w')
     # f.write(forms_tmpl)
     # f.close()
-    models_tmpl = models_j2.render(ra = ra)
-    # f = open(f'/Users/summit/Documents/{name}_model.py', 'w')
+    # models_tmpl = models_j2.render(ra = ra)
+    # f = open(f'custom/{name}/models.py', 'w')
     # f.write(models_tmpl)
     # f.close()
     views_tmpl = views_j2.render(ra = ra)
-    # f = open(f'/Users/summit/Documents/{name}_view.py', 'w')
-    # f.write(views_tmpl)
-    # f.close()
+    f = open(f'custom/{name}/views_dynamic.py', 'w')
+    f.write(views_tmpl)
+    f.close()
     registration_tmpl = registration_j2.render(ra = ra)
-    code = f"""{models_tmpl}{forms_tmpl}{views_tmpl}{registration_tmpl}"""
-    # f = open(f'/Users/summit/Documents/{name}_full.py', 'w')
-    # f.write(code)
-    # f.close()
+    # code = f"""{models_tmpl}{forms_tmpl}{views_tmpl}{registration_tmpl}"""
+    code = f"""{views_tmpl}{registration_tmpl}"""
+    f = open(f'custom/{name}/full_dynamic.py', 'w')
+    f.write(code)
+    f.close()
     context = {'app': host}
-    compile_code(module, code, context)
+    return compile_code(module, code, context)
 
 
 class CodeFinder(_MetaPathFinder):

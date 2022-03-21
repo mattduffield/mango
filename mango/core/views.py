@@ -214,6 +214,14 @@ class BaseView():
       data = await find_one(query)
     elif get_type in ['get_list']:
       query = self.get_query('find', collection=self.model_name)
+      model_query = self.get_query('find_one', collection='model', query={'name': self.model_name})
+      model_data = await find_one(model_query)
+      model = Model(**model_data)
+      if model.order_by:
+        sort = {}
+        for item in model.order_by:
+          sort[item] = 1
+        query.sort = sort      
       data = await find(query)
     return data
 

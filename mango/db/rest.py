@@ -82,7 +82,10 @@ def bulk_read_sync(batch: List[Union[Query, QueryOne]]):
     expr = query.buildExpression()
     entity = db[query.collection]
     cursor = eval(expr)
-    results = list(cursor)
+    if query.query_type == 'find_one':
+      results = cursor
+    else:
+      results = list(cursor)
     data = json.loads(json.dumps(results, default=json_from_mongo))
     payload.append(data)
   return payload
