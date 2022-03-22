@@ -10,9 +10,9 @@ import datetime
 from fastapi.templating import Jinja2Templates
 from jinja2_simple_tags import StandaloneTag
 from wtforms import fields, FormField
-from mango.db.api import find_sync, find_one_sync
+from mango.db.rest import find_sync, find_one_sync
 from mango.db.models import Query, QueryOne
-from mango.core.fields import QuerySelectField, QuerySelectMultipleField
+from mango.core.fields import LookupSelectField, QuerySelectField, QuerySelectMultipleField
 from mango.core.forms import KeyValueForm
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
@@ -50,6 +50,9 @@ def is_form_field(value, *args, **kwargs):
 def is_query_select_field(value, *args, **kwargs):
   return isinstance(value, QuerySelectField)
 
+def is_lookup_select_field(value, *args, **kwargs):
+  return isinstance(value, LookupSelectField)
+
 def is_key_value_form(value, *args, **kwargs):
   return isinstance(value, KeyValueForm)
 
@@ -83,7 +86,16 @@ def to_field_list_label(value, *args, **kwargs):
   return parts[1]
 
 def load_sync(query):
-  if not query.collection in lookup_cache:
+  if query.collection == 'lookup':
+    lookup_name = query.query['name']
+    key = f'{query.collection}_{lookup_name}'
+    if not key in lookup_cache:
+      lookup = find_one_sync(query)
+      lookup = lookup['item_list']
+      lookup_cache[key] = lookup
+    else:
+      lookup = lookup_cache[key]
+  elif not query.collection in lookup_cache:
     lookup = find_sync(query)
     lookup_cache[query.collection] = lookup
   else:
@@ -91,7 +103,19 @@ def load_sync(query):
   return lookup
 
 def db_lookup(value, data = []):
-  if isinstance(value, (QuerySelectField)):
+  if isinstance(value, (LookupSelectField)):
+    query = QueryOne(
+      database=DATABASE_NAME,
+      collection=value.collection,
+      query=value.query,
+      projection=value.projection
+    )
+    display_member = value.display_member
+    value_member = value.value_member
+    lookup = load_sync(query)
+    found = next((display_member(x) for x in lookup if value_member(x) == data), None)
+    return found
+  elif isinstance(value, (QuerySelectField)):
     query = Query(
       database=DATABASE_NAME,
       collection=value.collection,
@@ -132,6 +156,7 @@ class CustomJinja2Templates(Jinja2Templates):
       'is_fieldlist': is_fieldlist,
       'is_list': is_list,
       'is_form_field': is_form_field,
+      'is_lookup_select_field': is_lookup_select_field,
       'is_query_select_field': is_query_select_field,
       'is_key_value_form': is_key_value_form,
       'contains': contains,
@@ -147,6 +172,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['is_fieldlist'] = is_fieldlist
     self.env.tests['is_list'] = is_list
     self.env.tests['is_form_field'] = is_form_field
+    self.env.tests['is_lookup_select_field'] = is_lookup_select_field
     self.env.tests['is_query_select_field'] = is_query_select_field
     self.env.tests['is_key_value_form'] = is_key_value_form
     self.env.tests['contains'] = contains
