@@ -155,7 +155,7 @@
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
               {% if object[field.name]|is_datetime %}
                 {{ object[field.name]|to_date }}
-              {% elif object[field.name]|is_list or field|is_query_select_field %}
+              {% elif object[field.name]|is_list or field|is_lookup_select_field or field|is_query_select_field %}
                 {{ field|db_lookup(data=object[field.name]) }}
               {% else %}
                 {{ object[field.name] }}
