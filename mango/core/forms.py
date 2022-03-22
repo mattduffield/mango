@@ -16,7 +16,7 @@ from wtforms import (
   SubmitField,
   HiddenField,
   PasswordField,
-  TextAreaField,
+  # TextAreaField,
   FormField,
   # FieldList,
   Form,
@@ -26,6 +26,7 @@ from mango.core.fields import QuerySelectField, QuerySelectMultipleField, Toggle
 from mango.core.fields import (
   IntegerField2 as IntegerField,
   StringField2 as StringField,
+  TextAreaField2 as TextAreaField,
   FieldList2 as FieldList
 )
 from mango.core.constants import chk_class, input_class, label_class, select_class, select_multiple_class, textarea_class, toggle_radio_class, toggle_switch_class, hs_element_type, hs_config_tom_select, hs_field_type
@@ -167,6 +168,16 @@ class ModelForm(StarletteForm):
   page_size = IntegerField(
     'Page Size',
     render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
+    wrapper_class = 'flex-1',
+  )
+  field_order = QuerySelectMultipleField(
+    'Field Order',
+    collection = 'model_field', 
+    query = { 'model_name': lambda data: data["name"] },
+    projection = { 'label': 1, 'name': 1 }, 
+    display_member = lambda data: f'{data["label"]}', 
+    value_member = lambda data: f'{data["name"]}',
+    render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
     wrapper_class = 'flex-1',
   )
   is_custom = ToggleSwitchField(
@@ -848,14 +859,14 @@ class LookupForm(StarletteForm):
     render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
-  description = StringField(
+  description = TextAreaField(
     'Description',
     render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
   item_list = FieldList(
     FormField(KeyValueForm),
-    min_entries=0,
+    min_entries=1,
     wrapper_class = 'flex-1',
   )
   is_active = ToggleSwitchField(

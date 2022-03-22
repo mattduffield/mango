@@ -145,7 +145,13 @@ class BaseView():
   async def get_search_context_data(self, request: Request, search: str):
     form = self.form_class(request)
     self.list_layout = await self.get_list_layout(get_type='get_list')
-    pipeline = self.get_pipeline(field_list=self.list_layout['field_list'])
+    if self.list_layout:
+      pipeline = self.get_pipeline(field_list=self.list_layout['field_list'])
+    else:
+      query = self.get_query('find', collection='model_field', query={'model_name': self.model_name})
+      query_result = await find(query)
+      field_list = [x['name'] for x in query_result]
+      pipeline = self.get_pipeline(field_list=field_list)
     batch = await run_pipeline(pipeline)
     data = batch['cursor']['firstBatch']
     context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'form': form, 'search': search}
@@ -216,12 +222,13 @@ class BaseView():
       query = self.get_query('find', collection=self.model_name)
       model_query = self.get_query('find_one', collection='model', query={'name': self.model_name})
       model_data = await find_one(model_query)
-      model = Model(**model_data)
-      if model.order_by:
-        sort = {}
-        for item in model.order_by:
-          sort[item] = 1
-        query.sort = sort      
+      if model_data:
+        model = Model(**model_data)
+        if model.order_by:
+          sort = {}
+          for item in model.order_by:
+            sort[item] = 1
+          query.sort = sort
       data = await find(query)
     return data
 
@@ -241,8 +248,12 @@ class BaseView():
 
     return query
 
-  def get_pipeline(self, field_list:[str] = []):
+  def get_pipeline(self, field_list:List[str] = []):
     search_index_name = self.model_class.Meta.search_index_name
+    sort = {}
+    if self.model_class.Meta.order_by:
+      for item in self.model_class.Meta.order_by:
+        sort[item] = 1
     page_size = self.model_class.Meta.page_size
     if page_size == 0:
       page_size = 100
@@ -254,29 +265,33 @@ class BaseView():
       }
     }
     project = project | projection
+    pipeline_list = [
+      {
+        "$search": {
+          "index": search_index_name,
+          "text": {
+            "query": self.search,
+            "path": {
+              "wildcard": "*"
+            },
+            "fuzzy": {}
+          }
+        }
+      },
+      {
+        "$project": project
+      },
+      {
+        "$sort": sort
+      },
+      {
+        "$limit": page_size
+      }
+    ]
     pipeline = AggregatePipeline(
       database=DATABASE_NAME,
       aggregate=self.model_class.Meta.name,
-      pipeline=[
-        {
-          "$search": {
-            "index": search_index_name,
-            "text": {
-              "query": self.search,
-              "path": {
-                "wildcard": "*"
-              },
-              "fuzzy": {}
-            }
-          }
-        },
-        {
-          "$project": project
-        },
-        {
-          "$limit": page_size
-        }
-      ],
+      pipeline=pipeline_list,
       cursor={}
     )
     return pipeline

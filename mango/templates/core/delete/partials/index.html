@@ -12,7 +12,7 @@
   <div class="w-full">
     <form id="{{ view.model_name }}FormDelete" method="POST"
       hx-enctype="text/x-www-form-urlencoded"
-      hx-post="{{ post_url }}" 
+      hx-post="{% if view.is_dynamic %}/view{% endif%}{{ post_url }}" 
       hx-target="#viewport"
       hx-swap="innerHTML"
       hx-push-url="true"

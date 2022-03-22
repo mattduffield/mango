@@ -119,10 +119,10 @@ end
 
 hs_field_type = f'''
 on load 
-  toggleElementVisibility(me, "query-tab-container", ["QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "query-tab-container", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
 end
 on change 
-  toggleElementVisibility(me, "query-tab-container", ["QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "query-tab-container", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
 end
 '''
 

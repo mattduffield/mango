@@ -13,7 +13,7 @@
     <form id="{{view.model_name}}FormCreate" method="POST"
       class="flex flex-1 flex-col px-4 pt-6 pb-2 w-full"
       hx-enctype="text/x-www-form-urlencoded"
-      hx-post="{{ post_url }}" 
+      hx-post="{% if view.is_dynamic %}/view{% endif%}{{ post_url }}" 
       hx-target="#viewport"
       hx-swap="innerHTML"
       hx-push-url="true"
@@ -25,7 +25,7 @@
       {% if page_layout %}
         {{ crispy_form_page_layout(form, page_layout) }}
       {% else %}
-        {{ crispy_form_view(form) }}
+        {{ crispy_form_view(view, form) }}
       {% endif %}
       {% if is_modal %}
         <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
@@ -35,7 +35,6 @@
             Cancel
           </button>
           <button class="intro-x btn btn-primary py-3 px-4 w-full"
-            class2="w-full inline-flex justify-center rounded-md shadow-sm px-4 py-2 intro-x bg-blue-500 hover:bg-blue-600 text-base font-medium text-white sm:col-start-2 sm:text-sm"
             type="submit"
             form="{{view.model_name}}FormCreate"
             _="on click add .hidden to #modal">
@@ -53,7 +52,6 @@
             Cancel
           </a>
           <button class="intro-x btn btn-primary py-3 px-4"
-            class2="intro-x text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md"
             type="submit"
             form="{{view.model_name}}FormCreate">
             Save

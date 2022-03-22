@@ -86,6 +86,7 @@ class Model(BaseModel):
   to_string: str  # string for representing current object instance, e.g. f'{self.label}'
   order_by: List[str] = []  # holds the order sequence for sorting
   page_size: int = 0  # if zero, then no pagination
+  field_order: List[str] = []  # holds the order sequence for page fields
   is_custom: bool = True
   is_locked: bool = False
   is_active: bool = True
@@ -94,7 +95,7 @@ class Model(BaseModel):
     return self.label
 
   def new_dict():
-    return {'label': '', 'label_plural': '', 'name': '', 'to_string': '', 'order_by': [], 'page_size': 0, 'is_locked': False, 'is_active': True}
+    return {'label': '', 'label_plural': '', 'name': '', 'to_string': '', 'order_by': [], 'page_size': 0, 'field_order': [], 'is_locked': False, 'is_active': True}
 
   class Meta:
     name = 'model'
@@ -167,6 +168,7 @@ class ModelField(BaseModel):
     name = 'model_field'
     search_index_name = 'model_field_search'
     order_by = [
+      'model_name', 
       'label',
     ]
     page_size = 0

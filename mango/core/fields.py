@@ -29,8 +29,8 @@ from wtforms import (
   Form,
   widgets,
 )
-from mango.db.api import find, find_one, run_pipeline, find_sync
-from mango.db.models import Query
+from mango.db.rest import find, find_one, run_pipeline, find_sync, find_one_sync
+from mango.db.models import Query, QueryOne
 from mango.core.constants import label_class, input_class, textarea_class, chk_class, select_class, select_multiple_class, toggle_radio_class, toggle_switch_class
 from mango.core.widgets import ToggleRadioWidget, ToggleSwitchWidget
 
@@ -43,9 +43,21 @@ class IntegerField2(IntegerField):
     self.wrapper_class = wrapper_class
 
 
+class EmailField2(EmailField):
+  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+    super(EmailField2, self).__init__(label, validators, **kwargs)    
+    self.wrapper_class = wrapper_class
+
+
 class StringField2(StringField):
   def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
     super(StringField2, self).__init__(label, validators, **kwargs)    
+    self.wrapper_class = wrapper_class
+
+
+class TextAreaField2(TextAreaField):
+  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+    super(TextAreaField2, self).__init__(label, validators, **kwargs)    
     self.wrapper_class = wrapper_class
 
 
@@ -156,6 +168,63 @@ class DivField(Field):
       self.data = [x.strip() for x in valuelist[0].split(',')]
     else:
       self.data = []
+
+
+class LookupSelectField(SelectField):
+  widget = widgets.Select()
+  
+  def __init__(
+    self,
+    label=None,
+    validators=None,
+    coerce=str,
+    choices=None,
+    validate_choice=True,
+    allow_blank=False,
+    blank_text='Choose...',
+    collection='lookup', 
+    query={}, 
+    projection={'label': 1, 'name': 1, 'item_list': 1}, 
+    display_member=lambda data: f'{data.get("key")}', 
+    value_member=lambda data: f'{data.get("value")}',
+    wrapper_class='',
+    **kwargs,
+  ):
+    super().__init__(label, validators, **kwargs)
+    self.coerce = coerce
+    self.allow_blank = allow_blank
+    self.blank_text = blank_text
+    self.collection = collection
+    self.query = query
+    self.db_query = QueryOne(
+      database=DATABASE_NAME,
+      collection=collection,
+      query=query.copy(),
+      projection=projection
+    )
+    self.projection = projection
+    self.display_member = display_member
+    self.value_member = value_member
+    self.validate_choice = validate_choice
+    self.wrapper_class = wrapper_class
+
+  def get_choices(self, data):
+    for prop in self.query:
+      if callable(self.query[prop]):
+        self.db_query.query[prop] = self.query[prop](data)
+    
+    blank_choice = None
+    raw = find_one_sync(self.db_query)
+    if self.allow_blank:
+      blank_choice = [('', self.blank_text)]
+    choices = [(self.value_member(x), self.display_member(x)) for x in raw['item_list']]
+    if blank_choice:
+      return blank_choice + choices
+    if choices is not None:
+      choices = choices if isinstance(choices, dict) else list(choices)
+    else:
+      choices = None
+    return choices
 
 
 class QuerySelectField(SelectField):

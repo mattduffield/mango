@@ -2,7 +2,7 @@
 <html lang="en" 
   class="h-full"
   _="on htmx:pushedIntoHistory
-      set element_id to the first of window.location.pathname.replace('/', '').split('/')
+      set element_id to the first of window.location.pathname.replace('/view', '').replace('/', '').split('/')
       if not element_id or no #{element_id} then
         set element_id to 'dashboard'
       end
@@ -16,7 +16,7 @@
         add .bg-gray-100 to me
       end
     on load
-      set element_id to the first of window.location.pathname.replace('/', '').split('/')
+      set element_id to the first of window.location.pathname.replace('/view', '').replace('/', '').split('/')
       if not element_id or no #{element_id} then
         set element_id to 'dashboard'
       end
@@ -187,7 +187,15 @@
       {% include 'shell/side-bar.html' %}
       <div class="md:pl-64 flex flex-col flex-1">
         <!-- nav-bar -->
-        {% include 'shell/nav-bar.html' %}
+        <div class="sticky top-0 z-10 flex-shrink-0 flex flex-1 items-center justify-end h-16 bg-white shadow">
+          {% block breadcrumb %}
+            <div id="breadcrumbs">
+            </div>
+          {% endblock breadcrumb %}
+          {% include 'shell/user-avatar.html' %}
+        </div>
+
+
         <!-- content -->
         <div class="grid">
           {# {% include 'messages.html' %} #}
@@ -401,7 +409,7 @@
         set elt.value to elt.value.toLowerCase().replaceAll(" ", "/")
       end
       def toLowerSnake(elt)
-        set elt.value to elt.value.toLowerCase().replaceAll(" ", "_")
+        set elt.value to elt.value.toLowerCase().replaceAll(" ", "_").replaceAll("/", "_")
       end
       def copyToLower(elt, target)
         set #{target}.value to elt.value.toLowerCase()

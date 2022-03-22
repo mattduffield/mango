@@ -11,9 +11,9 @@ from wtforms import Form
 from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 from mango.auth.models import Credentials
 from mango.auth.auth import can
-from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, PageLayout, ListLayout, Tab, App
-from mango.core.fields import QuerySelectField, QuerySelectMultipleField, StringField2
-from mango.core.forms import get_string_form, ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm
+from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, PageLayout, ListLayout, Tab, App, Lookup
+from mango.core.fields import LookupSelectField, QuerySelectField, QuerySelectMultipleField, StringField2
+from mango.core.forms import get_string_form, ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm, LookupForm
 from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 from mango.db.api import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
 import settings
@@ -118,13 +118,13 @@ class BaseDynamicView():
 
   def initialize_route_urls(self, _id: str = ''):
     if not self.create_url:
-      self.create_url = f'/app/{self.model_name}/create'
+      self.create_url = f'/view/{self.model_name}/create'
     if not self.update_url and _id:
-      self.update_url = f'/app/{self.model_name}/{_id}'
+      self.update_url = f'/view/{self.model_name}/{_id}'
     if not self.delete_url and _id:
-      self.delete_url = f'/app/{self.model_name}/{_id}/delete'
+      self.delete_url = f'/view/{self.model_name}/{_id}/delete'
     if not self.list_url:
-      self.list_url = f'/app/{self.model_name}'
+      self.list_url = f'/view/{self.model_name}'
 
   async def get(self, request: Request, get_type: str, model: str, _id: str = '', search: str = '', is_modal: bool = False):
     self.request = request
@@ -149,7 +149,13 @@ class BaseDynamicView():
   async def get_search_context_data(self, request: Request, search: str):
     form = self.form_class(request)
     self.list_layout = await self.get_list_layout(get_type='get_list')
-    pipeline = self.get_pipeline(field_list=self.list_layout['field_list'])
+    if self.list_layout:
+      pipeline = self.get_pipeline(field_list=self.list_layout['field_list'])
+    else:
+      query = self.get_query('find', collection='model_field', query={'model_name': self.model_name})
+      query_result = await find(query)
+      field_list = [x['name'] for x in query_result]
+      pipeline = self.get_pipeline(field_list=field_list)
     batch = await run_pipeline(pipeline)
     data = batch['cursor']['firstBatch']
     context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'form': form, 'search': search}
@@ -189,7 +195,7 @@ class BaseDynamicView():
         elif issubclass(self.form_class, Form):
           form = self.form_class(data=data)
         for field in form:
-          if isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
+          if isinstance(field, LookupSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
             field.choices = field.get_choices(data=data)
 
     context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
@@ -218,18 +224,19 @@ class BaseDynamicView():
       data = await find_one(query)
     elif get_type in ['get_list']:
       query = self.get_query('find', collection=self.model_name)
-      model_query = self.get_query('find_one', collection='model', query={'name': self.model_name})
-      model_data = await find_one(model_query)
-      model = Model(**model_data)
-      if model.order_by:
-        sort = {}
-        for item in model.order_by:
-          sort[item] = 1
-        query.sort = sort      
+      # model_query = self.get_query('find_one', collection='model', query={'name': self.model_name})
+      # model_data = await find_one(model_query)
+      if self.model_data:
+        # model = Model(**model_data)
+        if self.model_data.order_by:
+          sort = {}
+          for item in self.model_data.order_by:
+            sort[item] = 1
+          query.sort = sort      
       data = await find(query)
     return data
 
-  def get_query(self, query_type: str, collection: str, query: dict = {}, data: dict = None):
+  def get_query(self, query_type: str, collection: str, query: dict = {}, sort: dict = {}, data: dict = None):
     if query_type == 'find_one':
       query = QueryOne(
         database=DATABASE_NAME,
@@ -240,13 +247,18 @@ class BaseDynamicView():
       query = Query(
         database=DATABASE_NAME,
         collection=collection,
-        query=query  # {'_id': self._id}
+        query=query,  # {'_id': self._id}
+        sort=sort  # {'name': 1}
       )
 
     return query
 
   def get_pipeline(self, field_list:List[str] = []):
     search_index_name = self.model_class.Meta.search_index_name
+    sort = {}
+    if self.model_data:
+      for item in self.model_data.order_by:
+        sort[item] = 1
     page_size = self.model_class.Meta.page_size
     if page_size == 0:
       page_size = 100
@@ -258,29 +270,33 @@ class BaseDynamicView():
       }
     }
     project = project | projection
+    pipeline_list = [
+      {
+        "$search": {
+          "index": search_index_name,
+          "text": {
+            "query": self.search,
+            "path": {
+              "wildcard": "*"
+            },
+            "fuzzy": {}
+          }
+        }
+      },
+      {
+        "$project": project
+      },
+      {
+        "$sort": sort
+      },
+      {
+        "$limit": page_size
+      }
+    ]
     pipeline = AggregatePipeline(
       database=DATABASE_NAME,
       aggregate=self.model_class.Meta.name,
-      pipeline=[
-        {
-          "$search": {
-            "index": search_index_name,
-            "text": {
-              "query": self.search,
-              "path": {
-                "wildcard": "*"
-              },
-              "fuzzy": {}
-            }
-          }
-        },
-        {
-          "$project": project
-        },
-        {
-          "$limit": page_size
-        }
-      ],
+      pipeline=pipeline_list,
       cursor={}
     )
     return pipeline
@@ -300,13 +316,13 @@ class BaseDynamicView():
       model_data = self.model_class(**data)
       data_string = str(model_data)
       for field in self.form:
-        if isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
+        if isinstance(field, LookupSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
           field.choices = field.get_choices(data=data)
 
     if post_type == 'post_create':
       data = await self.get_data('get_create')
       for field in self.form:
-        if isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
+        if isinstance(field, LookupSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
           field.choices = field.get_choices(data=data)
       if await self.form.validate_on_submit():
         payload = self.post_query(post_type)
