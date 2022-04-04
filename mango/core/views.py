@@ -7,18 +7,31 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi_router_controller import Controller
 from starlette_wtf import StarletteForm
 from starlette.datastructures import MultiDict
-from wtforms import Form
+from wtforms import Form, FormField, FieldList
 from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 from mango.auth.models import Credentials
 from mango.auth.auth import can
-from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, PageLayout, ListLayout, Tab, App, Lookup
-from mango.core.fields import QuerySelectField, QuerySelectMultipleField, StringField2
-from mango.core.forms import get_string_form, ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm, LookupForm
+from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, PageLayout, ListLayout, Tab, App, Lookup, PageElement
+from mango.core.fields import LookupSelectField, QuerySelectField, QuerySelectMultipleField, StringField2
+from mango.core.forms import get_dynamic_form, get_string_form, ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm, LookupForm, PageElementForm
 from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 from mango.db.api import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
+from mango.db.rest import find_one_sync, find_sync, bulk_read_sync
 import settings
 from settings import manager, templates, DATABASE_NAME
 
+
+def get_app_model(name: str):
+  batch = [
+    QueryOne(
+      database=DATABASE_NAME,
+      collection='model',
+      query={'name': name, 'is_active': True},
+    ),
+  ]
+  [model_result] = bulk_read_sync(batch)
+  model = Model(**model_result)
+  return model
 
 def get_router(prefix: str = '', tags: List[str] = ['Views']):
   return APIRouter(
@@ -61,17 +74,63 @@ router = APIRouter(
   tags = ['Helper Views']
 )
 
+@router.get('/table_row/append/{main_class}/{main_data}/{main_form}/{field_name}/{pos}', response_class=HTMLResponse, name='get_table_row_append')
+async def get_table_row_append(request: Request, main_class: str, main_data: str, main_form: str, field_name: str, pos: int = -1):
+  parent_data = json.loads(main_data)
+  parent_class = get_class(main_class)
+  cls = parent_class.new_dict()
+  # cls = parent_class()
+  parent_form = get_class(main_form)
+  form = parent_form(request=request)
+  field_list = getattr(form, field_name)
+  field_num = field_list.__len__()
+  if field_num < 1:
+    field_list.append_entry()
+
+  for field in form:
+    if isinstance(field, LookupSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
+      field.choices = field.get_choices(data=parent_data)
+    elif isinstance(field, FieldList):
+      for sub_field in field:
+        if isinstance(sub_field, FormField):
+          for sub_form_field in sub_field:
+            if isinstance(sub_form_field, FieldList):
+              for sub_sub_form_field in sub_form_field:
+                if isinstance(sub_sub_form_field, FormField):
+                  for sub_sub_sub_form_field in sub_sub_form_field:
+                    if isinstance(sub_sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_sub_form_field, QuerySelectMultipleField):
+                      sub_sub_sub_form_field.choices = sub_sub_sub_form_field.get_choices(data=parent_data)
+                elif isinstance(sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_form_field, QuerySelectMultipleField):
+                  sub_sub_form_field.choices = sub_sub_form_field.get_choices(data=parent_data)
+            elif isinstance(sub_form_field, LookupSelectField) or isinstance(sub_form_field, QuerySelectField) or isinstance(sub_form_field, QuerySelectMultipleField):
+              sub_form_field.choices = sub_form_field.get_choices(data=parent_data)
+        elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
+          sub_field.choices = sub_field.get_choices(data=parent_data)
+
+  # getattr(form, field_name).append_entry()
+  context = {'request': request, 'form': form, 'field_name': field_name}
+  template_name = f'admin/crud/list/partials/table_row_append.html'
+  template = templates.get_template(template_name)
+  output = template.render(context).replace(f'{field_name}-0', f'{field_name}-{pos}')
+  return HTMLResponse(content=output)
+
 @router.get('/table_row/create/{form_name}/{prefix}/{pos}', response_class=HTMLResponse, name='get_table_row_create')
 async def get_new_table_row(request: Request, form_name: str, prefix: str = '', pos: int = -1):
+  form = None
+  form_field = None
   if pos > -1:
     prefix = f'{prefix}-{str(pos)}'
-  if form_name.endswith('Form'):
+  if form_name.endswith('Field'):
+    form_field = get_dynamic_form(form_name=form_name, prefix=prefix)
+    # instance = get_class(form_name)
+    # form_field = instance(prefix=prefix)
+  elif form_name.endswith('Form') or form_name.endswith('Field'):
     instance = get_class(form_name)
     form = instance(prefix=prefix)
   else:
     form = get_string_form(prefix=prefix)
-  context = {'request': request, 'form': form, 'prefix': prefix}
-  template_name = f'core/list/partials/new_table_row.html'
+  context = {'request': request, 'form': form, 'form_field': form_field, 'prefix': prefix}
+  template_name = f'admin/crud/list/partials/new_table_row.html'
   response = templates.TemplateResponse(template_name, context)
   return response
 
@@ -104,6 +163,9 @@ class BaseView():
     self.can = can
     self.model_name = self.model_class.Meta.name
     self.initialize_route_names()
+    model = get_app_model(self.model_name)
+    self.model_data = model
+
     
   def initialize_route_names(self):
     if not self.create_route_name:
@@ -117,13 +179,13 @@ class BaseView():
 
   def initialize_route_urls(self, _id: str = ''):
     if not self.create_url:
-      self.create_url = f'/{self.model_name}/create'
+      self.create_url = f'/admin/{self.model_name}/create'
     if not self.update_url and _id:
-      self.update_url = f'/{self.model_name}/{_id}'
+      self.update_url = f'/admin/{self.model_name}/{_id}'
     if not self.delete_url and _id:
-      self.delete_url = f'/{self.model_name}/{_id}/delete'
+      self.delete_url = f'/admin/{self.model_name}/{_id}/delete'
     if not self.list_url:
-      self.list_url = f'/{self.model_name}'
+      self.list_url = f'/admin/{self.model_name}'
 
   async def get(self, request: Request, get_type: str, _id: str = '', search: str = '', is_modal: bool = False):
     self.request = request
@@ -180,8 +242,13 @@ class BaseView():
     self.page_layout = await self.get_page_layout(get_type)
     self.list_layout = await self.get_list_layout(get_type)
 
-    if get_type in ['get_update', 'get_delete']:
+    if get_type in ['get_list']:
+      model_data = self.model_class(**self.model_class.new_dict())
+    elif get_type in ['get_create', 'get_update', 'get_delete']:
       model_data = self.model_class(**data)
+
+    if get_type in ['get_update', 'get_delete']:
+      # model_data = self.model_class(**data)
       data_string = str(model_data)
 
     if _id or get_type in ['get_create']:
@@ -191,9 +258,27 @@ class BaseView():
         elif issubclass(self.form_class, Form):
           form = self.form_class(data=data)
         for field in form:
-          if isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
+          if isinstance(field, LookupSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
             field.choices = field.get_choices(data=data)
-
+          elif isinstance(field, FieldList):
+            for sub_field in field:
+              if isinstance(sub_field, FormField):
+                for sub_form_field in sub_field:
+                  if isinstance(sub_form_field, FieldList):
+                    for sub_sub_form_field in sub_form_field:
+                      if isinstance(sub_sub_form_field, FormField):
+                        for sub_sub_sub_form_field in sub_sub_form_field:
+                          if isinstance(sub_sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_sub_form_field, QuerySelectMultipleField):
+                            sub_sub_sub_form_field.choices = sub_sub_sub_form_field.get_choices(data=data)
+                      elif isinstance(sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_form_field, QuerySelectMultipleField):
+                        sub_sub_form_field.choices = sub_sub_form_field.get_choices(data=data)
+                  elif isinstance(sub_form_field, LookupSelectField) or isinstance(sub_form_field, QuerySelectField) or isinstance(sub_form_field, QuerySelectMultipleField):
+                    sub_form_field.choices = sub_form_field.get_choices(data=data)
+              elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
+                sub_field.choices = sub_field.get_choices(data=data)
+    self.main_class = f'{self.model_class.__module__}.{self.model_class.__name__}'
+    self.main_data = json.dumps(model_data.dict())
+    self.main_form = f'{self.form_class.__module__}.{self.form_class.__name__}'
     context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
     return context
 
@@ -308,14 +393,45 @@ class BaseView():
       model_data = self.model_class(**data)
       data_string = str(model_data)
       for field in self.form:
-        if isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
+        if isinstance(field, LookupSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
           field.choices = field.get_choices(data=data)
-
+        elif isinstance(field, FieldList):
+          for sub_field in field:
+            if isinstance(sub_field, FormField):
+              for sub_form_field in sub_field:
+                if isinstance(sub_form_field, FieldList):
+                  for sub_sub_form_field in sub_form_field:
+                    if isinstance(sub_sub_form_field, FormField):
+                      for sub_sub_sub_form_field in sub_sub_form_field:
+                        if isinstance(sub_sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_sub_form_field, QuerySelectMultipleField):
+                          sub_sub_sub_form_field.choices = sub_sub_sub_form_field.get_choices(data=data)
+                    elif isinstance(sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_form_field, QuerySelectMultipleField):
+                      sub_sub_form_field.choices = sub_sub_form_field.get_choices(data=data)
+                elif isinstance(sub_form_field, LookupSelectField) or isinstance(sub_form_field, QuerySelectField) or isinstance(sub_form_field, QuerySelectMultipleField):
+                  sub_form_field.choices = sub_form_field.get_choices(data=data)
+            elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
+              sub_field.choices = sub_field.get_choices(data=data)
     if post_type == 'post_create':
       data = await self.get_data('get_create')
       for field in self.form:
-        if isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
+        if isinstance(field, LookupSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
           field.choices = field.get_choices(data=data)
+        elif isinstance(field, FieldList):
+          for sub_field in field:
+            if isinstance(sub_field, FormField):
+              for sub_form_field in sub_field:
+                if isinstance(sub_form_field, FieldList):
+                  for sub_sub_form_field in sub_form_field:
+                    if isinstance(sub_sub_form_field, FormField):
+                      for sub_sub_sub_form_field in sub_sub_form_field:
+                        if isinstance(sub_sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_sub_form_field, QuerySelectMultipleField):
+                          sub_sub_sub_form_field.choices = sub_sub_sub_form_field.get_choices(data=data)
+                    elif isinstance(sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_form_field, QuerySelectMultipleField):
+                      sub_sub_form_field.choices = sub_sub_form_field.get_choices(data=data)
+                elif isinstance(sub_form_field, LookupSelectField) or isinstance(sub_form_field, QuerySelectField) or isinstance(sub_form_field, QuerySelectMultipleField):
+                  sub_form_field.choices = sub_form_field.get_choices(data=data)
+            elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
+              sub_field.choices = sub_field.get_choices(data=data)
       if await self.form.validate_on_submit():
         payload = self.post_query(post_type)
         response = await self.post_data(post_type, payload=payload)
@@ -393,9 +509,9 @@ class BaseView():
       template_type = 'delete'
 
     if self.request.state.htmx:
-      return f'core/{template_type}/partials/index.html'
+      return f'admin/crud/{template_type}/partials/index.html'
     else:
-      return f'core/{template_type}/index.html'
+      return f'admin/crud/{template_type}/index.html'
 
   async def get_list(self, request: Request, is_modal: bool=False):
     pass
@@ -419,7 +535,7 @@ class BaseView():
     pass
 
 
-action_controller = get_controller(tags=['Action Views'])
+action_controller = get_controller(prefix='/admin', tags=['Action Views'])
 @action_controller.resource()
 class ActionView(BaseView):
   model_class = Action
@@ -457,7 +573,7 @@ class ActionView(BaseView):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
-role_controller = get_controller(tags=['Role Views'])
+role_controller = get_controller(prefix='/admin', tags=['Role Views'])
 @role_controller.resource()
 class RoleView(BaseView):
   model_class = Role
@@ -495,7 +611,7 @@ class RoleView(BaseView):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
-model_controller = get_controller(tags=['Model Views'])
+model_controller = get_controller(prefix='/admin', tags=['Model Views'])
 @model_controller.resource()
 class ModelView(BaseView):
   model_class = Model
@@ -533,7 +649,7 @@ class ModelView(BaseView):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
-model_record_type_controller = get_controller(tags=['Model Record Type Views'])
+model_record_type_controller = get_controller(prefix='/admin', tags=['Model Record Type Views'])
 @model_record_type_controller.resource()
 class ModelRecordTypeView(BaseView):
   model_class = ModelRecordType
@@ -571,7 +687,7 @@ class ModelRecordTypeView(BaseView):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
-model_field_controller = get_controller(tags=['Model Field Views'])
+model_field_controller = get_controller(prefix='/admin', tags=['Model Field Views'])
 @model_field_controller.resource()
 class ModelFieldView(BaseView):
   model_class = ModelField
@@ -609,7 +725,7 @@ class ModelFieldView(BaseView):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
-page_layout_controller = get_controller(tags=['Page Layout Views'])
+page_layout_controller = get_controller(prefix='/admin', tags=['Page Layout Views'])
 @page_layout_controller.resource()
 class PageLayoutView(BaseView):
   model_class = PageLayout
@@ -647,7 +763,7 @@ class PageLayoutView(BaseView):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
-list_layout_controller = get_controller(tags=['List Layout Views'])
+list_layout_controller = get_controller(prefix='/admin', tags=['List Layout Views'])
 @list_layout_controller.resource()
 class ListLayoutView(BaseView):
   model_class = ListLayout
@@ -685,7 +801,7 @@ class ListLayoutView(BaseView):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
-tab_controller = get_controller(tags=['Tab Views'])
+tab_controller = get_controller(prefix='/admin', tags=['Tab Views'])
 @tab_controller.resource()
 class TabView(BaseView):
   model_class = Tab
@@ -723,7 +839,7 @@ class TabView(BaseView):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
-app_controller = get_controller(tags=['App Views'])
+app_controller = get_controller(prefix='/admin', tags=['App Views'])
 @app_controller.resource()
 class AppView(BaseView):
   model_class = App
@@ -761,7 +877,7 @@ class AppView(BaseView):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
 
 
-lookup_controller = get_controller(tags=['Lookup Views'])
+lookup_controller = get_controller(prefix='/admin', tags=['Lookup Views'])
 @lookup_controller.resource()
 class LookupView(BaseView):
   model_class = Lookup
@@ -795,5 +911,43 @@ class LookupView(BaseView):
     return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
 
   @lookup_controller.route.post('/lookup/{_id}/delete', response_class=HTMLResponse, name='lookup-delete')
+  async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)
+
+
+page_element_controller = get_controller(prefix='/admin', tags=['Page Element Views'])
+@page_element_controller.resource()
+class PageElementView(BaseView):
+  model_class = PageElement
+  form_class = PageElementForm
+
+  def __init__(self):
+    super().__init__()
+
+  @page_element_controller.route.get('/page_element', response_class=HTMLResponse, name='page_element-list')
+  async def get_list(self, request: Request, search: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_list', search=search, is_modal=is_modal)
+
+  @page_element_controller.route.get('/page_element/create', response_class=HTMLResponse, name='page_element-create')
+  async def get_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_create', is_modal=is_modal)
+
+  @page_element_controller.route.post('/page_element/create', response_class=HTMLResponse, name='page_element-create')
+  async def post_create(self, request: Request, is_modal: bool=False, user=Depends(manager)):
+    return await super().post(request=request, post_type='post_create', is_modal=is_modal)
+
+  @page_element_controller.route.get('/page_element/{_id}', response_class=HTMLResponse, name='page_element-update')
+  async def get_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_update', _id=_id, is_modal=is_modal)
+
+  @page_element_controller.route.post('/page_element/{_id}', response_class=HTMLResponse, name='page_element-update')
+  async def post_update(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().post(request=request, post_type='post_update', _id=_id, is_modal=is_modal)
+
+  @page_element_controller.route.get('/page_element/{_id}/delete', response_class=HTMLResponse, name='page_element-delete')
+  async def get_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
+    return await super().get(request=request, get_type='get_delete', _id=_id, is_modal=is_modal)
+
+  @page_element_controller.route.post('/page_element/{_id}/delete', response_class=HTMLResponse, name='page_element-delete')
   async def post_delete(self, request: Request, _id: str = '', is_modal: bool=False, user=Depends(manager)):
     return await super().post(request=request, post_type='post_delete', _id=_id, is_modal=is_modal)

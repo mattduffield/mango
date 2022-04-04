@@ -82,8 +82,8 @@ def to_date(value, *args, **kwargs):
 def to_field_list_label(value, *args, **kwargs):
   if not value:
     return value
-  parts = value.rsplit('-', 1)
-  return parts[1]
+  _, part = value.rsplit('-', 1)
+  return part.replace('_', ' ')
 
 def load_sync(query):
   if query.collection == 'lookup':

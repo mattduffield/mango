@@ -12,6 +12,16 @@ from pydantic import BaseModel, PositiveInt
 from wtforms import Field
 
 
+class FieldLayout(BaseModel):
+  field_list: List[str] = []
+  wrapping_class: str
+  content: str
+
+
+class ColumnLayout(BaseModel):
+  column_list: List[FieldLayout] = []
+
+
 class KeyValue(BaseModel):
   key: str
   value: str
@@ -87,6 +97,9 @@ class Model(BaseModel):
   order_by: List[str] = []  # holds the order sequence for sorting
   page_size: int = 0  # if zero, then no pagination
   field_order: List[str] = []  # holds the order sequence for page fields
+  # field_layout_list: List[List[str]] = []
+  # field_layout_list: List[FieldLayout] = []
+  field_layout_list: List[ColumnLayout] = []
   is_custom: bool = True
   is_locked: bool = False
   is_active: bool = True
@@ -95,7 +108,7 @@ class Model(BaseModel):
     return self.label
 
   def new_dict():
-    return {'label': '', 'label_plural': '', 'name': '', 'to_string': '', 'order_by': [], 'page_size': 0, 'field_order': [], 'is_locked': False, 'is_active': True}
+    return {'label': '', 'label_plural': '', 'name': '', 'to_string': '', 'order_by': [], 'page_size': 0, 'field_order': [], 'field_layout_list': [], 'is_locked': False, 'is_active': True}
 
   class Meta:
     name = 'model'
@@ -162,7 +175,7 @@ class ModelField(BaseModel):
     return self.label
   
   def new_dict():
-    return {'model_id': '', 'label': '', 'name': '', 'data_type': '', 'default_value': '', 'default_value_use_quotes': True, 'field_type': '', 'is_locked': False, 'is_active': True}
+    return {'model_name': '', 'label': '', 'name': '', 'data_type': '', 'default_value': '', 'default_value_use_quotes': True, 'field_type': '', 'is_locked': False, 'is_active': True}
 
   class Meta:
     name = 'model_field'
@@ -278,7 +291,7 @@ class ListLayout(BaseModel):
 class Tab(BaseModel):
   model_name: str  # references the a given Model object
   label: str  # this can override the Model label
-  sequence: PositiveInt = 0  # used for ordering
+  sequence: PositiveInt = 1  # used for ordering
   is_default: bool = False
   is_locked: bool = False
   is_active: bool = True
@@ -287,7 +300,7 @@ class Tab(BaseModel):
     return self.label
 
   def new_dict():
-    return {'model_id': '', 'label': '', 'sequence': 0, 'is_default': False, 'is_locked': False, 'is_active': True}
+    return {'model_name': '', 'label': '', 'sequence': 1, 'is_default': False, 'is_locked': False, 'is_active': True}
 
   class Meta:
     name = 'tab'
@@ -347,6 +360,32 @@ class Lookup(BaseModel):
   class Meta:
     name = 'lookup'
     search_index_name = 'lookup_search'
+    order_by = [
+      'label',
+    ]
+    page_size = 0
+
+
+'''
+  This class represents a single page element for the page designer.
+'''
+class PageElement(BaseModel):
+  label: str
+  name: str  # usually lowercase with underscores instead of spaces
+  description: str = ''
+  content: str
+  is_locked: bool = False
+  is_active: bool = True
+
+  def __str__(self):
+    return self.label
+  
+  def new_dict():
+    return {'label': '', 'name': '', 'description': '', 'content': '', 'is_locked': False, 'is_active': True}
+
+  class Meta:
+    name = 'page_element'
+    search_index_name = 'page_element_search'
     order_by = [
       'label',
     ]

@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi_router_controller import Controller
 from starlette_wtf import StarletteForm
 from starlette.datastructures import MultiDict
-from wtforms import Form
+from wtforms import Form, FormField, FieldList
 from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 from mango.auth.models import Credentials
 from mango.auth.auth import can
@@ -71,7 +71,7 @@ async def get_new_table_row(request: Request, form_name: str, prefix: str = '', 
   else:
     form = get_string_form(prefix=prefix)
   context = {'request': request, 'form': form, 'prefix': prefix}
-  template_name = f'core/list/partials/new_table_row.html'
+  template_name = f'shell/crud/list/partials/new_table_row.html'
   response = templates.TemplateResponse(template_name, context)
   return response
 
@@ -142,6 +142,11 @@ class BaseDynamicView():
     if self.redirect_url:
       context['redirect_url'] = self.redirect_url
     
+    if self.page_designer:
+      from jinja2 import Environment, BaseLoader
+      tmpl = Environment(loader=BaseLoader()).from_string(self.page_designer['transform'])
+      self.page_designer['rendered'] = tmpl.render(**context)
+
     template_name = self.get_template_name(get_type)
     response = templates.TemplateResponse(template_name, context)
     return response
@@ -182,6 +187,7 @@ class BaseDynamicView():
       data = await self.get_data(get_type)
 
     self.page_layout = await self.get_page_layout(get_type)
+    self.page_designer = await self.get_page_designer(get_type)
     self.list_layout = await self.get_list_layout(get_type)
 
     if get_type in ['get_update', 'get_delete']:
@@ -197,6 +203,22 @@ class BaseDynamicView():
         for field in form:
           if isinstance(field, LookupSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
             field.choices = field.get_choices(data=data)
+          elif isinstance(field, FieldList):
+            for sub_field in field:
+              if isinstance(sub_field, FormField):
+                for sub_form_field in sub_field:
+                  if isinstance(sub_form_field, FieldList):
+                    for sub_sub_form_field in sub_form_field:
+                      if isinstance(sub_sub_form_field, FormField):
+                        for sub_sub_sub_form_field in sub_sub_form_field:
+                          if isinstance(sub_sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_sub_form_field, QuerySelectMultipleField):
+                            sub_sub_sub_form_field.choices = sub_sub_sub_form_field.get_choices(data=data)
+                      elif isinstance(sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_form_field, QuerySelectMultipleField):
+                        sub_sub_form_field.choices = sub_sub_form_field.get_choices(data=data)
+                  elif isinstance(sub_form_field, LookupSelectField) or isinstance(sub_form_field, QuerySelectField) or isinstance(sub_form_field, QuerySelectMultipleField):
+                    sub_form_field.choices = sub_form_field.get_choices(data=data)
+              elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
+                sub_field.choices = sub_field.get_choices(data=data)
 
     context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
     return context
@@ -205,6 +227,13 @@ class BaseDynamicView():
     data = None
     if get_type in ['get_create', 'get_update']:
       query = self.get_query('find_one', collection='page_layout', query={'model_name': self.model_name})
+      data = await find_one(query)
+    return data
+
+  async def get_page_designer(self, get_type: str):
+    data = None
+    if get_type in ['get_create', 'get_update']:
+      query = self.get_query('find_one', collection='page_designer', query={'model_name': self.model_name})
       data = await find_one(query)
     return data
 
@@ -318,6 +347,22 @@ class BaseDynamicView():
       for field in self.form:
         if isinstance(field, LookupSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
           field.choices = field.get_choices(data=data)
+        elif isinstance(field, FieldList):
+          for sub_field in field:
+            if isinstance(sub_field, FormField):
+              for sub_form_field in sub_field:
+                if isinstance(sub_form_field, FieldList):
+                  for sub_sub_form_field in sub_form_field:
+                    if isinstance(sub_sub_form_field, FormField):
+                      for sub_sub_sub_form_field in sub_sub_form_field:
+                        if isinstance(sub_sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_sub_form_field, QuerySelectMultipleField):
+                          sub_sub_sub_form_field.choices = sub_sub_sub_form_field.get_choices(data=data)
+                    elif isinstance(sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_form_field, QuerySelectMultipleField):
+                      sub_sub_form_field.choices = sub_sub_form_field.get_choices(data=data)
+                elif isinstance(sub_form_field, LookupSelectField) or isinstance(sub_form_field, QuerySelectField) or isinstance(sub_form_field, QuerySelectMultipleField):
+                  sub_form_field.choices = sub_form_field.get_choices(data=data)
+            elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
+              sub_field.choices = sub_field.get_choices(data=data)
 
     if post_type == 'post_create':
       data = await self.get_data('get_create')
@@ -401,9 +446,9 @@ class BaseDynamicView():
       template_type = 'delete'
 
     if self.request.state.htmx:
-      return f'core/{template_type}/partials/index.html'
+      return f'shell/crud/{template_type}/partials/index.html'
     else:
-      return f'core/{template_type}/index.html'
+      return f'shell/crud/{template_type}/index.html'
 
   async def get_list(self, request: Request, is_modal: bool=False):
     pass
