@@ -93,10 +93,10 @@ class QueryOne(BaseMongo):
   sort: Optional[dict]
   skip: Optional[int]
   def buildExpression(self):
-    if self.query:
+    if self.query and any(self.query):
       self.query = json_to_mongo(self.query)
     expr = f'entity.{self.query_type}({self.query}'
-    if self.projection:
+    if self.projection and any(self.projection):
       expr += f', {self.projection}'
     if self.sort and self.sort.items():
       sort_pairs = self.sort.items()
@@ -115,10 +115,12 @@ class Query(QueryOne):
   query_type: Literal['find_one', 'find'] = 'find'
   limit: Optional[int]
   def buildExpression(self):
-    if self.query:
+    if self.query and any(self.query):
       self.query = json_to_mongo(self.query)
+    else:
+      self.query = {}
     expr = f'entity.{self.query_type}({self.query}'
-    if self.projection:
+    if self.projection and any(self.projection):
       expr += f', {self.projection}'
     if self.sort and self.sort.items():
       sort_pairs = self.sort.items()
@@ -139,8 +141,10 @@ class Query(QueryOne):
 class Count(BaseMongo):
   query: Optional[dict]
   def buildExpression(self):
-    if self.query:
+    if self.query and any(self.query):
       self.query = json_to_mongo(self.query)
+    else:
+      self.query = {}
     expr = f'entity.count_documents({self.query})'
     return expr
 
@@ -170,8 +174,10 @@ class UpdateOne(BaseMongo):
   query: Optional[dict]
   data: dict
   def buildExpression(self):
-    if self.query:
+    if self.query and any(self.query):
       self.query = json_to_mongo(self.query)
+    else:
+      self.query = {}
     if self.data:
       expr = f'entity.{self.update_type}({self.query}, {self.data})'
       return expr
@@ -183,8 +189,10 @@ class UpdateMany(BaseMongo):
   query: Optional[dict]
   data: dict
   def buildExpression(self):
-    if self.query:
+    if self.query and any(self.query):
       self.query = json_to_mongo(self.query)
+    else:
+      self.query = {}
     if self.data:
       expr = f'entity.{self.update_type}({self.query}, {self.data})'
       return expr
@@ -196,8 +204,10 @@ class Update(BaseMongo):
   query: Optional[dict]
   data: dict
   def buildExpression(self):
-    if self.query:
+    if self.query and any(self.query):
       self.query = json_to_mongo(self.query)
+    else:
+      self.query = {}
     if self.data:
       expr = f'entity.{self.update_type}({self.query}, {self.data})'
       return expr
@@ -208,7 +218,7 @@ class Delete(BaseMongo):
   delete_type: Literal['delete_one', 'delete_many'] = 'delete_one'
   query: Optional[dict]
   def buildExpression(self):
-    if self.query:
+    if self.query and any(self.query):
       self.query = json_to_mongo(self.query)
       expr = f'entity.{self.delete_type}({self.query})'
       return expr
@@ -219,7 +229,7 @@ class DeleteOne(BaseMongo):
   delete_type: Literal['delete_one', 'delete_many'] = 'delete_one'
   query: Optional[dict]
   def buildExpression(self):
-    if self.query:
+    if self.query and any(self.query):
       self.query = json_to_mongo(self.query)
       expr = f'entity.{self.delete_type}({self.query})'
       return expr
@@ -230,7 +240,7 @@ class DeleteMany(BaseMongo):
   delete_type: Literal['delete_one', 'delete_many'] = 'delete_many'
   query: Optional[dict]
   def buildExpression(self):
-    if self.query:
+    if self.query and any(self.query):
       self.query = json_to_mongo(self.query)
       expr = f'entity.{self.delete_type}({self.query})'
       return expr
@@ -253,8 +263,10 @@ class BulkUpdate(BaseModel):
   query: dict
   data: dict
   def buildWrite(self):
-    if self.query:
+    if self.query and any(self.query):
       self.query = json_to_mongo(self.query)
+    else:
+      self.query = {}
     if self.bulk_type == 'update_many':
       result = BulkUpdateMany(self.query, self.data)
     else:
@@ -265,8 +277,10 @@ class BulkDelete(BaseModel):
   bulk_type: Literal['delete_one', 'delete_many'] = 'delete_one'
   query: dict
   def buildWrite(self):
-    if self.query:
+    if self.query and any(self.query):
       self.query = json_to_mongo(self.query)
+    else:
+      self.query = {}
     if self.bulk_type == 'delete_many':
       result = BulkDeleteMany(self.query)
     else:
@@ -278,8 +292,10 @@ class BulkReplace(BaseModel):
   query: dict
   data: dict
   def buildWrite(self):
-    if self.query:
+    if self.query and any(self.query):
       self.query = json_to_mongo(self.query)
+    else:
+      self.query = {}
     result = BulkReplaceOne(self.query, self.data)
     return result
 
@@ -294,8 +310,10 @@ class BulkCount(BaseModel):
   bulk_type: Literal['bulk_count'] = 'bulk_count'
   query: Optional[dict]
   def buildWrite(self):
-    if self.query:
+    if self.query and any(self.query):
       self.query = json_to_mongo(self.query)
+    else:
+      self.query = {}
     result = BulkInsertOne(self.data)
     return result
 
