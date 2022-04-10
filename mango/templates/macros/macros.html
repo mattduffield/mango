@@ -18,13 +18,48 @@
 {% endmacro %}
 
 {% macro crispy_form_view(view, form) %}
-  {% if view.model_data and view.model_data.field_order %}
+  {% if view.model_data and view.model_data.field_layout_list %}
+    {% for fll in view.model_data.field_layout_list %}
+      {% for row in fll.column_list %}
+        <div class="flex {% if row.content %}flex-col{% endif %} flex-1 gap-4 {{row.wrapping_class}}">
+          {% if row.content %}
+            <div class="flex flex-1">
+              {{ row.content|safe }}
+            </div>
+            <div class="flex flex-1">
+          {% endif %}
+          {% for fo in row.field_list %}
+            {% set field = form[fo] %}
+            <div id="wrapper_{{ field.id }}" 
+              class="mb-4 {{ field.wrapper_class }} {% if field.errors %}wrapper-invalid{% endif %}">
+              {% if field|is_fieldlist %}
+                {{ crispy_field_list_layout(view, field) }}
+              {% else %}
+                {{ field.label(class=label_css) }}
+                {{ field() }}
+                {% if field.errors %}
+                  <ul class="errors">
+                    {% for error in field.errors %}
+                      <li>{{ error }}</li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              {% endif %}
+            </div>
+          {% endfor %}
+          {% if row.content %}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% endfor %}
+  {% elif view.model_data and view.model_data.field_order %}
     {% for fo in view.model_data.field_order %}
       {% set field = form[fo] %}
       <div id="wrapper_{{ field.id }}" 
         class="mb-4 {{ field.wrapper_class }} {% if field.errors %}wrapper-invalid{% endif %}">
         {% if field|is_fieldlist %}
-          {{ crispy_field_list_layout(field) }}
+          {{ crispy_field_list_layout(view, field) }}
         {% else %}
           {{ field.label(class=label_css) }}
           {{ field() }}
@@ -43,7 +78,7 @@
       <div id="wrapper_{{ field.id }}" 
         class="mb-4 {{ field.wrapper_class }} {% if field.errors %}wrapper-invalid{% endif %}">
         {% if field|is_fieldlist %}
-          {{ crispy_field_list_layout(field) }}
+          {{ crispy_field_list_layout(view, field) }}
         {% else %}
           {{ field.label(class=label_css) }}
           {{ field() }}
@@ -69,7 +104,7 @@
 {% endmacro %}
 
 {% macro crispy_table_view(view, form, data) %}
-  <table class="intro-y min-w-full divide-y divide-gray-200 shadow-md"
+  <table class="min-w-full divide-y divide-gray-200 shadow-md"
     hx-indicator=".htmx-indicator">
     <thead class="bg-gray-50">
       <tr>
@@ -101,7 +136,7 @@
           {% endfor %}
           <td class="flex justify-between px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
             <a class="cursor-pointer" 
-              hx-get="{% if view.is_dynamic %}/view{% endif%}/{{ view.model_name }}/{{ object['_id'] }}" 
+              hx-get="{% if view.is_dynamic %}/view{% else %}/admin{% endif %}/{{ view.model_name }}/{{ object['_id'] }}" 
               hx-target="#viewport" 
               hx-swap="innerHTML" 
               hx-push-url="true" 
@@ -111,7 +146,7 @@
               </svg>
             </a> 
             <a class="cursor-pointer"
-              hx-get="{% if view.is_dynamic %}/view{% endif%}/{{ view.model_name }}/{{ object['_id'] }}/delete" 
+              hx-get="{% if view.is_dynamic %}/view{% else %}/admin{% endif %}/{{ view.model_name }}/{{ object['_id'] }}/delete" 
               hx-target="#viewport" 
               hx-swap="innerHTML" 
               hx-push-url="true" 
@@ -134,7 +169,7 @@
 {% endmacro %}
 
 {% macro crispy_table_layout(view, form, data, items=[]) %}
-  <table class="intro-y min-w-full divide-y divide-gray-200 shadow-md"
+  <table class="min-w-full divide-y divide-gray-200 shadow-md"
     hx-indicator=".htmx-indicator">
     <thead class="bg-gray-50">
       <tr>
@@ -164,7 +199,7 @@
           {% endfor %}
           <td class="flex justify-between px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
             <a class="cursor-pointer" 
-              hx-get="{% if view.is_dynamic %}/view{% endif%}/{{ view.model_name }}/{{ object['_id'] }}" 
+              hx-get="{% if view.is_dynamic %}/view{% else %}/admin{% endif %}/{{ view.model_name }}/{{ object['_id'] }}" 
               hx-target="#viewport" 
               hx-swap="innerHTML" 
               hx-push-url="true" 
@@ -174,7 +209,7 @@
               </svg>
             </a> 
             <a class="cursor-pointer"
-              hx-get="{% if view.is_dynamic %}/view{% endif%}/{{ view.model_name }}/{{ object['_id'] }}/delete" 
+              hx-get="{% if view.is_dynamic %}/view{% else %}/admin{% endif %}/{{ view.model_name }}/{{ object['_id'] }}/delete" 
               hx-target="#viewport" 
               hx-swap="innerHTML" 
               hx-push-url="true" 
@@ -196,32 +231,55 @@
   </table>
 {% endmacro %}
 
-{% macro crispy_field_list_layout(field) %}
+{% macro crispy_field_list_layout(view, field) %}
   <div class="flex flex-1">
     {{ field.label(class=list_label_css) }}        
     <button type="button" 
       class="intro-x text-lg text-white bg-green-500 hover:bg-green-600 px-2 xpy-1 rounded-md"
+      data-main-class="{{ view.main_class }}"
+      data-main-data="{{ view.main_data }}"
+      data-main-form="{{ view.main_form }}"
       data-form-name="{% if field.get_form_name %}{{ field.get_form_name() }}{% endif %}"
       _="on click addDynamicRowByTemplate(my, '{{ field.name }}')">
       +
     </button>
   </div>
-  <table id="{{ field.name }}-table" class="min-w-full divide-y divide-gray-200 shadow-md">
+  <table id="{{ field.name }}-table" class="intro-y min-w-full divide-y divide-gray-200 shadow-md">
     <thead class="bg-gray-50">
       {% for sub_field in field %}
         {% if sub_field|is_form_field %}
           {% for sub_field_th in sub_field.form %}
-            {% if sub_field_th.name|contains('-0-') %}
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              {{ sub_field_th.name|to_field_list_label }}
-            </th>
+            {% if sub_field_th|is_fieldlist %}
+              {% for inner_sub_field_th in sub_field_th %}
+                {% if inner_sub_field_th|is_form_field %}
+                  {% for inner_inner_sub_field_th in inner_sub_field_th.form %}
+                    {% if inner_inner_sub_field_th.name|contains('-0-') %}
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {{ inner_inner_sub_field_th.name|to_field_list_label }}
+                      </th>              
+                    {% endif %}
+                  {% endfor %}
+                {% else %}
+                  {% if inner_sub_field_th.name|contains('-0-') %}
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {{ inner_sub_field_th.name|to_field_list_label }}
+                    </th>              
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              {% if sub_field_th.name|contains('-0-') %}
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {{ sub_field_th.name|to_field_list_label }}
+                </th>              
+              {% endif %}
             {% endif %}
           {% endfor %}
         {% else %}
           {% if sub_field.name|contains('-0') %}
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            {{ sub_field.label.text }}
-          </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {{ sub_field.label.text }}
+            </th>
           {% endif %}
         {% endif %}
       {% else %}
@@ -236,11 +294,27 @@
     <tbody id="{{ field.name }}-body" class="bg-white divide-y divide-gray-200">
       {% for sub_field in field %}
         {% if sub_field|is_form_field %}
-          <tr class="intro-y">
+          <tr class="">
             {% for sub_field_td in sub_field.form %}
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ sub_field_td() }}
-              </td>
+              {% if sub_field_td|is_fieldlist %}
+                {% for inner_sub_field_td in sub_field_td %}
+                  {% if inner_sub_field_td|is_form_field %}
+                    {% for inner_inner_sub_field_td in inner_sub_field_td.form %}
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ inner_inner_sub_field_td() }}
+                      </td>
+                    {% endfor %}
+                  {% else %}
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {{ inner_sub_field_td() }}
+                    </td>
+                  {% endif %}
+                {% endfor %}
+              {% else %}
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {{ sub_field_td() }}
+                </td>
+              {% endif %}
             {% endfor %}
             <td class="flex justify-center px-6 py-4 whitespace-nowrap text-sm font-medium w-full">
               <button class="cursor-pointer"
@@ -252,7 +326,7 @@
             </td>
           </tr>
         {% else %}
-          <tr class="intro-y">
+          <tr class="">
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
               {{ sub_field() }}
             </td>
@@ -267,7 +341,7 @@
           </tr>
         {% endif %}
       {% else %}
-        <tr class="ignore-row intro-y">
+        <tr class="ignore-row">
           <td colspan="100%" class="px-6 py-4 text-center h-36">
             No Data
           </td>
@@ -277,14 +351,14 @@
   </table>
 {% endmacro %}
 
-{% macro crispy_form_page_layout(form, page_layout) %}
+{% macro crispy_form_page_layout(view, form, page_layout) %}
   {% if page_layout.items %}
-    {{ crispy_form_layout(form, items=page_layout['items']) }}
+    {{ crispy_form_layout(view, form, items=page_layout['items']) }}
     {# {{ crispy_tree_view(form, items=page_layout['items']) }} #}
   {% endif %}
 {% endmacro %}
 
-{% macro crispy_form_layout(form, items=[]) %}
+{% macro crispy_form_layout(view, form, items=[]) %}
   {% for item in items %}
     {% if item['element_type'] == 'element' %}
       <div class="{{ item['css_class'] }}"
@@ -296,7 +370,7 @@
       >
         {% if item['content'] %}{{ item['content'] }}{% endif %}
         {% if item['items']|length > 0 %}
-          {{ crispy_form_layout(form, items=item['items']) }}
+          {{ crispy_form_layout(view, form, items=item['items']) }}
         {% endif %}
       </div>
     {% else %}
@@ -310,7 +384,7 @@
         {% endfor %}
       >
         {% if field|is_fieldlist %}
-          {{ crispy_field_list_layout(field) }}
+          {{ crispy_field_list_layout(view, field) }}
         {% else %}
           {{ field.label(class=label_css) }}
           {{ field() }}
@@ -326,6 +400,11 @@
     {% endif %}
   {% endfor %}
 {% endmacro %}
+
+{% macro crispy_form_page_designer(view, form) %}
+  {{ view.page_designer.rendered|safe }}
+{% endmacro %}
+
 
 {% macro crispy_tree_view(form, items=[], is_nested=False) %}
   <ul class="{% if is_nested %}hidden{% endif %}">

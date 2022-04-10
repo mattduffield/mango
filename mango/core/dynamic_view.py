@@ -96,6 +96,7 @@ class BaseDynamicView():
   list_url = ''
   redirect_url = ''
   query_type = ''
+  page_designer = None
 
   def __init__(self):
     # if not self.template_name:

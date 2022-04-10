@@ -792,7 +792,17 @@ class ListLayoutForm(StarletteForm):
     validators = [DataRequired()], 
     allow_blank = True,
     blank_text = 'Pick...',
-    render_kw = { 'autofocus': 'true', 'class': select_class, 'data-script': 'install HandleValidity end' },
+    render_kw = { 
+      'autofocus': 'true', 
+      'class': select_class, 
+      'data-script': 'install HandleValidity end on htmx:afterOnLoad configTomSelect("#field_list") end',
+      'hx-trigger': 'change',
+      'hx-push-url': 'false',
+      'hx-param': 'none',
+      'hx-vals': 'js:{filter_key: "model_name", filter_value: event.target.value}',
+      'hx-get': '/select-options/model_field',
+      'hx-target': '#field_list',
+    },
     wrapper_class = 'flex-1',
   )
   model_record_type = QuerySelectField(

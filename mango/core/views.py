@@ -53,6 +53,27 @@ def get_class(class_str: str):
   except (ImportError, AttributeError) as e:
     raise ImportError(class_str)
 
+def get_field_choices(form, parent_data):
+  for field in form:
+    if isinstance(field, LookupSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
+      field.choices = field.get_choices(data=parent_data)
+    elif isinstance(field, FieldList):
+      for sub_field in field:
+        if isinstance(sub_field, FormField):
+          for sub_form_field in sub_field:
+            if isinstance(sub_form_field, FieldList):
+              for sub_sub_form_field in sub_form_field:
+                if isinstance(sub_sub_form_field, FormField):
+                  for sub_sub_sub_form_field in sub_sub_form_field:
+                    if isinstance(sub_sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_sub_form_field, QuerySelectMultipleField):
+                      sub_sub_sub_form_field.choices = sub_sub_sub_form_field.get_choices(data=parent_data)
+                elif isinstance(sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_form_field, QuerySelectMultipleField):
+                  sub_sub_form_field.choices = sub_sub_form_field.get_choices(data=parent_data)
+            elif isinstance(sub_form_field, LookupSelectField) or isinstance(sub_form_field, QuerySelectField) or isinstance(sub_form_field, QuerySelectMultipleField):
+              sub_form_field.choices = sub_form_field.get_choices(data=parent_data)
+        elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
+          sub_field.choices = sub_field.get_choices(data=parent_data)
+
 
 class StaticView():
   def __init__(self):
@@ -74,65 +95,39 @@ router = APIRouter(
   tags = ['Helper Views']
 )
 
+# '/select-options/model_field/model'
+@router.get('/select-options/{collection}', response_class=HTMLResponse, name='get_select_options')
+async def get_select_options(request: Request, collection: str, filter_key: str, filter_value: str):
+  where = {filter_key: filter_value}
+  query = Query(
+    database=DATABASE_NAME,
+    collection=collection,
+    query=where
+  )
+  data = await find(query)
+  context = {'request': request, 'data': data}
+  template_name = f'partials/select-options.html'
+  response = templates.TemplateResponse(template_name, context)
+  return response
+
 @router.get('/table_row/append/{main_class}/{main_data}/{main_form}/{field_name}/{pos}', response_class=HTMLResponse, name='get_table_row_append')
 async def get_table_row_append(request: Request, main_class: str, main_data: str, main_form: str, field_name: str, pos: int = -1):
   parent_data = json.loads(main_data)
   parent_class = get_class(main_class)
   cls = parent_class.new_dict()
-  # cls = parent_class()
   parent_form = get_class(main_form)
   form = parent_form(request=request)
   field_list = getattr(form, field_name)
   field_num = field_list.__len__()
   if field_num < 1:
     field_list.append_entry()
+  get_field_choices(form, parent_data=parent_data)
 
-  for field in form:
-    if isinstance(field, LookupSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
-      field.choices = field.get_choices(data=parent_data)
-    elif isinstance(field, FieldList):
-      for sub_field in field:
-        if isinstance(sub_field, FormField):
-          for sub_form_field in sub_field:
-            if isinstance(sub_form_field, FieldList):
-              for sub_sub_form_field in sub_form_field:
-                if isinstance(sub_sub_form_field, FormField):
-                  for sub_sub_sub_form_field in sub_sub_form_field:
-                    if isinstance(sub_sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_sub_form_field, QuerySelectMultipleField):
-                      sub_sub_sub_form_field.choices = sub_sub_sub_form_field.get_choices(data=parent_data)
-                elif isinstance(sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_form_field, QuerySelectMultipleField):
-                  sub_sub_form_field.choices = sub_sub_form_field.get_choices(data=parent_data)
-            elif isinstance(sub_form_field, LookupSelectField) or isinstance(sub_form_field, QuerySelectField) or isinstance(sub_form_field, QuerySelectMultipleField):
-              sub_form_field.choices = sub_form_field.get_choices(data=parent_data)
-        elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
-          sub_field.choices = sub_field.get_choices(data=parent_data)
-
-  # getattr(form, field_name).append_entry()
   context = {'request': request, 'form': form, 'field_name': field_name}
   template_name = f'admin/crud/list/partials/table_row_append.html'
   template = templates.get_template(template_name)
   output = template.render(context).replace(f'{field_name}-0', f'{field_name}-{pos}')
   return HTMLResponse(content=output)
-
-@router.get('/table_row/create/{form_name}/{prefix}/{pos}', response_class=HTMLResponse, name='get_table_row_create')
-async def get_new_table_row(request: Request, form_name: str, prefix: str = '', pos: int = -1):
-  form = None
-  form_field = None
-  if pos > -1:
-    prefix = f'{prefix}-{str(pos)}'
-  if form_name.endswith('Field'):
-    form_field = get_dynamic_form(form_name=form_name, prefix=prefix)
-    # instance = get_class(form_name)
-    # form_field = instance(prefix=prefix)
-  elif form_name.endswith('Form') or form_name.endswith('Field'):
-    instance = get_class(form_name)
-    form = instance(prefix=prefix)
-  else:
-    form = get_string_form(prefix=prefix)
-  context = {'request': request, 'form': form, 'form_field': form_field, 'prefix': prefix}
-  template_name = f'admin/crud/list/partials/new_table_row.html'
-  response = templates.TemplateResponse(template_name, context)
-  return response
 
 
 class BaseView():
@@ -154,6 +149,7 @@ class BaseView():
   list_url = ''
   redirect_url = ''
   query_type = ''
+  page_designer = None
 
   def __init__(self):
     # if not self.template_name:
@@ -196,6 +192,12 @@ class BaseView():
       context = await self.get_search_context_data(request, search)
     else:
       context = await self.get_context_data(request, get_type=get_type, _id=_id)
+
+    if self.page_designer:
+      from jinja2 import Environment, BaseLoader
+      tmpl = Environment(loader=BaseLoader()).from_string(self.page_designer['transform'])
+      self.page_designer['rendered'] = tmpl.render(**context)
+
     context['is_modal'] = is_modal
     if self.redirect_url:
       context['redirect_url'] = self.redirect_url
@@ -240,6 +242,7 @@ class BaseView():
       data = await self.get_data(get_type)
 
     self.page_layout = await self.get_page_layout(get_type)
+    self.page_designer = await self.get_page_designer(get_type)
     self.list_layout = await self.get_list_layout(get_type)
 
     if get_type in ['get_list']:
@@ -286,6 +289,13 @@ class BaseView():
     data = None
     if get_type in ['get_create', 'get_update']:
       query = self.get_query('find_one', collection='page_layout', query={'model_name': self.model_name})
+      data = await find_one(query)
+    return data
+
+  async def get_page_designer(self, get_type: str):
+    data = None
+    if get_type in ['get_create', 'get_update']:
+      query = self.get_query('find_one', collection='page_designer', query={'model_name': self.model_name})
       data = await find_one(query)
     return data
 
