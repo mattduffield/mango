@@ -12,16 +12,6 @@ from pydantic import BaseModel, PositiveInt
 from wtforms import Field
 
 
-class FieldLayout(BaseModel):
-  field_list: List[str] = []
-  wrapping_class: str
-  content: str
-
-
-class ColumnLayout(BaseModel):
-  column_list: List[FieldLayout] = []
-
-
 class KeyValue(BaseModel):
   key: str
   value: str
@@ -97,9 +87,6 @@ class Model(BaseModel):
   order_by: List[str] = []  # holds the order sequence for sorting
   page_size: int = 0  # if zero, then no pagination
   field_order: List[str] = []  # holds the order sequence for page fields
-  # field_layout_list: List[List[str]] = []
-  # field_layout_list: List[FieldLayout] = []
-  field_layout_list: List[ColumnLayout] = []
   is_custom: bool = True
   is_locked: bool = False
   is_active: bool = True

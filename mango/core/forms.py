@@ -78,35 +78,6 @@ def get_dynamic_form(form_name: str, prefix: str):
   return result
 
 
-class FieldLayoutForm(Form):
-  field_list = QuerySelectMultipleField(
-    'Fields',
-    collection = 'model_field', 
-    query = { 'model_name': lambda data: data["name"] },
-    projection = { 'label': 1, 'name': 1 }, 
-    display_member = lambda data: f'{data["label"]}', 
-    value_member = lambda data: f'{data["name"]}',
-    render_kw = { 'data-script': hs_config_tom_select },
-    wrapper_class = 'flex-1',
-  )  
-  wrapping_class = StringField(
-    'Class',
-    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
-  )
-  content = StringField(
-    'Content',
-    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
-  )
-
-
-class ColumnLayoutForm(Form):
-  column_list = FieldList(
-    FormField(FieldLayoutForm),
-    min_entries=1,
-    wrapper_class = 'flex-1',
-  )  
-
-
 class KeyValueForm(Form):
   key = StringField(
     'Key',
@@ -234,30 +205,6 @@ class ModelForm(StarletteForm):
     display_member = lambda data: f'{data["label"]}', 
     value_member = lambda data: f'{data["name"]}',
     render_kw = { 'class': select_class, 'data-script': hs_config_tom_select },
-    wrapper_class = 'flex-1',
-  )
-  # field_layout_list = FieldList(
-  #   QuerySelectMultipleField(
-  #     'Field Order',
-  #     collection = 'model_field', 
-  #     query = { 'model_name': lambda data: data["name"] },
-  #     projection = { 'label': 1, 'name': 1 }, 
-  #     display_member = lambda data: f'{data["label"]}', 
-  #     value_member = lambda data: f'{data["name"]}',
-  #     render_kw = { 'xclass': select_class, 'data-script': hs_config_tom_select },
-  #     wrapper_class = 'flex-1',
-  #   ),
-  #   min_entries=1,
-  #   wrapper_class = 'flex-1',
-  # )
-  # field_layout_list = FieldList(
-  #   FormField(FieldLayoutForm),
-  #   min_entries=1,
-  #   wrapper_class = 'flex-1',
-  # )
-  field_layout_list = FieldList(
-    FormField(ColumnLayoutForm),
-    min_entries=1,
     wrapper_class = 'flex-1',
   )
   is_custom = ToggleSwitchField(
