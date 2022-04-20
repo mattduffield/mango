@@ -97,12 +97,16 @@ class QueryOne(BaseMongo):
       self.query = json_to_mongo(self.query)
     expr = f'entity.{self.query_type}({self.query}'
     if self.projection and any(self.projection):
-      expr += f', {self.projection}'
+      projection_pairs = self.projection.items()
+      expr += ', {'
+      for key, value in projection_pairs:
+        expr += f'"{key}": {int(value)}, '
+      expr += '}'
     if self.sort and self.sort.items():
       sort_pairs = self.sort.items()
       expr += f', sort=['
       for key, value in sort_pairs:
-        expr += f'("{key}", {value}),'
+        expr += f'("{key}", {int(value)}),'
       expr = expr[:-1]
       expr += f']'
     if self.skip:
@@ -121,12 +125,16 @@ class Query(QueryOne):
       self.query = {}
     expr = f'entity.{self.query_type}({self.query}'
     if self.projection and any(self.projection):
-      expr += f', {self.projection}'
+      projection_pairs = self.projection.items()
+      expr += ', {'
+      for key, value in projection_pairs:
+        expr += f'"{key}": {int(value)}, '
+      expr += '}'
     if self.sort and self.sort.items():
       sort_pairs = self.sort.items()
       expr += f', sort=['
       for key, value in sort_pairs:
-        expr += f'("{key}", {value}),'
+        expr += f'("{key}", {int(value)}),'
       expr = expr[:-1]
       expr += f']'
     if self.skip:

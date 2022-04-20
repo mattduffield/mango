@@ -191,6 +191,7 @@ class LookupSelectField(SelectField):
     collection='lookup', 
     query={}, 
     projection={'label': 1, 'name': 1, 'item_list': 1}, 
+    sort={}, 
     display_member=lambda data: f'{data.get("key")}', 
     value_member=lambda data: f'{data.get("value")}',
     wrapper_class='',
@@ -206,9 +207,11 @@ class LookupSelectField(SelectField):
       database=DATABASE_NAME,
       collection=collection,
       query=query.copy(),
-      projection=projection
+      projection=projection,
+      sort=sort
     )
     self.projection = projection
+    self.sort = sort
     self.display_member = display_member
     self.value_member = value_member
     self.validate_choice = validate_choice
@@ -247,7 +250,8 @@ class QuerySelectField(SelectField):
     blank_text='Choose...',
     collection=None, 
     query={}, 
-    projection={'name': 1, 'value': 1}, 
+    projection={'name': 1, 'value': 1},
+    sort={}, 
     display_member=lambda data: f'{data.get("name")}', 
     value_member=lambda data: f'{data.get("value")}',
     wrapper_class='',
@@ -263,9 +267,11 @@ class QuerySelectField(SelectField):
       database=DATABASE_NAME,
       collection=collection,
       query=query.copy(),
-      projection=projection
+      projection=projection,
+      sort=sort
     )
     self.projection = projection
+    self.sort = sort
     self.display_member = display_member
     self.value_member = value_member
     self.validate_choice = validate_choice
@@ -303,6 +309,7 @@ class QuerySelectMultipleField(SelectMultipleField):
     collection=None, 
     query={}, 
     projection={'name': 1, 'value': 1}, 
+    sort={}, 
     display_member=lambda data: f'{data.get("name")}', 
     value_member=lambda data: f'{data.get("value")}',     
     wrapper_class='',
@@ -316,9 +323,11 @@ class QuerySelectMultipleField(SelectMultipleField):
       database=DATABASE_NAME,
       collection=collection,
       query=query.copy(),
-      projection=projection
+      projection=projection,
+      sort=sort
     )
     self.projection = projection
+    self.sort = sort
     self.display_member = display_member
     self.value_member = value_member
     self.validate_choice = validate_choice
