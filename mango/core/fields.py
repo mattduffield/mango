@@ -43,6 +43,12 @@ class IntegerField2(IntegerField):
     self.wrapper_class = wrapper_class
 
 
+class FloatField2(FloatField):
+  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+    super(FloatField2, self).__init__(label, validators, **kwargs)    
+    self.wrapper_class = wrapper_class
+
+
 class EmailField2(EmailField):
   def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
     super(EmailField2, self).__init__(label, validators, **kwargs)    
