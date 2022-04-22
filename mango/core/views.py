@@ -187,6 +187,7 @@ class BaseView():
     self.request = request
     self._id = _id
     self.search = search
+    self.is_modal = is_modal
     self.initialize_route_urls(_id)
     if search:
       context = await self.get_search_context_data(request, search)
@@ -198,9 +199,8 @@ class BaseView():
       tmpl = Environment(loader=BaseLoader()).from_string(self.page_designer['transform'])
       self.page_designer['rendered'] = tmpl.render(**context)
 
-    context['is_modal'] = is_modal
-    if self.redirect_url:
-      context['redirect_url'] = self.redirect_url
+    if is_modal and request.state.redirect_url:
+      context['redirect_url'] = request.state.redirect_url
     
     template_name = self.get_template_name(get_type)
     response = templates.TemplateResponse(template_name, context)

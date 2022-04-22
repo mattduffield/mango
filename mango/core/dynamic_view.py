@@ -134,14 +134,15 @@ class BaseDynamicView():
     self.form_class = self.get_form_class(model)
     self._id = _id
     self.search = search
+    self.is_modal = is_modal
     self.initialize_route_urls(_id)
     if search:
       context = await self.get_search_context_data(request, search)
     else:
       context = await self.get_context_data(request, get_type=get_type, _id=_id)
-    context['is_modal'] = is_modal
-    if self.redirect_url:
-      context['redirect_url'] = self.redirect_url
+    
+    if is_modal and request.state.redirect_url:
+      context['redirect_url'] = request.state.redirect_url
     
     if self.page_designer:
       from jinja2 import Environment, BaseLoader
@@ -337,9 +338,13 @@ class BaseDynamicView():
     self.model_class = self.get_model_class(model)
     self.form_class = self.get_form_class(model)
     self._id = _id
+    self.is_modal = is_modal
     self.initialize_route_urls(_id)
     temp = await request.form()
     self.form = await self.form_class.from_formdata(request)
+
+    if is_modal and request.state.redirect_url:
+      self.redirect_url = request.state.redirect_url
 
     if post_type in ['post_update', 'post_delete']:
       data = await self.get_data('get_update')
