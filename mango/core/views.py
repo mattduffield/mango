@@ -150,6 +150,8 @@ class BaseView():
   redirect_url = ''
   query_type = ''
   page_designer = None
+  filter_model_name = ''
+  filter_model_id = ''
 
   def __init__(self):
     # if not self.template_name:
@@ -189,6 +191,14 @@ class BaseView():
     self.search = search
     self.is_modal = is_modal
     self.initialize_route_urls(_id)
+
+    if is_modal and request.state.redirect_url:
+      redirect_url_parsed = urlparse(request.state.redirect_url)
+      redirect_url_parts = redirect_url_parsed.path.split('/')
+      self.filter_model_name, self.filter_model_id = redirect_url_parts[2::1]
+      url_parts = request.url.path.split('/')
+      self.redirect_url = request.state.redirect_url
+
     if search:
       context = await self.get_search_context_data(request, search)
     else:
@@ -198,10 +208,7 @@ class BaseView():
       from jinja2 import Environment, BaseLoader
       tmpl = Environment(loader=BaseLoader()).from_string(self.page_designer['transform'])
       self.page_designer['rendered'] = tmpl.render(**context)
-
-    if is_modal and request.state.redirect_url:
-      context['redirect_url'] = request.state.redirect_url
-    
+   
     template_name = self.get_template_name(get_type)
     response = templates.TemplateResponse(template_name, context)
     return response
@@ -314,7 +321,11 @@ class BaseView():
       query = self.get_query('find_one', collection=self.model_name, query={'_id': self._id})
       data = await find_one(query)
     elif get_type in ['get_list']:
-      query = self.get_query('find', collection=self.model_name)
+      if self.filter_model_name and self.filter_model_id:
+        criteria = {f'{self.filter_model_name}_id': self.filter_model_id}
+        query = self.get_query('find', collection=self.model_name, query=criteria)
+      else:
+        query = self.get_query('find', collection=self.model_name)
       model_query = self.get_query('find_one', collection='model', query={'name': self.model_name})
       model_data = await find_one(model_query)
       if model_data:

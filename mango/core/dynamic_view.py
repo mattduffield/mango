@@ -1,5 +1,6 @@
 import datetime
 from dateutil import parser
+from urllib.parse import urlparse
 import json
 from bson import json_util, ObjectId
 from fastapi import APIRouter, Depends, Request, status
@@ -97,6 +98,8 @@ class BaseDynamicView():
   redirect_url = ''
   query_type = ''
   page_designer = None
+  filter_model_name = ''
+  filter_model_id = ''
 
   def __init__(self):
     # if not self.template_name:
@@ -136,13 +139,18 @@ class BaseDynamicView():
     self.search = search
     self.is_modal = is_modal
     self.initialize_route_urls(_id)
+
+    if is_modal and request.state.redirect_url:
+      redirect_url_parsed = urlparse(request.state.redirect_url)
+      redirect_url_parts = redirect_url_parsed.path.split('/')
+      self.filter_model_name, self.filter_model_id = redirect_url_parts[2::1]
+      url_parts = request.url.path.split('/')
+      self.redirect_url = request.state.redirect_url
+
     if search:
       context = await self.get_search_context_data(request, search)
     else:
       context = await self.get_context_data(request, get_type=get_type, _id=_id)
-    
-    if is_modal and request.state.redirect_url:
-      context['redirect_url'] = request.state.redirect_url
     
     if self.page_designer:
       from jinja2 import Environment, BaseLoader
@@ -254,7 +262,11 @@ class BaseDynamicView():
       query = self.get_query('find_one', collection=self.model_name, query={'_id': self._id})
       data = await find_one(query)
     elif get_type in ['get_list']:
-      query = self.get_query('find', collection=self.model_name)
+      if self.filter_model_name and self.filter_model_id:
+        criteria = {f'{self.filter_model_name}_id': self.filter_model_id}
+        query = self.get_query('find', collection=self.model_name, query=criteria)
+      else:
+        query = self.get_query('find', collection=self.model_name)
       # model_query = self.get_query('find_one', collection='model', query={'name': self.model_name})
       # model_data = await find_one(model_query)
       if self.model_data:
