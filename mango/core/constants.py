@@ -16,7 +16,7 @@ input_class = '''
   transition
   ease-in-out
   m-0
-  focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+  focus:text-gray-700 focus:bg-white focus:outline-none
   ring-primary
 '''
 textarea_class = '''
@@ -35,7 +35,7 @@ textarea_class = '''
   ease-in-out
   m-0
   h-48
-  focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+  focus:text-gray-700 focus:bg-white focus:outline-none
   ring-primary
 '''
 textarea_small_class = '''
@@ -54,7 +54,7 @@ textarea_small_class = '''
   ease-in-out
   m-0
   h-24
-  focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+  focus:text-gray-700 focus:bg-white focus:outline-none
   ring-primary
 '''
 chk_class = '''
@@ -95,7 +95,7 @@ select_class = '''form-select appearance-none
   transition
   ease-in-out
   m-0
-  focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+  focus:text-gray-700 focus:bg-white focus:outline-none
   ring-primary
 '''
 select_multiple_class = '''
@@ -115,7 +115,7 @@ toggle_radio_class = '''
   w-full
   transition
   ease-in-out
-  focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+  focus:text-gray-700 focus:bg-white focus:outline-none
   toggle-radio
   ring-primary
 '''

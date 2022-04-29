@@ -95,6 +95,14 @@ def load_sync(query):
       lookup_cache[key] = lookup
     else:
       lookup = lookup_cache[key]
+  #
+  # TODO: NEED TO HAVE A BETTER APPROACH TO CACHING...
+  #       CURRENTLY, WE NEED THIS FOR LIST VIEWS AND ANY LOOKUPS
+  #       USED PER ROW...
+  #
+  # else:
+  #   lookup = find_sync(query)
+  #   lookup_cache[query.collection] = lookup
   elif not query.collection in lookup_cache:
     lookup = find_sync(query)
     lookup_cache[query.collection] = lookup

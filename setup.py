@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='mango',
-    version='0.0.220',
+    version='0.0.221',
     author='Matthew Duffield',
     author_email='matt.duffield@gmail.com',
     description='Web framework for Python',
@@ -32,6 +32,7 @@ setup(
       'jinja2-simple-tags',
       'starlette-wtf',
       'WTForms',
+      'WTForms-Components',
       'email_validator',
       'aiofiles',
       'uvicorn',
