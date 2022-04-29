@@ -29,12 +29,19 @@ from wtforms import (
   Form,
   widgets,
 )
+from wtforms_components import ColorField
 from mango.db.rest import find, find_one, run_pipeline, find_sync, find_one_sync
 from mango.db.models import Query, QueryOne
 from mango.core.constants import label_class, input_class, textarea_class, chk_class, select_class, select_multiple_class, toggle_radio_class, toggle_switch_class
 from mango.core.widgets import ToggleRadioWidget, ToggleSwitchWidget
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
+
+
+class ColorField2(ColorField):
+  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+    super(ColorField2, self).__init__(label, validators, **kwargs)    
+    self.wrapper_class = wrapper_class
 
 
 class IntegerField2(IntegerField):
