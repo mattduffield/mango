@@ -43,6 +43,13 @@ class ColorField2(ColorField):
     super(ColorField2, self).__init__(label, validators, **kwargs)    
     self.wrapper_class = wrapper_class
 
+  def process_formdata(self, valuelist):
+    if valuelist:
+      if valuelist[0] == u'' or valuelist[0] == '':
+        self.data = None
+      else:
+        self.data = valuelist[0]
+
 
 class IntegerField2(IntegerField):
   def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
