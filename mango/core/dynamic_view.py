@@ -153,8 +153,70 @@ class BaseDynamicView():
       context = await self.get_context_data(request, get_type=get_type, _id=_id)
     
     if self.page_designer:
-      from jinja2 import Environment, BaseLoader
-      tmpl = Environment(loader=BaseLoader()).from_string(self.page_designer['transform'])
+      import os
+      from jinja2 import Environment, BaseLoader, DictLoader
+      from mango.template_utils.utils import (
+        is_datetime,
+        is_fieldlist,
+        is_list,
+        is_form_field,
+        is_lookup_select_field,
+        is_query_select_field,
+        is_key_value_form,
+        contains,
+        endswith,
+        startswith,
+        to_field_list_label,
+        to_proper_case,
+        to_string,
+        to_date,
+        db_lookup,        
+      )
+      path = '/Users/summit/Documents/_dev/falm/falm-mango/app/templates/macros/macros.html'
+      page_markup = self.page_designer['transform']
+      with open(path, 'r') as f:
+        macro = f.read()
+      markup = f'''{macro}
+        {page_markup}
+      '''
+      env = Environment(loader=BaseLoader())
+      # tmpl = Environment(loader=BaseLoader()).from_string(self.page_designer['transform'])
+
+      env.filters.update({
+        'is_datetime': is_datetime,
+        'is_fieldlist': is_fieldlist,
+        'is_list': is_list,
+        'is_form_field': is_form_field,
+        'is_lookup_select_field': is_lookup_select_field,
+        'is_query_select_field': is_query_select_field,
+        'is_key_value_form': is_key_value_form,
+        'contains': contains,
+        'endswith': endswith,
+        'startswith': startswith,
+        'to_field_list_label': to_field_list_label,
+        'to_proper_case': to_proper_case,
+        'to_string': to_string,
+        'to_date': to_date,
+        'db_lookup': db_lookup,
+      })
+      env.tests['is_datetime'] = is_datetime
+      env.tests['is_fieldlist'] = is_fieldlist
+      env.tests['is_list'] = is_list
+      env.tests['is_form_field'] = is_form_field
+      env.tests['is_lookup_select_field'] = is_lookup_select_field
+      env.tests['is_query_select_field'] = is_query_select_field
+      env.tests['is_key_value_form'] = is_key_value_form
+      env.tests['contains'] = contains
+      env.tests['endswith'] = endswith
+      env.tests['startswith'] = startswith
+      env.tests['to_field_list_label'] = to_field_list_label
+      env.tests['to_proper_case'] = to_proper_case
+      env.tests['to_string'] = to_string
+      env.tests['to_date'] = to_date
+      env.tests['db_lookup'] = db_lookup
+
+      tmpl = env.from_string(markup)
+
       self.page_designer['rendered'] = tmpl.render(**context)
 
     template_name = self.get_template_name(get_type)
@@ -230,6 +292,9 @@ class BaseDynamicView():
               elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
                 sub_field.choices = sub_field.get_choices(data=data)
 
+    self.main_class = f'{self.model_class.__module__}.{self.model_class.__name__}'
+    self.main_data = json.dumps(model_data.dict())
+    self.main_form = f'{self.form_class.__module__}.{self.form_class.__name__}'
     context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
     return context
 
