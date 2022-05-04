@@ -17,6 +17,9 @@ class KeyValue(BaseModel):
   value: str
   use_quotes: bool = True
 
+  def new_dict():
+    return {'key': '', 'value': '', 'use_quotes': True}
+
 
 '''
   This class represents a given action to perform.

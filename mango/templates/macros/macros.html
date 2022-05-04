@@ -198,26 +198,59 @@
             </td>
           {% endfor %}
           <td class="flex justify-between px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-            <a class="cursor-pointer" 
-              hx-get="{% if view.is_dynamic %}/view{% else %}/admin{% endif %}/{{ view.model_name }}/{{ object['_id'] }}" 
-              hx-target="#viewport" 
-              hx-swap="innerHTML" 
-              hx-push-url="true" 
-              hx-indicator="#content-loader">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-              </svg>
-            </a> 
-            <a class="cursor-pointer"
-              hx-get="{% if view.is_dynamic %}/view{% else %}/admin{% endif %}/{{ view.model_name }}/{{ object['_id'] }}/delete" 
-              hx-target="#viewport" 
-              hx-swap="innerHTML" 
-              hx-push-url="true" 
-              hx-indicator="#content-loader">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-              </svg>
-            </a>
+            {% if view.is_modal %}
+              <a class="cursor-pointer" 
+                hx-get="{% if view.is_dynamic %}/view{% else %}/admin{% endif %}/{{ view.model_name }}/{{ object['_id'] }}?is_modal=true" 
+                hx-target="#modal-content" 
+                hx-swap="innerHTML" 
+                hx-push-url="false" 
+                hx-indicator="#content-loader"
+                _="on click
+                    set #modal-content's innerHTML to 'Loading...'
+                    add .show to #modal
+                    remove .pointer-events-none from #modal
+                  end">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                </svg>
+              </a> 
+              <a class="cursor-pointer"
+                hx-get="{% if view.is_dynamic %}/view{% else %}/admin{% endif %}/{{ view.model_name }}/{{ object['_id'] }}/delete?is_modal=true" 
+                hx-target="#modal-content" 
+                hx-swap="innerHTML" 
+                hx-push-url="false" 
+                hx-indicator="#content-loader"
+                _="on click
+                    set #modal-content's innerHTML to 'Loading...'
+                    add .show to #modal
+                    remove .pointer-events-none from #modal
+                  end">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </a>
+            {% else %}
+              <a class="cursor-pointer" 
+                hx-get="{% if view.is_dynamic %}/view{% else %}/admin{% endif %}/{{ view.model_name }}/{{ object['_id'] }}" 
+                hx-target="#viewport" 
+                hx-swap="innerHTML" 
+                hx-push-url="true" 
+                hx-indicator="#content-loader">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                </svg>
+              </a> 
+              <a class="cursor-pointer"
+                hx-get="{% if view.is_dynamic %}/view{% else %}/admin{% endif %}/{{ view.model_name }}/{{ object['_id'] }}/delete" 
+                hx-target="#viewport" 
+                hx-swap="innerHTML" 
+                hx-push-url="true" 
+                hx-indicator="#content-loader">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </a>
+            {% endif %}
           </td>
         </tr>
       {% else %}
@@ -236,10 +269,11 @@
     {{ field.label(class=list_label_css) }}        
     <button type="button" 
       class="intro-x text-lg text-white bg-green-500 hover:bg-green-600 px-2 xpy-1 rounded-md"
+      data-main-data="view.main_data"
       data-main-class="{{ view.main_class }}"
-      data-main-data="{{ view.main_data }}"
       data-main-form="{{ view.main_form }}"
       data-form-name="{% if field.get_form_name %}{{ field.get_form_name() }}{% endif %}"
+      data-model-name="{{ view.model_name }}"
       _="on click addDynamicRowByTemplate(my, '{{ field.name }}')">
       +
     </button>

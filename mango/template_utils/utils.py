@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 import os
 import datetime
+from urllib.parse import quote
 from fastapi.templating import Jinja2Templates
 from jinja2_simple_tags import StandaloneTag
 from wtforms import fields, FormField
@@ -88,7 +89,8 @@ def to_field_list_label(value, *args, **kwargs):
 def load_sync(query):
   if query.collection == 'lookup':
     lookup_name = query.query['name']
-    key = f'{query.collection}_{lookup_name}'
+    query_encoded = quote(str(query.query))
+    key = f'{query.collection}_{query_encoded}_{lookup_name}'
     if not key in lookup_cache:
       lookup = find_one_sync(query)
       lookup = lookup['item_list']

@@ -1,6 +1,6 @@
 import datetime
 from dateutil import parser
-from urllib.parse import urlparse
+from urllib.parse import urlparse, quote, unquote
 import json
 from bson import json_util, ObjectId
 from fastapi import APIRouter, Depends, Request, status
@@ -265,6 +265,10 @@ class BaseDynamicView():
     if get_type in ['get_update', 'get_delete']:
       model_data = self.model_class(**data)
       data_string = str(model_data)
+      raw_data = json.dumps(model_data.dict())
+      self.main_class = f'{self.model_class.__module__}.{self.model_class.__name__}'
+      # self.main_data = quote(raw_data)
+      self.main_form = f'{self.form_class.__module__}.{self.form_class.__name__}'
 
     if _id or get_type in ['get_create']:
       if  hasattr(self, 'form_class'):
@@ -292,9 +296,6 @@ class BaseDynamicView():
               elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
                 sub_field.choices = sub_field.get_choices(data=data)
 
-    self.main_class = f'{self.model_class.__module__}.{self.model_class.__name__}'
-    self.main_data = json.dumps(model_data.dict())
-    self.main_form = f'{self.form_class.__module__}.{self.form_class.__name__}'
     context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
     return context
 

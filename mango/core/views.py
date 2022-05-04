@@ -1,5 +1,6 @@
 import datetime
 from dateutil import parser
+from urllib.parse import urlparse, quote, unquote
 import json
 from bson import json_util, ObjectId
 from fastapi import APIRouter, Depends, Request, status
@@ -287,7 +288,9 @@ class BaseView():
               elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
                 sub_field.choices = sub_field.get_choices(data=data)
     self.main_class = f'{self.model_class.__module__}.{self.model_class.__name__}'
-    self.main_data = json.dumps(model_data.dict())
+    raw_data = json.dumps(model_data.dict())
+    self.main_data = quote(raw_data)
+    # self.main_data = json.dumps(model_data.dict())
     self.main_form = f'{self.form_class.__module__}.{self.form_class.__name__}'
     context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
     return context
