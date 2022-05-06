@@ -53,10 +53,11 @@ def load_user(email:str, database):
     },
     'projection': {
       'password': 0
-    } ,
+    },
   }
   query = QueryOne.parse_obj(payload)
   found = find_one_sync(query)
+  # print('Found user', found)
   return found
 
 def authenticate_user(email:str, database):

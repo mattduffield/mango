@@ -30,10 +30,11 @@ from wtforms import (
   widgets,
 )
 from wtforms_components import ColorField
+from wtforms.utils import unset_value
 from mango.db.rest import find, find_one, run_pipeline, find_sync, find_one_sync
 from mango.db.models import Query, QueryOne
 from mango.core.constants import label_class, input_class, textarea_class, chk_class, select_class, select_multiple_class, toggle_radio_class, toggle_switch_class
-from mango.core.widgets import ToggleRadioWidget, ToggleSwitchWidget
+from mango.core.widgets import ToggleRadioWidget, ToggleSwitchWidget, CurrencyWidget
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
@@ -51,9 +52,33 @@ class ColorField2(ColorField):
         self.data = valuelist[0]
 
 
+# class CurrencyField(DecimalField):
+#   def __init__(self, label=None, validators=None, places=unset_value, rounding=None, wrapper_class='', **kwargs):
+#     super(CurrencyField, self).__init__(label, validators, **kwargs)    
+#     self.wrapper_class = wrapper_class
+
+#   def process_formdata(self, valuelist):
+#     if len(valuelist) == 1:
+#       self.data = [valuelist[0].strip('$').replace(',', '')]
+#     else:
+#       self.data = []
+
+#     # Calls "process_formdata" on the parent types of "CurrencyField",
+#     # which includes "DecimalField"
+#     super(CurrencyField).process_formdata(self.data)
+
+
 class IntegerField2(IntegerField):
   def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
     super(IntegerField2, self).__init__(label, validators, **kwargs)    
+    self.wrapper_class = wrapper_class
+
+
+class CurrencyField(FloatField):
+  widget = CurrencyWidget()
+
+  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+    super(CurrencyField, self).__init__(label, validators, **kwargs)    
     self.wrapper_class = wrapper_class
 
 

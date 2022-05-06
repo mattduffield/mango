@@ -90,6 +90,16 @@ def bulk_read_sync(batch: List[Union[Query, QueryOne]]):
     payload.append(data)
   return payload
 
+def run_pipeline_sync(ap: AggregatePipeline):
+  ap.pipeline = json.loads(json_util.dumps(ap.pipeline), object_hook=datetime_parser)
+  database = ap.database
+  if not database:
+    database = DATABASE_NAME
+  db = client[database]
+  command = {"aggregate": ap.aggregate, "pipeline": ap.pipeline, "cursor": ap.cursor}
+  result = db.command(command)  
+  data = json.loads(json_util.dumps(result), object_hook=json_from_mongo)
+  return data
 
 @router.post('/findOne')
 async def find_one(query: QueryOne):

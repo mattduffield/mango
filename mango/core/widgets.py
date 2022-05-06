@@ -12,6 +12,29 @@ from markupsafe import Markup
 from wtforms.widgets.core import html_params
 
 
+class CurrencyWidget:
+  def __init__(self):
+    pass
+
+  def __call__(self, field, option_attr=None, **kwargs):
+    if option_attr is None:
+      option_attr = {}
+    if "required" not in kwargs and "required" in getattr(field, "flags", []):
+      kwargs["required"] = True
+
+    html = ['<div class="mt-1 relative rounded-md shadow-sm" %s>' % html_params(**kwargs)]
+    html.append(f'<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">')
+    html.append('<span class="text-gray-500 sm:text-sm"> $ </span>')
+    html.append('</div>')
+
+    if field.data:
+      html.append(f'<input type="text" id="{field.id}" name="{field.id}" class="focus:ring-emerald-500 focus:border-emerald-500 block w-full pl-7 pr-12 text-gray-700 border-gray-300 rounded" value="{field.data}">')
+    else:
+      html.append(f'<input type="text" id="{field.id}" name="{field.id}" class="focus:ring-emerald-500 focus:border-emerald-500 block w-full pl-7 pr-12 text-gray-700 border-gray-300 rounded">')
+    html.append('</div>')
+    return Markup(''.join(html))
+
+
 class ToggleRadioWidget:
   def __init__(self):
     pass
@@ -36,23 +59,23 @@ class ToggleRadioWidget:
 
 
 class ToggleSwitchWidget:
-    def __init__(self):
-        pass
+  def __init__(self):
+    pass
 
-    def __call__(self, field, option_attr=None, **kwargs):
-        if option_attr is None:
-            option_attr = {}
-        if "required" not in kwargs and "required" in getattr(field, "flags", []):
-            kwargs["required"] = True
+  def __call__(self, field, option_attr=None, **kwargs):
+    if option_attr is None:
+      option_attr = {}
+    if "required" not in kwargs and "required" in getattr(field, "flags", []):
+      kwargs["required"] = True
 
-        html = ['<span class="toggle-switch-container" %s>' % html_params(**kwargs)]
-        html.append(f'<label for="{field.id}" class="toggle-switch">')
-        if field.data:
-            html.append(f'<input type="checkbox" id="{field.id}" name="{field.id}" class="peer toggle-switch-input focus:border-none focus:shadow-none focus:rounded-none focus:ring-transparent" checked="checked">')
-        else:
-            html.append(f'<input type="checkbox" id="{field.id}" name="{field.id}" class="peer toggle-switch-input focus:border-none focus:shadow-none focus:rounded-none focus:ring-transparent">')
-        html.append(f'<span data-on="Yes" data-off="No" class="toggle-switch-label peer-focus:border peer-focus:border-emerald-600"></span>')
-        html.append('<span class="toggle-switch-handle"></span>')
-        html.append('</label>')
-        html.append('</span>')
-        return Markup(''.join(html))
+    html = ['<span class="toggle-switch-container" %s>' % html_params(**kwargs)]
+    html.append(f'<label for="{field.id}" class="toggle-switch">')
+    if field.data:
+      html.append(f'<input type="checkbox" id="{field.id}" name="{field.id}" class="peer toggle-switch-input focus:border-none focus:shadow-none focus:rounded-none focus:ring-transparent" checked="checked">')
+    else:
+      html.append(f'<input type="checkbox" id="{field.id}" name="{field.id}" class="peer toggle-switch-input focus:border-none focus:shadow-none focus:rounded-none focus:ring-transparent">')
+    html.append(f'<span data-on="Yes" data-off="No" class="toggle-switch-label peer-focus:border peer-focus:border-emerald-600"></span>')
+    html.append('<span class="toggle-switch-handle"></span>')
+    html.append('</label>')
+    html.append('</span>')
+    return Markup(''.join(html))

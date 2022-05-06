@@ -465,9 +465,8 @@ class BaseDynamicView():
         payload = self.post_query(post_type, query={'_id': self._id})
         response = await self.post_data(post_type, payload=payload)
       else:
-        self.page_layout = await self.get_page_layout('get_update')
-        context = {'request': request, 'settings': settings, 'view': self, 'data': {'_id': _id}, 'data_string': data_string, 'form': self.form, 'page_layout': self.page_layout}
-        # context = {'request': request, 'settings': settings, 'view': self, 'data': {'_id': _id}, 'data_string': data_string, 'form': self.form}
+        print('Form Errors: ', self.form.errors)
+        context = {'request': request, 'settings': settings, 'view': self, 'data': {'_id': _id}, 'data_string': data_string, 'form': self.form}
         template_name = self.get_template_name(post_type)
         response = templates.TemplateResponse(template_name, context)
     elif post_type == 'post_delete':
