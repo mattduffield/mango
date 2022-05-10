@@ -221,6 +221,88 @@ async def bulk_insert_bill_to_customers(file_name: str, database: str, collectio
 @click.argument('file_name')
 @click.argument('database')
 @click.argument('collection')
+async def bulk_insert_ship_to_recyclers(file_name: str, database: str, collection: str):
+  """This uploads a CSV file into a given collection"""
+  click.echo(f'You are attempting to upload the file: {file_name} into the collection: {collection} of the database: {database}')
+
+  data = {
+    "database": database,
+    "collection": collection,
+    "batch": []
+  }
+  batch = models.BulkWrite(**data)
+  with open(file_name, 'r') as csv_file:
+    csv_reader = DictReader(csv_file)
+    for row in csv_reader:
+      bulk_insert = models.BulkInsert(**{
+        "bulk_type": "insert_one",
+        "data": {
+          'business_key': row['RecyclerID'],
+          'name': row['DisplayName'], 
+          'ship_to_first_name': row['FirstName'],
+          'ship_to_last_name': row['LastName'],
+          'ship_to_street': row['Street'], 
+          'ship_to_city': row['City'], 
+          'ship_to_state': row['Region'], 
+          'ship_to_postal_code': row['PostalCode'], 
+          'ship_to_country': 'United States',
+          'ship_to_email': row['Email'],
+          'ship_to_telephone': row['Telephone'],
+        }
+      })
+      batch.batch.append(bulk_insert)
+
+  await api.bulk_write(batch)
+
+@main.command()
+@coro
+@click.argument('file_name')
+@click.argument('database')
+@click.argument('collection')
+async def bulk_insert_bill_to_recyclers(file_name: str, database: str, collection: str):
+  """This uploads a CSV file into a given collection"""
+  click.echo(f'You are attempting to upload the file: {file_name} into the collection: {collection} of the database: {database}')
+
+  data = {
+    "database": database,
+    "collection": collection,
+    "batch": []
+  }
+  batch = models.BulkWrite(**data)
+  with open(file_name, 'r') as csv_file:
+    csv_reader = DictReader(csv_file)
+    for row in csv_reader:
+
+      bulk_update = models.BulkUpdate(**{
+        'bulk_type': 'update_one',
+        'query': {
+          'business_key': row['RecyclerID']
+        },
+        'data': {
+          '$set': {
+            'bill_to_first_name': row['FirstName'],
+            'bill_to_last_name': row['LastName'],
+            'bill_to_street': row['Street'],
+            'bill_to_unit': '',
+            'bill_to_city': row['City'],
+            'bill_to_state': row['Region'],
+            'bill_to_postal_code': row['PostalCode'],
+            'bill_to_country': row['Country'],
+            'bill_to_telephone': row['Telephone'],
+            'bill_to_email': row['Email'],
+            'is_pa_accounting': True if row['PennAllianceRecycler'] == 'TRUE' else False,
+          }
+        }
+      })
+      batch.batch.append(bulk_update)
+
+  await api.bulk_write(batch)
+
+@main.command()
+@coro
+@click.argument('file_name')
+@click.argument('database')
+@click.argument('collection')
 async def bulk_insert_recyclers(file_name: str, database: str, collection: str):
   """This uploads a CSV file into a given collection"""
   click.echo(f'You are attempting to upload the file: {file_name} into the collection: {collection} of the database: {database}')

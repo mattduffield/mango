@@ -8,8 +8,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_login.exceptions import InvalidCredentialsException
 from mango.auth.models import AuthHandler, Credentials, Signup, PasswordReset
 from mango.auth.forms import LoginForm, SignupForm, PasswordResetForm
-from mango.db.models import QueryOne, InsertOne
-from mango.db.rest import find_one_sync, find_one, insert_one_sync, insert_one
+from mango.db.models import QueryOne, InsertOne, AggregatePipeline
+from mango.db.rest import find_one_sync, find_one, insert_one_sync, insert_one, run_pipeline_sync
 from mango.wf.models import WorkflowRequest
 from mango.wf.views import init_workflow_run
 from settings import manager, templates
@@ -17,6 +17,7 @@ from settings import manager, templates
 SESSION_SECRET_KEY = os.environ.get('SESSION_SECRET_KEY')
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
+headers = {'HX-Refresh': 'true'}
 
 router = APIRouter(
   prefix = '/auth',
@@ -45,20 +46,38 @@ auth_handler = AuthHandler()
 
 @manager.user_loader(database=DATABASE_NAME)
 def load_user(email:str, database):
-  payload = {
-    'database': database,
-    'collection': 'user', 
-    'query': {
-      'email': email
-    },
-    'projection': {
-      'password': 0
-    },
-  }
-  query = QueryOne.parse_obj(payload)
-  found = find_one_sync(query)
-  # print('Found user', found)
-  return found
+  ap = AggregatePipeline(
+    database=database,
+    aggregate='user',
+    pipeline=[
+      {
+        '$match': {
+          'email': email,
+          'is_active': True
+        }
+      },
+      {
+        '$project': {
+          'password': 0
+        }
+      },
+      {
+        '$lookup': {
+          'from': 'role',
+          'localField': 'role_list',
+          'foreignField': 'name',
+          'as': 'user_roles'
+        }
+      }
+    ],
+    cursor={},
+  )
+  role_list_result = run_pipeline_sync(ap)
+  [user] = role_list_result['cursor']['firstBatch']
+  if user:
+    for role in user['user_roles']:
+      user['action_list'] = user['action_list'] + role['action_list']
+  return user
 
 def authenticate_user(email:str, database):
   payload = {
@@ -72,25 +91,41 @@ def authenticate_user(email:str, database):
   found = find_one_sync(query)
   return found
 
-def can(request:Request, role:str = '', action:str = ''):
+def can(current_user, role:str = '', action:str = ''):
+  result = False
+  if current_user:
+    if role and action:
+      result = role in current_user.get('role_list', []) and action in current_user.get('action_list', [])
+    elif action:
+      result = action in current_user.get('action_list', [])
+    elif role:
+        result = role in current_user.get('role_list', [])
+  return result
+
+def can_can(request:Request, role:str = '', action:str = ''):
+  result = False
   current_user = request.state.user
   if current_user:
     if role and action:
-      return role in current_user.get('role_list', []) and action in current_user.get('action_list', [])
+      result = role in current_user.get('role_list', []) and action in current_user.get('action_list', [])
     elif action:
-      return action in current_user.get('action_list', [])
+      result = action in current_user.get('action_list', [])
     elif role:
-        return role in current_user.get('role_list', [])
-  return False
+        result = role in current_user.get('role_list', [])
+  return result
 
 @router.get('/login', response_class=HTMLResponse)
 def login(request: Request, next: Optional[str] = None):
+  global headers
+  headers = {'HX-Refresh': 'true'}
   context = {'request': request}
-  response = templates.TemplateResponse('auth/login.html', context)
+  response = templates.TemplateResponse('auth/login.html', context, headers=headers)
   return response
 
 @router.post('/login')
 async def login(request: Request, next: Optional[str] = None):
+  global headers
+  headers = {'HX-Refresh': 'false'}
   form = await LoginForm.from_formdata(request)
   credentials = Credentials(**form.data)
   user = authenticate_user(credentials.email, database=DATABASE_NAME)
