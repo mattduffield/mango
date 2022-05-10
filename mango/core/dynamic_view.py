@@ -172,7 +172,8 @@ class BaseDynamicView():
         to_date,
         db_lookup,        
       )
-      path = '/Users/summit/Documents/_dev/falm/falm-mango/app/templates/macros/macros.html'
+      # path = '/Users/summit/Documents/_dev/falm/falm-mango/app/templates/macros/macros.html'
+      path = '/app/templates/macros/macros.html'
       page_markup = self.page_designer['transform']
       with open(path, 'r') as f:
         macro = f.read()
