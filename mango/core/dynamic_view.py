@@ -172,16 +172,15 @@ class BaseDynamicView():
         to_date,
         db_lookup,        
       )
-      # path = '/Users/summit/Documents/_dev/falm/falm-mango/app/templates/macros/macros.html'
-      path = '/app/templates/macros/macros.html'
+      path = 'app/templates/macros/macros.html'
+      full_path = sys.path.append(os.path.join(os.path.dirname(__file__), path))
       page_markup = self.page_designer['transform']
-      with open(path, 'r') as f:
+      with open(full_path, 'r') as f:
         macro = f.read()
       markup = f'''{macro}
         {page_markup}
       '''
       env = Environment(loader=BaseLoader())
-      # tmpl = Environment(loader=BaseLoader()).from_string(self.page_designer['transform'])
 
       env.filters.update({
         'is_datetime': is_datetime,
