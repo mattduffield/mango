@@ -17,7 +17,8 @@ from settings import manager, templates
 SESSION_SECRET_KEY = os.environ.get('SESSION_SECRET_KEY')
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
-headers = {'HX-Refresh': 'true'}
+headers = {}
+# headers = {'HX-Refresh': 'true'}
 
 router = APIRouter(
   prefix = '/auth',
@@ -26,23 +27,6 @@ router = APIRouter(
 
 auth_handler = AuthHandler()
 
-# def add_user(email:str, password:str, database):
-#   hashed_password = auth_handler.get_password_hash(password)
-#   payload = {
-#     'database': database,
-#     'collection': 'user', 
-#     'insert_type': 'insert_one',
-#     'data': {
-#       'email': email,
-#       'password': hashed_password,
-#     }, 
-#   }
-#   query = InsertOne.parse_obj(payload)
-#   try:
-#     resp = insert_one_sync(query)
-#     return resp
-#   except:
-#     raise HTTPException(status_code=404, detail='User already exists')
 
 @manager.user_loader(database=DATABASE_NAME)
 def load_user(email:str, database):
@@ -80,16 +64,33 @@ def load_user(email:str, database):
   return user
 
 def authenticate_user(email:str, database):
-  payload = {
-    'database': database,
-    'collection': 'user', 
-    'query': {
-      'email': email
-    },
-  }
-  query = QueryOne.parse_obj(payload)
-  found = find_one_sync(query)
-  return found
+  ap = AggregatePipeline(
+    database=database,
+    aggregate='user',
+    pipeline=[
+      {
+        '$match': {
+          'email': email,
+          'is_active': True
+        }
+      },
+      {
+        '$lookup': {
+          'from': 'role',
+          'localField': 'role_list',
+          'foreignField': 'name',
+          'as': 'user_roles'
+        }
+      }
+    ],
+    cursor={},
+  )
+  role_list_result = run_pipeline_sync(ap)
+  [user] = role_list_result['cursor']['firstBatch']
+  if user:
+    for role in user['user_roles']:
+      user['action_list'] = user['action_list'] + role['action_list']
+  return user
 
 def can(current_user, role:str = '', action:str = ''):
   result = False
@@ -117,7 +118,7 @@ def can_can(request:Request, role:str = '', action:str = ''):
 @router.get('/login', response_class=HTMLResponse)
 def login(request: Request, next: Optional[str] = None):
   global headers
-  headers = {'HX-Refresh': 'true'}
+  # headers = {'HX-Refresh': 'true'}
   context = {'request': request}
   response = templates.TemplateResponse('auth/login.html', context, headers=headers)
   return response
@@ -125,7 +126,7 @@ def login(request: Request, next: Optional[str] = None):
 @router.post('/login')
 async def login(request: Request, next: Optional[str] = None):
   global headers
-  headers = {'HX-Refresh': 'false'}
+  # headers = {'HX-Refresh': 'false'}
   form = await LoginForm.from_formdata(request)
   credentials = Credentials(**form.data)
   user = authenticate_user(credentials.email, database=DATABASE_NAME)
@@ -134,16 +135,13 @@ async def login(request: Request, next: Optional[str] = None):
     context['form'] = form
     response = templates.TemplateResponse('auth/login.html', context)
     return response
-  # if not user:
-  #   raise InvalidCredentialsException
-  # elif not auth_handler.verify_password(credentials.password, user['password']):
-  #   raise InvalidCredentialsException
 
   if next is None:
     next = '/'
   access_token = manager.create_access_token(
     data={'sub': credentials.email},
     expires=timedelta(hours=12),
+    scopes=user['action_list'],
   )
   resp = RedirectResponse(url=next, status_code=status.HTTP_302_FOUND)
   manager.set_cookie(resp, access_token)
@@ -153,7 +151,6 @@ async def login(request: Request, next: Optional[str] = None):
 def logout(request: Request, next: Optional[str] = None):
   resp = RedirectResponse(url='login', status_code=status.HTTP_302_FOUND)
   resp.delete_cookie('mango-cookie')
-  # manager.set_cookie(resp, '') # Need to clear out the cookie
   return resp
 
 @router.get('/password-reset-complete', response_class=HTMLResponse, name='password-reset-complete')
@@ -207,7 +204,6 @@ async def post_signup(request: Request, next: Optional[str] = None):
       data=dict(signup),
     )
     res = await init_workflow_run(wr)
-    # result = add_user(credentials.email, credentials.password, database=DATABASE_NAME)
     resp = RedirectResponse(url='signup-confirmation', status_code=status.HTTP_302_FOUND)
     return resp
   else:

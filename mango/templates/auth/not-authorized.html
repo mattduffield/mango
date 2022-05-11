@@ -1,0 +1,48 @@
+<section class="intro-y text-gray-600 body-font"
+  style="background-image: url({{ url_for('static', path='/images/dashboard-banner.jpeg') }});
+    z-index: 1;
+    position: relative;
+    background-size: cover;
+    background-position: center;">
+  <div class="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
+  </div>
+</section>
+<section>
+  <div class="container mx-auto flex text-2xl px-5 py-24 items-center justify-center flex-col">
+    <a 
+      href="{{url_for(name='landing-page')}}"
+      class="cursor-pointer">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+      </svg>      
+    </a>
+    <div class="flex flex-1 text-3xl">
+      You are not authorized to view this ({{model|to_proper_case}}) page.
+    </div>
+    <div class="flex flex-1 text-2xl">
+      If you believe this is a mistake, please contact your administrator.
+    </div>
+  </div>
+</section>
+{% if request.state.htmx %}
+<div id="breadcrumbs"
+  class="m-4 intro-x mr-auto hidden sm:flex sm:flex-1 sm:items-center"
+  hx-swap-oob="true">
+  <a hx-get="/"
+    hx-target="#viewport"
+    hx-swap="innerHTML"
+    hx-push-url="true"
+    hx-indicator="#content-loader"
+    data-target="dashboard"
+    class="breadcrumb group"
+  >
+    <svg class="breadcrumb-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    </svg>
+  </a>
+  <svg class="breadcrumb-chevron" id="chevron-right" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+  </svg>
+  <span class="breadcrumb--active">Not Authorized</span>
+</div>
+{% endif %}

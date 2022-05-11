@@ -22,6 +22,17 @@ import settings
 from settings import manager, templates, DATABASE_NAME
 
 
+action_map = {
+  'get_list': 'view',
+  'get_create': 'add',
+  'post_create': 'add',
+  'get_update': 'edit',
+  'post_update': 'edit',
+  'get_delete': 'delete',
+  'post_delete': 'delete',
+}
+white_list = ['login']
+
 def get_router(prefix: str = '', tags: List[str] = ['Views']):
   return APIRouter(
    prefix = prefix,
@@ -103,13 +114,7 @@ class BaseDynamicView():
   filter_model_id = ''
 
   def __init__(self):
-    # if not self.template_name:
-    #   raise Exception('Missing attribute template_name!')
-    # if not self.model_class:
-    #   raise Exception('Missing attribute model_class!')
     self.can = can
-    # self.model_name = self.model_class.Meta.name
-    # self.initialize_route_names()
     
   def initialize_route_names(self):
     if not self.create_route_name:
@@ -131,7 +136,7 @@ class BaseDynamicView():
     if not self.list_url:
       self.list_url = f'/view/{self.model_name}'
 
-  async def get(self, request: Request, get_type: str, model: str, _id: str = '', search: str = '', is_modal: bool = False):
+  async def get(self, request: Request, get_type: str, model: str, _id: str = '', search: str = '', is_modal: bool = False, user = None):
     self.request = request
     self.model_name = model
     self.model_class = self.get_model_class(model)
@@ -140,6 +145,13 @@ class BaseDynamicView():
     self.search = search
     self.is_modal = is_modal
     self.initialize_route_urls(_id)
+
+    action_permission = action_map.get(get_type, None)
+    if not can(current_user=user, role='', action=f'{model}/{action_permission}'):
+      context = {'request': request, 'model': model}
+      template_name = f'partials/not-authorized.html'
+      response = templates.TemplateResponse(template_name, context)
+      return response      
 
     if is_modal and request.state.redirect_url:
       redirect_url_parsed = urlparse(request.state.redirect_url)
@@ -411,7 +423,7 @@ class BaseDynamicView():
     )
     return pipeline
 
-  async def post(self, request: Request, post_type: str, model: str, _id: str = '', is_modal: bool = False):
+  async def post(self, request: Request, post_type: str, model: str, _id: str = '', is_modal: bool = False, user = None):
     self.request = request
     self.model_name = model
     self.model_class = self.get_model_class(model)
@@ -421,6 +433,13 @@ class BaseDynamicView():
     self.initialize_route_urls(_id)
     temp = await request.form()
     self.form = await self.form_class.from_formdata(request)
+
+    action_permission = action_map.get(post_type, None)
+    if not can(current_user=user, role='', action=f'{model}/{action_permission}'):
+      context = {'request': request, 'model': model}
+      template_name = f'partials/not-authorized.html'
+      response = templates.TemplateResponse(template_name, context)
+      return response      
 
     if is_modal and request.state.redirect_url:
       self.redirect_url = request.state.redirect_url
