@@ -1,5 +1,5 @@
 import datetime
-import sys
+from pathlib import Path
 from dateutil import parser
 from urllib.parse import urlparse, quote, unquote
 import json
@@ -173,8 +173,8 @@ class BaseDynamicView():
         to_date,
         db_lookup,        
       )
-      path = 'app/templates/macros/macros.html'
-      full_path = sys.path.append(os.path.join(os.path.dirname(__file__), path))
+      path = 'templates/macros/macros.html'
+      full_path = os.path.join(Path.cwd(), path)
       page_markup = self.page_designer['transform']
       with open(full_path, 'r') as f:
         macro = f.read()
