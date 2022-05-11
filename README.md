@@ -16,7 +16,8 @@ mango_admin start-project <project-name>
 ## Usage
 Features:
 * Forms --> Use WTForms for managing screen definition 
-* Views --> Difine your endpoints using views.
+* Views --> Define your endpoints using views.
+* Models --> Define your models and model fields.
 
 #### Demo of some of the features:
 ```python
