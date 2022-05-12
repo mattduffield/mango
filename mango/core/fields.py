@@ -271,7 +271,7 @@ class LookupSelectField(SelectField):
     raw = find_one_sync(self.db_query)
     if self.allow_blank:
       blank_choice = [('', self.blank_text)]
-    choices = [(self.value_member(x), self.display_member(x)) for x in raw['item_list']]
+    choices = [(self.value_member(x), self.display_member(x)) for x in sorted(raw['item_list'], key=lambda data: data['value'])]
     if blank_choice:
       return blank_choice + choices
     if choices is not None:
