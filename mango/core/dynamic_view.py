@@ -16,7 +16,7 @@ from mango.auth.auth import can
 from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, PageLayout, ListLayout, Tab, App, Lookup
 from mango.core.fields import LookupSelectField, QuerySelectField, QuerySelectMultipleField, StringField2, FloatField2
 from mango.core.forms import get_string_form, ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm, LookupForm
-from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
+from mango.db.models import DateTimeAwareEncoder, datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 from mango.db.api import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
 import settings
 from settings import manager, templates, DATABASE_NAME
@@ -278,7 +278,8 @@ class BaseDynamicView():
     if get_type in ['get_update', 'get_delete']:
       model_data = self.model_class(**data)
       data_string = str(model_data)
-      raw_data = json.dumps(model_data.dict())
+      # raw_data = json.dumps(model_data.dict(), cls=DateTimeAwareEncoder)
+      raw_data = json.dumps(model_data.dict(), default=json_from_mongo)
       self.main_class = f'{self.model_class.__module__}.{self.model_class.__name__}'
       # self.main_data = quote(raw_data)
       self.main_form = f'{self.form_class.__module__}.{self.form_class.__name__}'

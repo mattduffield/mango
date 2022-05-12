@@ -88,6 +88,12 @@ class FloatField2(FloatField):
     self.wrapper_class = wrapper_class
 
 
+class DateField2(DateField):
+  def __init__(self, label='', validators=None, format="%Y-%m-%d", wrapper_class='', **kwargs):
+    super(DateField2, self).__init__(label, validators, format="%Y-%m-%d", **kwargs)    
+    self.wrapper_class = wrapper_class
+
+
 class EmailField2(EmailField):
   def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
     super(EmailField2, self).__init__(label, validators, **kwargs)    

@@ -1,6 +1,6 @@
 import inspect
 import bson.objectid
-import re
+import json, re
 from typing import (
     Deque, Dict, FrozenSet, List, Literal, Optional, Sequence, Set, Tuple, Type, Union
 )
@@ -18,6 +18,13 @@ from pymongo import (
 from bson import ObjectId
 from bson.errors import InvalidId
 from datetime import datetime
+
+
+class DateTimeAwareEncoder(json.JSONEncoder):
+  def default(self, o):
+    if isinstance(o, datetime):
+      return o.isoformat()
+    return json.JSONEncoder.default(self, o)
 
 
 # https://www.geeksforgeeks.org/convert-pymongo-cursor-to-json/
