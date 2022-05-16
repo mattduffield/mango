@@ -385,12 +385,12 @@ class QuerySelectMultipleField(SelectMultipleField):
         if callable(self.query[prop]):
           self.db_query.query[prop] = self.query[prop](data)
             
-      raw = find_sync(self.db_query)
-      choices = [(self.value_member(x), self.display_member(x)) for x in raw]
-      if choices is not None:
-        choices = choices if isinstance(choices, dict) else list(choices)
-      else:
-        self.choices = None
+    raw = find_sync(self.db_query)
+    choices = [(self.value_member(x), self.display_member(x)) for x in raw]
+    if choices is not None:
+      choices = choices if isinstance(choices, dict) else list(choices)
+    else:
+      self.choices = None
     return choices
 
 
