@@ -60,6 +60,7 @@ class StaticView():
 
   async def get(self, request: Request):
     self.request = request
+    self.organization = await self.get_default_organization()    
     context = {'request': request, 'settings': settings, 'view': self}
     template_name = self.get_template_name()
     response = templates.TemplateResponse(template_name, context)
@@ -67,6 +68,27 @@ class StaticView():
 
   def get_template_name(self):
     pass
+
+  def get_query(self, query_type: str, collection: str, query: dict = {}, sort: dict = {}, data: dict = None):
+    if query_type == 'find_one':
+      query = QueryOne(
+        database=DATABASE_NAME,
+        collection=collection,
+        query=query  # {'_id': self._id}
+      )
+    elif query_type == 'find':
+      query = Query(
+        database=DATABASE_NAME,
+        collection=collection,
+        query=query,  # {'_id': self._id}
+        sort=sort  # {'name': 1}
+      )
+    return query
+
+  async def get_default_organization(self):
+    query = self.get_query('find_one', collection='organization', query={'is_default': True})
+    data = await find_one(query)
+    return data
 
 
 router = APIRouter(
@@ -271,7 +293,8 @@ class BaseDynamicView():
     else:
       data = await self.get_data(get_type)
 
-    self.page_layout = await self.get_page_layout(get_type)
+    self.organization = await self.get_default_organization()
+    # self.page_layout = await self.get_page_layout(get_type)
     self.page_designer = await self.get_page_designer(get_type)
     self.list_layout = await self.get_list_layout(get_type)
 
@@ -310,14 +333,20 @@ class BaseDynamicView():
               elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
                 sub_field.choices = sub_field.get_choices(data=data)
 
-    context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
+    # context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
+    context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form}
     return context
 
-  async def get_page_layout(self, get_type: str):
-    data = None
-    if get_type in ['get_create', 'get_update']:
-      query = self.get_query('find_one', collection='page_layout', query={'model_name': self.model_name})
-      data = await find_one(query)
+  # async def get_page_layout(self, get_type: str):
+  #   data = None
+  #   if get_type in ['get_create', 'get_update']:
+  #     query = self.get_query('find_one', collection='page_layout', query={'model_name': self.model_name})
+  #     data = await find_one(query)
+  #   return data
+
+  async def get_default_organization(self):
+    query = self.get_query('find_one', collection='organization', query={'is_default': True})
+    data = await find_one(query)
     return data
 
   async def get_page_designer(self, get_type: str):
@@ -373,7 +402,6 @@ class BaseDynamicView():
         query=query,  # {'_id': self._id}
         sort=sort  # {'name': 1}
       )
-
     return query
 
   def get_pipeline(self, field_list:List[str] = []):

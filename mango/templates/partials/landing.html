@@ -1,5 +1,7 @@
+
+{% set banner = view.organization.banner|default(url_for('static', path='/images/dashboard-banner.jpeg'), true) %}
 <section class="intro-y text-gray-600 body-font"
-  style="background-image: url({{ url_for('static', path='/images/dashboard-banner.jpeg') }});
+  style="background-image: url({{ banner }});
     z-index: 1;
     position: relative;
     background-size: cover;
@@ -27,14 +29,11 @@
 </section>
 <section>
   <div class="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
-    <img class="intro-y lg:w-2/6 md:w-3/6 w-5/6 mb-10 object-cover object-center rounded-xl" alt="hero" 
-      src="{{ url_for('static', path='/images/dashboard-logo.png') }}">
+    {{ view.organization.logo_large|safe }}
   </div>
 </section>
 <section>
-  <div class="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
-    <span class="italic text-6xl" style="text-shadow: 5px 5px 10px #00FF00;">PALLET TRACKER</span>
-  </div>
+  {{ view.organization.content|safe }}
 </section>
 {% if request.state.htmx %}
 <div id="breadcrumbs"

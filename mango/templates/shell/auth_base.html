@@ -2,14 +2,13 @@
 <html lang="en" class="" style="background-image: linear-gradient(#059669, #065f46);">
   <head>
     <meta charset="utf-8">
-    <link href="{{ url_for('static', path='/images/logo.svg') }}" rel="shortcut icon">
+    {% set favicon = view.organization.icon|default(url_for('static', path='/images/logo.svg'), true) %}
+    {% set title = view.organization.title|default('FALM', true) %}
+    <link href="{{ favicon }}" rel="shortcut icon">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="htmx-config" content='{"useTemplateFragments": true}'>
-    <title>FALM</title>
-    <!-- <link href="{{ url_for('static', path='/css/bundle.css') }}" rel="stylesheet"> -->
+    <title>{{ title }}</title>
     <link href="{{ url_for('static', path='/css/animation.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', path='/css/toggle-radios.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', path='/css/toggle-switch.css') }}" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <style type="text/tailwindcss">
       @layer components {

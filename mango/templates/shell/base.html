@@ -3,11 +3,14 @@
   class="h-full"
   _="on htmx:pushedIntoHistory
       set element_id to the first of window.location.pathname.replace('/view', '').replace('/', '').split('/')
-      if not element_id or no #{element_id} then
+      -- log(element_id)
+      if not element_id or not #{element_id} then
         set element_id to 'dashboard'
       end
-      take .{'side-bar--active'} from <a/> in #side-bar for #{element_id}
-      take .{'side-bar-icon--active'} from <svg/> in #side-bar for <svg/> in #{element_id}
+      if element_id then
+        take .{'side-bar--active'} from <a/> in #side-bar for #{element_id}
+        take .{'side-bar-icon--active'} from <svg/> in #side-bar for <svg/> in #{element_id}
+      end
       if window.location.pathname == '/' then
         remove .bg-gray-100 from me
         add .bg-white to me
@@ -17,11 +20,14 @@
       end
     on load
       set element_id to the first of window.location.pathname.replace('/view', '').replace('/', '').split('/')
-      if not element_id or no #{element_id} then
+      -- log(element_id)
+      if not element_id or not #{element_id} then
         set element_id to 'dashboard'
       end
-      take .{'side-bar--active'} from <a/> in #side-bar for #{element_id}
-      take .{'side-bar-icon--active'} from <svg/> in #side-bar for <svg/> in #{element_id}
+      if element_id then
+        take .{'side-bar--active'} from <a/> in #side-bar for #{element_id}
+        take .{'side-bar-icon--active'} from <svg/> in #side-bar for <svg/> in #{element_id}
+      end
       if window.location.pathname == '/' then
         remove .bg-gray-100 from me
         add .bg-white to me
@@ -32,11 +38,12 @@
   ">
   <head>
     <meta charset="utf-8">
-    <link href="{{ url_for('static', path='/images/logo.svg') }}" rel="shortcut icon">
+    {% set favicon = view.organization.icon|default(url_for('static', path='/images/logo.svg'), true) %}
+    {% set title = view.organization.title|default('FALM', true) %}
+    <link href="{{ favicon }}" rel="shortcut icon">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="htmx-config" content='{"useTemplateFragments": true}'>
-    <title>FALM</title>
-    <!-- <link href="{{ url_for('static', path='/css/bundle.css') }}" rel="stylesheet"> -->
+    <title>{{ title }}</title>
     <link href="{{ url_for('static', path='/css/animation.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', path='/css/toggle-radios.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', path='/css/toggle-switch.css') }}" rel="stylesheet">
@@ -105,6 +112,9 @@
         .side-bar-menu {
           @apply cursor-pointer text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center px-2 py-2 text-sm font-medium rounded-md;
         }
+        .side-bar-menu summary {
+          @apply text-gray-600;
+        }
         .side-bar-icon {
           @apply text-gray-400 group-hover:text-gray-500 mr-3 flex-shrink-0 h-6 w-6;
         }
@@ -122,6 +132,18 @@
         }
         .ts-wrapper {
           @apply border border-2 border-transparent focus-within:rounded focus-within:border-emerald-400 !important;
+        }
+        #modal {
+          @apply opacity-0 transition opacity-0 duration-200 ease-in;
+        }
+        #modal.show {
+          @apply transition opacity-100 duration-300 ease-out z-50;
+        }
+        #modal .modal-content {
+          @apply transition opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95 duration-200 ease-in;
+        }
+        #modal.show .modal-content {
+          @apply transition opacity-100 translate-y-0 sm:scale-100 duration-300 ease-out;
         }
       }
 
@@ -155,6 +177,21 @@
         display: flex;
       }
       
+      .ts-dropdown {
+          position: relative;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          z-index: 10;
+          border: 1px solid #d0d0d0;
+          background: #fff;
+          margin: 0.25rem 0 0 0;
+          border-top: 0 none;
+          box-sizing: border-box;
+          box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+          border-radius: 0 0 3px 3px;
+      }
+
       .loader {
         border-top-color: #10B981;
         -webkit-animation: spinner 1.5s linear infinite;
@@ -174,7 +211,8 @@
   <body class="h-full"
     _="on keydown[key=='Escape']
         add .hidden to #user-menu
-        add .hidden to #modal
+        remove .show from #modal
+        add .pointer-events-none to #modal
       on click
        if not ['user-menu-button', 'user-menu-item-0', 'user-menu-item-1', 'user-menu-item-2'].includes(target.id)
          add .hidden to #user-menu
@@ -226,7 +264,7 @@
     </div>
 
     <div id="modal" 
-      class="hidden fixed z-30 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      class="pointer-events-none fixed inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <!--
           Background overlay, show/hide based on modal state.
@@ -253,7 +291,7 @@
             From: "opacity-100 translate-y-0 sm:scale-100"
             To: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
         -->
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-4xl sm:w-full">
+        <div class="modal-content relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
           <div id="modal-content">
           </div>
         </div>
@@ -270,31 +308,21 @@
         rome(elt, { time: true });
       }
       function configTomSelect(elt) {
-        var config = {
+        if (typeof elt === 'string') {
+          elt = document.querySelector(elt);
+          if (elt['ts']) {
+            elt['ts'].sync();
+            return;
+          }
+        }
+        const config = {
           plugins: {
             remove_button:{
               title:'Remove this item',
             }
           }
         };
-        new TomSelect(elt,config);
-      }
-      function processModal(selector, is_modal) {
-        const el = document.querySelector(selector);
-        if (el && is_modal) {
-          let is_processed = el.dataset.processed;
-          if (!is_processed) {
-            let post = el.getAttribute('hx-post');
-            let path = location.pathname;
-            let url = `${post}?redirect_url='${path}'`;
-            el.setAttribute('hx-post', url);
-            el.dataset.processed = true;
-            if (el['htmx-internal-data']) {
-              el['htmx-internal-data'].path = url;
-            }
-            htmx.process(el.parentElement);
-          }
-        }
+        elt['ts'] = new TomSelect(elt, config);
       }
       function addHxVars(selector) {
         const el = document.querySelector(selector);
@@ -326,48 +354,66 @@
       /*
         Reference:
           https://gist.github.com/kageurufu/6813878
+          /table_row/append/{main_form}/{field_name}/{pos}
       */      
       async function addDynamicRowByTemplate(elt, selector) {
-        const formName = elt.dataset.formName;
+        const modelName = elt.dataset.modelName;
+        const mainData = elt.dataset.mainData;
         const bodySelector = `#${selector}-body`;
         let pos = -1;
         if (document.querySelector(`tbody#${selector}-body`)) {
           pos = document.querySelectorAll(`tbody${bodySelector} tr:not(.ignore-row)`).length;
         }
+        /*
+        console.log('modelName', modelName);
+        console.log('mainData', mainData);
+        console.log('selector', selector);
         console.log('pos', pos);
-        const response = await fetch(`/table_row/create/${formName}/${selector}/${pos}`);
+        */
+        // const response = await fetch(`/view/${modelName}/append_list/${mainData}/${selector}/${pos}`);
+        const response = await fetch(`/view/${modelName}/append_list/${selector}/${pos}`);
         const tmpl = await response.text();
         const oldRow = document.querySelector(`tbody${bodySelector} tr:last-child`);
         oldRow.insertAdjacentHTML('afterend', tmpl);
-        //const tbl = document.querySelector(`#${selector}-table`);
-        //tbl.deleteRow(0);
         const rmRow = document.querySelector(`#${selector}-table .ignore-row`);
         if (rmRow) {
           rmRow.remove();
         }
-      }      
+        setTimeout(() => {
+          const elt = document.querySelector(`#${selector}-table tr:last-child td select[multiple]`);
+          if (elt) {
+            configTomSelect(elt);
+          }
+        }, 0);
+      }
     </script>
     <script type="text/hyperscript">
       def toggleElementHidden(elt, prop, selector, values)
         if Array.isArray(values)
           if elt[prop] is not in values
-            add .hidden to #{selector}
+            -- add .hidden to #{selector}
+            add .hidden to .{selector}
           else
-            remove .hidden from #{selector}
+            -- remove .hidden from #{selector}
+            remove .hidden from .{selector}
           end
         else
           if elt[prop] == values
-            add .hidden to #{selector}
+            -- add .hidden to #{selector}
+            add .hidden to .{selector}
           else
-            remove .hidden from #{selector}
+            remove .hidden from .{selector}
+            -- remove .hidden from #{selector}
           end
         end
       end
       def toggleElementVisibility(elt, selector, values)
         if elt.value is not in values
-          add .hidden to #{selector}
+          -- add .hidden to #{selector}
+          add .hidden to .{selector}
         else
-          remove .hidden from #{selector}
+          -- remove .hidden from #{selector}
+          remove .hidden from .{selector}
         end
       end
 
