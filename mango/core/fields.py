@@ -380,10 +380,12 @@ class QuerySelectMultipleField(SelectMultipleField):
 
   def get_choices(self, data):
     choices = []
-    if data:
-      for prop in self.query:
-        if callable(self.query[prop]):
+    for prop in self.query:
+      if callable(self.query[prop]):
+        if data: 
           self.db_query.query[prop] = self.query[prop](data)
+        else:
+          return []
             
     raw = find_sync(self.db_query)
     choices = [(self.value_member(x), self.display_member(x)) for x in raw]
