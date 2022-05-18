@@ -313,6 +313,11 @@ class ModelFieldForm(StarletteForm):
     render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
     wrapper_class = 'flex-1',
   )
+  placeholder_field = StringField(
+    'Placeholder Field',
+    render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
+    wrapper_class = 'flex-1',
+  )
   validator_list = FieldList(
     StringField(
       'Validator',
