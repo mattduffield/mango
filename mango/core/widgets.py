@@ -10,7 +10,7 @@
 
 from markupsafe import Markup
 from wtforms.widgets.core import html_params
-
+from wtforms.widgets import TextInput
 
 class CurrencyWidget:
   def __init__(self):
@@ -79,3 +79,27 @@ class ToggleSwitchWidget:
     html.append('</label>')
     html.append('</span>')
     return Markup(''.join(html))
+
+
+class DatalistWidget(TextInput):
+  """
+  Custom widget to create an input with a datalist attribute
+  """
+
+  def __init__(self, datalist=[]):
+    super(DatalistWidget, self).__init__()
+    self.datalist = datalist
+
+  def __call__(self, field, **kwargs):
+    kwargs.setdefault('id', field.id)
+    kwargs.setdefault('name', field.name)
+    if "value" not in kwargs:
+      kwargs["value"] = field._value()
+    html = [u'<input type="text" list="{}_list" id="{}" name="{}" {}>'.format(field.id, field.id, field.name, html_params(**kwargs)),
+            u'<datalist id="{}_list">'.format(field.id)]
+
+    for item in field.datalist:
+      html.append(u'<option value="{}">'.format(item))
+
+    html.append(u'</datalist>')
+    return Markup(u''.join(html))

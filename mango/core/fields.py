@@ -34,7 +34,7 @@ from wtforms.utils import unset_value
 from mango.db.rest import find, find_one, run_pipeline, find_sync, find_one_sync
 from mango.db.models import Query, QueryOne
 from mango.core.constants import label_class, input_class, textarea_class, chk_class, select_class, select_multiple_class, toggle_radio_class, toggle_switch_class
-from mango.core.widgets import ToggleRadioWidget, ToggleSwitchWidget, CurrencyWidget
+from mango.core.widgets import DatalistWidget, ToggleRadioWidget, ToggleSwitchWidget, CurrencyWidget
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
@@ -91,6 +91,12 @@ class FloatField2(FloatField):
 class DateField2(DateField):
   def __init__(self, label='', validators=None, format="%Y-%m-%d", wrapper_class='', **kwargs):
     super(DateField2, self).__init__(label, validators, format="%Y-%m-%d", **kwargs)    
+    self.wrapper_class = wrapper_class
+
+
+class DateTimeField2(DateTimeField):
+  def __init__(self, label='', validators=None, format="%Y-%m-%d", wrapper_class='', **kwargs):
+    super(DateTimeField2, self).__init__(label, validators, format="%Y-%m-%d", **kwargs)    
     self.wrapper_class = wrapper_class
 
 
@@ -219,6 +225,24 @@ class DivField(Field):
       self.data = [x.strip() for x in valuelist[0].split(',')]
     else:
       self.data = []
+
+
+class DatalistField(StringField):
+  """
+  Custom field type for datalist input
+  """
+  widget = DatalistWidget()
+
+  def __init__(self, label='', validators=None, wrapper_class='', datalist=[], **kwargs):
+    super(DatalistField, self).__init__(label, validators, **kwargs)
+    self.wrapper_class = wrapper_class
+    self.datalist = datalist
+
+  def _value(self):
+    if self.data:
+      return u''.join(self.data)
+    else:
+      return u''
 
 
 class LookupSelectField(SelectField):

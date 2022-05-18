@@ -149,6 +149,7 @@ class ModelField(BaseModel):
   default_value_use_quotes: bool = True  # wrap the default with quotes (") if True
   field_type: str  # usually sourced from a list of valid WTForms element types
   field_type_form_field: Optional[str]  # This is used when the field_type is "FieldList"
+  datalist: str = ''  # this represents values listed for a DatalistField
   validator_list: Optional[List[str]] = []
   attribute_list: Optional[List[KeyValue]] = []
   collection: str = ''  # collection to query
