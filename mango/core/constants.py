@@ -149,6 +149,16 @@ on change
 end
 '''
 
+hs_field_type_form_field = f'''
+on load 
+  toggleElementVisibility(me, "wrapper_datalist", ["DatalistField"])
+end
+on change 
+  toggleElementVisibility(me, "wrapper_datalist", ["DatalistField"])
+end
+'''
+
+
 hs_field_type2 = f'''
 on load 
   toggleElementVisibility(me, "wrapper_collection", ["QuerySelectField", "QuerySelectMultipleField"])

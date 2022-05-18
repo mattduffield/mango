@@ -22,14 +22,14 @@ from wtforms import (
   Form,
 )
 from wtforms.validators	import DataRequired, AnyOf, NoneOf
-from mango.core.fields import QuerySelectField, QuerySelectMultipleField, ToggleSwitchField
+from mango.core.fields import DatalistField, LookupSelectField, QuerySelectField, QuerySelectMultipleField, ToggleSwitchField
 from mango.core.fields import (
   IntegerField2 as IntegerField,
   StringField2 as StringField,
   TextAreaField2 as TextAreaField,
   FieldList2 as FieldList
 )
-from mango.core.constants import chk_class, input_class, label_class, select_class, select_multiple_class, textarea_class, toggle_radio_class, toggle_switch_class, hs_element_type, hs_config_tom_select, hs_field_type
+from mango.core.constants import chk_class, input_class, label_class, select_class, select_multiple_class, textarea_class, toggle_radio_class, toggle_switch_class, hs_element_type, hs_config_tom_select, hs_field_type, hs_field_type_form_field
 from mango.core.choices import DATA_TYPES, FIELD_TYPES
 from mango.core.validators import DataRequiredIf, OptionalIfFieldEqualTo
 
