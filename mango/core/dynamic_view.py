@@ -12,7 +12,7 @@ from starlette.datastructures import MultiDict
 from wtforms import Form, FormField, FieldList
 from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 from mango.auth.models import Credentials
-from mango.auth.auth import can
+from mango.auth.auth import can, can_can
 from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, PageLayout, ListLayout, Tab, App, Lookup
 from mango.core.fields import LookupSelectField, QuerySelectField, QuerySelectMultipleField, StringField2, FloatField2
 from mango.core.forms import get_string_form, ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm, LookupForm
@@ -57,6 +57,7 @@ def get_class(class_str: str):
 class StaticView():
   def __init__(self):
     self.can = can
+    self.can_can = can_can
 
   async def get(self, request: Request):
     self.request = request
@@ -137,6 +138,7 @@ class BaseDynamicView():
 
   def __init__(self):
     self.can = can
+    self.can_can = can_can
     
   def initialize_route_names(self):
     if not self.create_route_name:
