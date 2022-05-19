@@ -144,7 +144,7 @@ class ModelField(BaseModel):
   name: str  # usually lowercase with underscores instead of spaces
   data_type: str  # usually sourced from a List of tuples (value, label), e.g. str,int,bool
   is_optional: bool = False  # Indicates if this field is Optional
-  is_list: bool = False  # Indicates if this field is List
+  # is_list: bool = False  # Indicates if this field is List
   default_value: str = ''  # this should be coerced by the data_type entry, e.g. str should have quotes
   default_value_use_quotes: bool = True  # wrap the default with quotes (") if True
   field_type: str  # usually sourced from a list of valid WTForms element types
