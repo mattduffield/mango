@@ -14,7 +14,7 @@ from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 from mango.auth.models import Credentials
 from mango.auth.auth import can, can_can
 from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, PageLayout, ListLayout, Tab, App, Lookup
-from mango.core.fields import LookupSelectField, QuerySelectField, QuerySelectMultipleField, StringField2, FloatField2
+from mango.core.fields import LookupSelectField, PicklistSelectField, QuerySelectField, QuerySelectMultipleField, StringField2, FloatField2
 from mango.core.forms import get_string_form, ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm, LookupForm
 from mango.db.models import DateTimeAwareEncoder, datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 from mango.db.api import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
@@ -316,7 +316,7 @@ class BaseDynamicView():
         elif issubclass(self.form_class, Form):
           form = self.form_class(data=data)
         for field in form:
-          if isinstance(field, LookupSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
+          if isinstance(field, LookupSelectField) or isinstance(field, PicklistSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
             field.choices = field.get_choices(data=data)
           elif isinstance(field, FieldList):
             for sub_field in field:
@@ -326,13 +326,13 @@ class BaseDynamicView():
                     for sub_sub_form_field in sub_form_field:
                       if isinstance(sub_sub_form_field, FormField):
                         for sub_sub_sub_form_field in sub_sub_form_field:
-                          if isinstance(sub_sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_sub_form_field, QuerySelectMultipleField):
+                          if isinstance(sub_sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_sub_form_field, PicklistSelectField) or isinstance(sub_sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_sub_form_field, QuerySelectMultipleField):
                             sub_sub_sub_form_field.choices = sub_sub_sub_form_field.get_choices(data=data)
-                      elif isinstance(sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_form_field, QuerySelectMultipleField):
+                      elif isinstance(sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_form_field, PicklistSelectField) or isinstance(sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_form_field, QuerySelectMultipleField):
                         sub_sub_form_field.choices = sub_sub_form_field.get_choices(data=data)
-                  elif isinstance(sub_form_field, LookupSelectField) or isinstance(sub_form_field, QuerySelectField) or isinstance(sub_form_field, QuerySelectMultipleField):
+                  elif isinstance(sub_form_field, LookupSelectField) or isinstance(sub_form_field, PicklistSelectField) or isinstance(sub_form_field, QuerySelectField) or isinstance(sub_form_field, QuerySelectMultipleField):
                     sub_form_field.choices = sub_form_field.get_choices(data=data)
-              elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
+              elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, PicklistSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
                 sub_field.choices = sub_field.get_choices(data=data)
 
     # context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
@@ -480,7 +480,7 @@ class BaseDynamicView():
       model_data = self.model_class(**data)
       data_string = str(model_data)
       for field in self.form:
-        if isinstance(field, LookupSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
+        if isinstance(field, LookupSelectField) or isinstance(field, PicklistSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
           field.choices = field.get_choices(data=data)
         elif isinstance(field, FieldList):
           for sub_field in field:
@@ -490,19 +490,19 @@ class BaseDynamicView():
                   for sub_sub_form_field in sub_form_field:
                     if isinstance(sub_sub_form_field, FormField):
                       for sub_sub_sub_form_field in sub_sub_form_field:
-                        if isinstance(sub_sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_sub_form_field, QuerySelectMultipleField):
+                        if isinstance(sub_sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_sub_form_field, PicklistSelectField) or isinstance(sub_sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_sub_form_field, QuerySelectMultipleField):
                           sub_sub_sub_form_field.choices = sub_sub_sub_form_field.get_choices(data=data)
-                    elif isinstance(sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_form_field, QuerySelectMultipleField):
+                    elif isinstance(sub_sub_form_field, LookupSelectField) or isinstance(sub_sub_form_field, PicklistSelectField) or isinstance(sub_sub_form_field, QuerySelectField) or isinstance(sub_sub_form_field, QuerySelectMultipleField):
                       sub_sub_form_field.choices = sub_sub_form_field.get_choices(data=data)
-                elif isinstance(sub_form_field, LookupSelectField) or isinstance(sub_form_field, QuerySelectField) or isinstance(sub_form_field, QuerySelectMultipleField):
+                elif isinstance(sub_form_field, LookupSelectField) or isinstance(sub_form_field, PicklistSelectField) or isinstance(sub_form_field, QuerySelectField) or isinstance(sub_form_field, QuerySelectMultipleField):
                   sub_form_field.choices = sub_form_field.get_choices(data=data)
-            elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
+            elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, PicklistSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
               sub_field.choices = sub_field.get_choices(data=data)
 
     if post_type == 'post_create':
       data = await self.get_data('get_create')
       for field in self.form:
-        if isinstance(field, LookupSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
+        if isinstance(field, LookupSelectField) or isinstance(field, PicklistSelectField) or isinstance(field, QuerySelectField) or isinstance(field, QuerySelectMultipleField):
           field.choices = field.get_choices(data=data)
       if await self.form.validate_on_submit():
         payload = self.post_query(post_type)

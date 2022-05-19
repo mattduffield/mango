@@ -141,14 +141,14 @@ on load
   toggleElementVisibility(me, "query-tab-container", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
   toggleElementVisibility(me, "wrapper_allow_blank", ["LookupSelectField", "QuerySelectField"])
   toggleElementVisibility(me, "wrapper_field_type_form_field", ["FieldList"])
-  toggleElementVisibility(me, "wrapper_datalist", ["DatalistField"])
+  toggleElementVisibility(me, "wrapper_datalist", ["DatalistField", "PicklistSelectField"])
   toggleElementVisibility(me, "wrapper_placeholder", ["StringField"])
 end
 on change 
   toggleElementVisibility(me, "query-tab-container", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
   toggleElementVisibility(me, "wrapper_allow_blank", ["LookupSelectField", "QuerySelectField"])
   toggleElementVisibility(me, "wrapper_field_type_form_field", ["FieldList"])
-  toggleElementVisibility(me, "wrapper_datalist", ["DatalistField"])
+  toggleElementVisibility(me, "wrapper_datalist", ["DatalistField", "PicklistSelectField"])
   toggleElementVisibility(me, "wrapper_placeholder", ["StringField"])
 end
 '''

@@ -305,6 +305,44 @@ class LookupSelectField(SelectField):
     return choices
 
 
+class PicklistSelectField(SelectField):
+  widget = widgets.Select()
+  
+  def __init__(
+    self,
+    label=None,
+    validators=None,
+    coerce=str,
+    choices=None,
+    validate_choice=True,
+    datalist=[],
+    allow_blank=False,
+    blank_text='Choose...',
+    wrapper_class='',
+    **kwargs,
+  ):
+    super().__init__(label, validators, **kwargs)
+    self.coerce = coerce
+    self.datalist = datalist
+    self.allow_blank = allow_blank
+    self.blank_text = blank_text
+    self.validate_choice = validate_choice
+    self.wrapper_class = wrapper_class
+
+  def get_choices(self, data):
+    blank_choice = None
+    if self.allow_blank:
+      blank_choice = [('', self.blank_text)]
+    choices = [(x, x) for x in self.datalist]
+    if blank_choice:
+      return blank_choice + choices
+    if choices is not None:
+      choices = choices if isinstance(choices, dict) else list(choices)
+    else:
+      choices = None
+    return choices
+
+
 class QuerySelectField(SelectField):
   widget = widgets.Select()
   
