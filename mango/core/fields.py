@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 load_dotenv()
-import os
+import json, os
 import asyncio
 import markupsafe
 from pydantic import ValidationError
@@ -34,7 +34,7 @@ from wtforms.utils import unset_value
 from mango.db.rest import find, find_one, run_pipeline, find_sync, find_one_sync
 from mango.db.models import Query, QueryOne
 from mango.core.constants import label_class, input_class, textarea_class, chk_class, select_class, select_multiple_class, toggle_radio_class, toggle_switch_class
-from mango.core.widgets import DatalistWidget, ToggleRadioWidget, ToggleSwitchWidget, CurrencyWidget
+from mango.core.widgets import CodeMirrorWidget, DatalistWidget, ToggleRadioWidget, ToggleSwitchWidget, CurrencyWidget
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
@@ -489,3 +489,15 @@ class WeeklyHoursField(Field):
       else:
           self.data = []
 
+class CodeMirrorField(TextAreaField):
+  """Code Mirror Field
+  A TextAreaField with a custom widget
+  :param language: CodeMirror mode
+  :param config: CodeMirror config
+  """
+  def __init__(self, label='', validators=None, language=None, config=None, wrapper_class='', **kwargs):
+    widget = CodeMirrorWidget(language, config)
+    super(CodeMirrorField, self).__init__(label=label, validators=validators, widget=widget, **kwargs)
+    self.language = language
+    self.config = config
+    self.wrapper_class = wrapper_class

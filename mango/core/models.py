@@ -12,6 +12,27 @@ from pydantic import BaseModel, PositiveInt
 from wtforms import Field
 
 
+class Spacing(BaseModel):
+  top: str = ''
+  bottom: str = ''
+  left: str = ''
+  right: str = ''
+
+  def new_dict():
+    return {'top': '', 'bottom': '', 'left': '', 'right': ''}
+
+
+class Parameter(BaseModel):
+  label: str = ''
+  name: str = ''
+  type: str = ''
+  value: str = ''
+  is_visible: bool = True
+
+  def new_dict():
+    return {'label': '', 'name': '', 'type': '', 'value': '', 'is_visible': True}
+
+
 class KeyValue(BaseModel):
   key: str
   value: str

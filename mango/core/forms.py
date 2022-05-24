@@ -95,6 +95,66 @@ class KeyValueForm(Form):
   )
 
 
+class ParameterForm(Form):
+  label = StringField(
+    'Label', 
+    render_kw = {
+      'class' : input_class,
+    },
+  )
+  name = StringField(
+    'API Name', 
+    render_kw = {
+      'class' : input_class,
+    },
+  )
+  type = StringField(
+    'Type', 
+    render_kw = {
+      'class' : input_class,
+    },
+  )
+  value = StringField(
+    'Value', 
+    render_kw = {
+      'class' : input_class,
+    },
+  )
+  is_visible = ToggleSwitchField(
+    'Is Visible?', 
+    render_kw = {
+      'class' : chk_class,
+    },
+  )
+
+
+class SpacingForm(Form):
+  top = StringField(
+    'Top', 
+    render_kw = {
+      'class' : input_class,
+    },
+  )
+  bottom = StringField(
+    'Bottom', 
+    render_kw = {
+      'class' : input_class,
+    },
+  )
+  left = StringField(
+    'Left', 
+    render_kw = {
+      'class' : input_class,
+    },
+  )
+  right = StringField(
+    'Right', 
+    render_kw = {
+      'class' : input_class,
+    },
+  )
+
+
 class ActionForm(StarletteForm):
   topic = StringField(
     'Topic', 
