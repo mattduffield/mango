@@ -25,7 +25,7 @@ class Spacing(BaseModel):
 class Parameter(BaseModel):
   label: str = ''
   name: str = ''
-  type: str = ''
+  data_type: str = ''
   value: str = ''
   is_visible: bool = True
 
