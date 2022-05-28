@@ -495,9 +495,8 @@ class CodeMirrorField(TextAreaField):
   :param language: CodeMirror mode
   :param config: CodeMirror config
   """
-  def __init__(self, label='', validators=None, language=None, config=None, wrapper_class='', **kwargs):
-    widget = CodeMirrorWidget(language, config)
+  def __init__(self, label='', validators=None, config=None, wrapper_class='', **kwargs):
+    widget = CodeMirrorWidget(config)
     super(CodeMirrorField, self).__init__(label=label, validators=validators, widget=widget, **kwargs)
-    self.language = language
     self.config = config
     self.wrapper_class = wrapper_class

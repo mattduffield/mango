@@ -13,6 +13,7 @@ from markupsafe import Markup
 from wtforms.widgets.core import html_params
 from wtforms.widgets import TextInput, TextArea
 
+
 class CurrencyWidget:
   def __init__(self):
     pass
@@ -119,12 +120,12 @@ class CodeMirrorWidget(TextArea):
         document.getElementById('codemirror-{0}'),
         {1}
       );
+      //editor_for_{0}.foldCode(CodeMirror.Pos(0, 0));
     </script>
   '''
 
-  def __init__(self, language, config=None):
+  def __init__(self, config=None):
     super(CodeMirrorWidget, self).__init__()
-    self.language = language
     self.theme = 'monokai'
     self.config = config or {}
 
@@ -132,6 +133,7 @@ class CodeMirrorWidget(TextArea):
     field_id = 'codemirror-' + field.id
     html = super(CodeMirrorWidget, self).__call__(field, id=field_id, **kwargs)
     content = self._generate_content()
+    content = content.replace('"function(cm) { cm.foldCode(cm.getCursor()); }"', 'function(cm) { cm.foldCode(cm.getCursor()); }')
     post_html = self.__class__.POST_HTML.format(field.id, content)
     return html + Markup(post_html)
 
@@ -139,8 +141,10 @@ class CodeMirrorWidget(TextArea):
     """Dumps content using JSON to send to CodeMirror"""
     # concat into a dict
     dic = self.config
-    dic['mode'] = self.language
+    # dic['mode'] = self.language
     if self.theme:
         dic['theme'] = self.theme
     # dumps with json
-    return json.dumps(dic, indent=8, separators=(',', ': '))
+    return json.dumps(dic, indent=2, separators=(',', ': '))
+
+

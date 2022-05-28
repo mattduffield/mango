@@ -100,6 +100,7 @@ class ParameterForm(Form):
     'Label', 
     render_kw = {
       'class' : input_class,
+      # 'data-script': 'on input copyToLowerSnake(me, "name") end',
     },
   )
   name = StringField(
@@ -108,11 +109,12 @@ class ParameterForm(Form):
       'class' : input_class,
     },
   )
-  type = StringField(
-    'Type', 
-    render_kw = {
-      'class' : input_class,
-    },
+  data_type = LookupSelectField(
+    'Data Type',
+    allow_blank = True,
+    blank_text = 'Pick...',
+    collection = 'lookup',
+    query = { 'name': 'data_type' },
   )
   value = StringField(
     'Value', 

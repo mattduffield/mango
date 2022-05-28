@@ -89,6 +89,9 @@ def to_field_list_label(value, *args, **kwargs):
   _, part = value.rsplit('-', 1)
   return part.replace('_', ' ')
 
+def to_number_format(value, *args, **kwargs):
+  return format(int(value), ',')
+
 def load_sync(query):
   if query.collection == 'lookup':
     lookup_name = query.query['name']
@@ -177,6 +180,7 @@ class CustomJinja2Templates(Jinja2Templates):
       'endswith': endswith,
       'startswith': startswith,
       'to_field_list_label': to_field_list_label,
+      'to_number_format': to_number_format,
       'to_proper_case': to_proper_case,
       'to_string': to_string,
       'to_date': to_date,
@@ -194,6 +198,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['endswith'] = endswith
     self.env.tests['startswith'] = startswith
     self.env.tests['to_field_list_label'] = to_field_list_label
+    self.env.tests['to_number_format'] = to_number_format
     self.env.tests['to_proper_case'] = to_proper_case
     self.env.tests['to_string'] = to_string
     self.env.tests['to_date'] = to_date

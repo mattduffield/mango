@@ -227,5 +227,7 @@ async def run_pipeline(ap: AggregatePipeline):
   db = client[database]
   command = {"aggregate": ap.aggregate, "pipeline": ap.pipeline, "cursor": ap.cursor}
   result = db.command(command)  
-  data = json.loads(json_util.dumps(result), object_hook=json_from_mongo)
-  return data
+  return result
+  # data = json.loads(json_util.dumps(result), object_hook=json_from_mongo)
+  # data = json.loads(json.dumps(result, default=json_from_mongo), object_hook=json_from_mongo)
+  # return data
