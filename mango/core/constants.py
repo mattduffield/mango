@@ -136,30 +136,77 @@ on load
 end
 '''
 
+hs_data_type = f'''
+on load
+  if me.value == 'bool'
+    filterSelectOptionsByValues(me, "#field_type", ["BooleanField", "ToggleSwitchField"])
+  end
+  if me.value == 'datetime'
+    filterSelectOptionsByValues(me, "#field_type", ["DateField"])
+  end
+  if me.value == 'Dict'
+    filterSelectOptionsByValues(me, "#field_type", ["FormField"])
+  end
+  if me.value == 'int'
+    filterSelectOptionsByValues(me, "#field_type", ["IntegerField"])
+  end
+  if me.value == 'List'
+    filterSelectOptionsByValues(me, "#field_type", ["FieldList", "QuerySelectMultipleField"])
+  end
+  if me.value == 'PositiveInt'
+    filterSelectOptionsByValues(me, "#field_type", ["IntegerField"])
+  end
+  if me.value == 'str'
+    filterSelectOptionsByValues(me, "#field_type", ["CodeMirrorField", "ColorField", "CurrencyField", "DatalistField", "EmailField", "LookupSelectField", "PicklistSelectField", "QuerySelectField", "StringField", "TextAreaField"])
+  end
+on change 
+  if me.value == 'bool'
+    filterSelectOptionsByValues(me, "#field_type", ["BooleanField", "ToggleSwitchField"])
+  end
+  if me.value == 'datetime'
+    filterSelectOptionsByValues(me, "#field_type", ["DateField"])
+  end
+  if me.value == 'Dict'
+    filterSelectOptionsByValues(me, "#field_type", ["FormField"])
+  end
+  if me.value == 'int'
+    filterSelectOptionsByValues(me, "#field_type", ["IntegerField"])
+  end
+  if me.value == 'List'
+    filterSelectOptionsByValues(me, "#field_type", ["FieldList", "QuerySelectMultipleField"])
+  end
+  if me.value == 'PositiveInt'
+    filterSelectOptionsByValues(me, "#field_type", ["IntegerField"])
+  end
+  if me.value == 'str'
+    filterSelectOptionsByValues(me, "#field_type", ["CodeMirrorField", "ColorField", "CurrencyField", "DatalistField", "EmailField", "LookupSelectField", "PicklistSelectField", "QuerySelectField", "StringField", "TextAreaField"])
+  end
+'''
+
 hs_field_type = f'''
-on load 
-  toggleElementVisibility(me, "query-tab-container", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
-  toggleElementVisibility(me, "wrapper_allow_blank", ["LookupSelectField", "QuerySelectField"])
-  toggleElementVisibility(me, "wrapper_field_type_form_field", ["FieldList", "FormField"])
-  toggleElementVisibility(me, "wrapper_datalist", ["DatalistField", "PicklistSelectField"])
-  toggleElementVisibility(me, "wrapper_placeholder", ["StringField"])
-end
+on load
+  if not (the closest <div.wrapper.hidden/>)
+    toggleElementVisibility(me, "query-tab-container", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
+    toggleElementVisibility(me, "allow-blank-container", ["LookupSelectField", "PicklistSelectField", "QuerySelectField"])
+    toggleElementVisibility(me, "wrapper_field_type_form_field", ["FieldList", "FormField"])
+    toggleElementVisibility(me, "wrapper_datalist", ["DatalistField", "PicklistSelectField"])
+    toggleElementVisibility(me, "wrapper_placeholder", ["StringField"])
+  end
 on change 
   toggleElementVisibility(me, "query-tab-container", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
-  toggleElementVisibility(me, "wrapper_allow_blank", ["LookupSelectField", "QuerySelectField"])
+  toggleElementVisibility(me, "allow-blank-container", ["LookupSelectField", "PicklistSelectField", "QuerySelectField"])
   toggleElementVisibility(me, "wrapper_field_type_form_field", ["FieldList", "FormField"])
   toggleElementVisibility(me, "wrapper_datalist", ["DatalistField", "PicklistSelectField"])
   toggleElementVisibility(me, "wrapper_placeholder", ["StringField"])
-end
 '''
 
 hs_field_type_form_field = f'''
-on load 
-  toggleElementVisibility(me, "wrapper_datalist", ["DatalistField"])
-end
+on load
+  if not (the closest <div.wrapper.hidden/>)
+    toggleElementVisibility(me, "wrapper_datalist", ["DatalistField"])
+  end
 on change 
   toggleElementVisibility(me, "wrapper_datalist", ["DatalistField"])
-end
 '''
 
 

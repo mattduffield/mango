@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_login.exceptions import InvalidCredentialsException
 from mango.auth.models import AuthHandler, Credentials, Signup, PasswordReset
 from mango.auth.forms import LoginForm, SignupForm, PasswordResetForm
-from mango.db.models import QueryOne, InsertOne, AggregatePipeline
+from mango.db.models import Query, QueryOne, InsertOne, AggregatePipeline
 from mango.db.rest import find_one_sync, find_one, insert_one_sync, insert_one, run_pipeline_sync
 from mango.wf.models import WorkflowRequest
 from mango.wf.views import init_workflow_run
@@ -164,8 +164,8 @@ async def login(request: Request, next: Optional[str] = None):
     next = '/'
   access_token = manager.create_access_token(
     data={'sub': credentials.email},
+    # expires=timedelta(seconds=10),
     expires=timedelta(hours=12),
-    scopes=user['action_list'],
   )
   resp = RedirectResponse(url=next, status_code=status.HTTP_302_FOUND)
   manager.set_cookie(resp, access_token)
