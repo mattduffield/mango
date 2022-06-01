@@ -1,4 +1,5 @@
 import datetime
+import os
 from pathlib import Path
 from dateutil import parser
 from urllib.parse import urlparse, quote, unquote
@@ -18,10 +19,12 @@ from mango.core.fields import LookupSelectField, PicklistSelectField, QuerySelec
 from mango.core.forms import get_string_form, ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm, LookupForm
 from mango.db.models import DateTimeAwareEncoder, datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 from mango.db.api import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
-import settings
-from settings import manager, templates, DATABASE_NAME
+from mango.template_utils.utils import configure_templates
 
+DATABASE_NAME = os.environ.get('DATABASE_NAME')
+TEMPLATE_DIRECTORY = os.environ.get('TEMPLATE_DIRECTORY')
 
+templates = configure_templates(directory=TEMPLATE_DIRECTORY)
 action_map = {
   'get_list': 'view',
   'get_create': 'add',
@@ -62,7 +65,8 @@ class StaticView():
   async def get(self, request: Request):
     self.request = request
     self.organization = await self.get_default_organization()    
-    context = {'request': request, 'settings': settings, 'view': self}
+    # context = {'request': request, 'settings': settings, 'view': self}
+    context = {'request': request, 'view': self}
     template_name = self.get_template_name()
     response = templates.TemplateResponse(template_name, context)
     return response
@@ -272,7 +276,8 @@ class BaseDynamicView():
       pipeline = self.get_pipeline(field_list=field_list)
     batch = await run_pipeline(pipeline)
     data = batch['cursor']['firstBatch']
-    context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'form': form, 'search': search}
+    # context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'form': form, 'search': search}
+    context = {'request': request, 'view': self, 'data': data, 'form': form, 'search': search}
     return context
 
   async def get_context_data(self, request: Request, get_type: str, _id: str = ''):
@@ -336,7 +341,8 @@ class BaseDynamicView():
                 sub_field.choices = sub_field.get_choices(data=data)
 
     # context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
-    context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form}
+    # context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form}
+    context = {'request': request, 'view': self, 'data': data, 'data_string': data_string, 'form': form}
     return context
 
   # async def get_page_layout(self, get_type: str):
@@ -373,7 +379,7 @@ class BaseDynamicView():
       query = self.get_query('find_one', collection=self.model_name, query={'_id': self._id})
       data = await find_one(query)
     elif get_type in ['get_list']:
-      if self.filter_model_name and self.filter_model_id:
+      if self.filter_model_name and self.filter_model_id and not 'related_list' in self.request.url.path:
         criteria = {f'{self.filter_model_name}_id': self.filter_model_id}
         query = self.get_query('find', collection=self.model_name, query=criteria)
       else:
@@ -508,7 +514,8 @@ class BaseDynamicView():
         payload = self.post_query(post_type)
         response = await self.post_data(post_type, payload=payload)
       else:
-        context = {'request': request, 'settings': settings, 'view': self, 'data': {}, 'form': self.form}
+        # context = {'request': request, 'settings': settings, 'view': self, 'data': {}, 'form': self.form}
+        context = {'request': request, 'view': self, 'data': {}, 'form': self.form}
         template_name = self.get_template_name(post_type)
         response = templates.TemplateResponse(template_name, context)
     elif post_type == 'post_update':
@@ -517,7 +524,8 @@ class BaseDynamicView():
         response = await self.post_data(post_type, payload=payload)
       else:
         print('Form Errors: ', self.form.errors)
-        context = {'request': request, 'settings': settings, 'view': self, 'data': {'_id': _id}, 'data_string': data_string, 'form': self.form}
+        # context = {'request': request, 'settings': settings, 'view': self, 'data': {'_id': _id}, 'data_string': data_string, 'form': self.form}
+        context = {'request': request, 'view': self, 'data': {'_id': _id}, 'data_string': data_string, 'form': self.form}
         template_name = self.get_template_name(post_type)
         response = templates.TemplateResponse(template_name, context)
     elif post_type == 'post_delete':

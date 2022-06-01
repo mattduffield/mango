@@ -11,7 +11,6 @@ from typing import (
 from mango.db.api import find, find_one, count, bulk_read, insert_one, insert_many, update_one, delete, bulk_write, run_pipeline
 from mango.wf.models import User, Workflow, WorkflowRequest, WorkflowRun, WorkflowTrigger, Machine
 from mango.db.models import json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, Delete, BulkWrite, AggregatePipeline
-from settings import manager, templates
 
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')

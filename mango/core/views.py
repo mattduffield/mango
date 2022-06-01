@@ -2,6 +2,7 @@ import datetime
 from dateutil import parser
 from urllib.parse import urlparse, quote, unquote
 import json
+import os
 from bson import json_util, ObjectId
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -11,15 +12,18 @@ from starlette.datastructures import MultiDict
 from wtforms import Form, FormField, FieldList
 from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 from mango.auth.models import Credentials
-from mango.auth.auth import can
+from mango.auth.auth import can, manager
 from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, PageLayout, ListLayout, Tab, App, Lookup, PageElement
 from mango.core.fields import LookupSelectField, QuerySelectField, QuerySelectMultipleField, StringField2
 from mango.core.forms import get_dynamic_form, get_string_form, ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm, LookupForm, PageElementForm
 from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 from mango.db.api import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
 from mango.db.rest import find_one_sync, find_sync, bulk_read_sync
-import settings
-from settings import manager, templates, DATABASE_NAME
+from mango.template_utils.utils import configure_templates
+
+DATABASE_NAME = os.environ.get('DATABASE_NAME')
+TEMPLATE_DIRECTORY = os.environ.get('TEMPLATE_DIRECTORY')
+templates = configure_templates(directory=TEMPLATE_DIRECTORY)
 
 
 def get_app_model(name: str):
@@ -226,7 +230,8 @@ class BaseView():
       pipeline = self.get_pipeline(field_list=field_list)
     batch = await run_pipeline(pipeline)
     data = batch['cursor']['firstBatch']
-    context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'form': form, 'search': search}
+    # context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'form': form, 'search': search}
+    context = {'request': request, 'view': self, 'data': data, 'form': form, 'search': search}
     return context
 
   async def get_context_data(self, request: Request, get_type: str, _id: str = ''):
@@ -292,7 +297,8 @@ class BaseView():
     self.main_data = quote(raw_data)
     # self.main_data = json.dumps(model_data.dict())
     self.main_form = f'{self.form_class.__module__}.{self.form_class.__name__}'
-    context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
+    # context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
+    context = {'request': request, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
     return context
 
   async def get_page_layout(self, get_type: str):
@@ -460,7 +466,8 @@ class BaseView():
         payload = self.post_query(post_type)
         response = await self.post_data(post_type, payload=payload)
       else:
-        context = {'request': request, 'settings': settings, 'view': self, 'data': {}, 'form': self.form}
+        # context = {'request': request, 'settings': settings, 'view': self, 'data': {}, 'form': self.form}
+        context = {'request': request, 'view': self, 'data': {}, 'form': self.form}
         template_name = self.get_template_name(post_type)
         response = templates.TemplateResponse(template_name, context)
     elif post_type == 'post_update':
@@ -469,7 +476,8 @@ class BaseView():
         response = await self.post_data(post_type, payload=payload)
       else:
         self.page_layout = await self.get_page_layout('get_update')
-        context = {'request': request, 'settings': settings, 'view': self, 'data': {'_id': _id}, 'data_string': data_string, 'form': self.form, 'page_layout': self.page_layout}
+        context = {'request': request, 'view': self, 'data': {'_id': _id}, 'data_string': data_string, 'form': self.form, 'page_layout': self.page_layout}
+        # context = {'request': request, 'settings': settings, 'view': self, 'data': {'_id': _id}, 'data_string': data_string, 'form': self.form, 'page_layout': self.page_layout}
         # context = {'request': request, 'settings': settings, 'view': self, 'data': {'_id': _id}, 'data_string': data_string, 'form': self.form}
         template_name = self.get_template_name(post_type)
         response = templates.TemplateResponse(template_name, context)

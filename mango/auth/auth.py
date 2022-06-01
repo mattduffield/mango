@@ -5,17 +5,30 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Request, HTTPException, status
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi_login import LoginManager
 from fastapi_login.exceptions import InvalidCredentialsException
-from mango.auth.models import AuthHandler, Credentials, Signup, PasswordReset
+from mango.auth.models import AuthHandler, Credentials, Signup, PasswordReset, NotAuthenticatedException
 from mango.auth.forms import LoginForm, SignupForm, PasswordResetForm
 from mango.db.models import Query, QueryOne, InsertOne, AggregatePipeline
 from mango.db.rest import find_one_sync, find_one, insert_one_sync, insert_one, run_pipeline_sync
 from mango.wf.models import WorkflowRequest
 from mango.wf.views import init_workflow_run
-from settings import manager, templates
+from mango.template_utils.utils import configure_templates
 
 SESSION_SECRET_KEY = os.environ.get('SESSION_SECRET_KEY')
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
+TEMPLATE_DIRECTORY = os.environ.get('TEMPLATE_DIRECTORY')
+templates = configure_templates(directory=TEMPLATE_DIRECTORY)
+
+manager = LoginManager(
+  SESSION_SECRET_KEY, 
+  token_url='/auth/login', 
+  use_cookie=True,
+  cookie_name='mango-cookie',
+  default_expiry=timedelta(hours=12),
+)
+manager.not_authenticated_exception = NotAuthenticatedException
+
 
 headers = {}
 # headers = {'HX-Refresh': 'true'}

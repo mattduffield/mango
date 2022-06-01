@@ -3,8 +3,6 @@
     https://github.com/dldevinc/jinja2-simple-tags
     https://michaelabrahamsen.com/posts/jinja2-custom-template-tags/
 '''
-from dotenv import load_dotenv
-load_dotenv()
 import os
 import datetime
 from urllib.parse import quote
@@ -416,7 +414,7 @@ def register_tags(templates):
 
 def configure_templates(directory='templates'):
   global templates
-  templates = CustomJinja2Templates(directory="templates")
+  templates = CustomJinja2Templates(directory=directory)
   register_tags(templates)
   return templates
 

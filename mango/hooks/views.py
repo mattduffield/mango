@@ -18,14 +18,17 @@ from quickbooks.objects.attachable import Attachable, AttachableRef
 from mango.db.api import find, find_one, count, bulk_read, insert_one, insert_many, update_one, delete, bulk_write, run_pipeline
 from mango.db.models import json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
 from mango.wf.models import WorkflowRun
-from settings import manager, templates
+from mango.template_utils.utils import configure_templates
 
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
+TEMPLATE_DIRECTORY = os.environ.get('TEMPLATE_DIRECTORY')
 ASANA_CLIENT_ID = os.environ.get('ASANA_CLIENT_ID')
 ASANA_CLIENT_SECRET = os.environ.get('ASANA_CLIENT_SECRET')
 ASANA_REDIRECT_URI = os.environ.get('ASANA_REDIRECT_URI')
 ASANA_PERSONAL_ACCESS_TOKEN = os.environ.get('ASANA_PERSONAL_ACCESS_TOKEN')
+
+templates = configure_templates(directory=TEMPLATE_DIRECTORY)
 
 router = APIRouter(
   prefix = '/hooks',

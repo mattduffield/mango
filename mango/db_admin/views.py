@@ -1,8 +1,7 @@
 import json, os
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List, Tuple
-import settings
-from settings import manager
+from mango.auth.auth import manager
 from mango.db_admin.api import (
   list_database_names,
   create_database,
