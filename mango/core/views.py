@@ -86,7 +86,7 @@ class StaticView():
 
   async def get(self, request: Request):
     self.request = request
-    context = {'request': request, 'settings': settings, 'view': self}
+    context = {'request': request, 'view': self}
     template_name = self.get_template_name()
     response = templates.TemplateResponse(template_name, context)
     return response
@@ -230,7 +230,6 @@ class BaseView():
       pipeline = self.get_pipeline(field_list=field_list)
     batch = await run_pipeline(pipeline)
     data = batch['cursor']['firstBatch']
-    # context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'form': form, 'search': search}
     context = {'request': request, 'view': self, 'data': data, 'form': form, 'search': search}
     return context
 
@@ -297,7 +296,6 @@ class BaseView():
     self.main_data = quote(raw_data)
     # self.main_data = json.dumps(model_data.dict())
     self.main_form = f'{self.form_class.__module__}.{self.form_class.__name__}'
-    # context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
     context = {'request': request, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
     return context
 
@@ -466,7 +464,6 @@ class BaseView():
         payload = self.post_query(post_type)
         response = await self.post_data(post_type, payload=payload)
       else:
-        # context = {'request': request, 'settings': settings, 'view': self, 'data': {}, 'form': self.form}
         context = {'request': request, 'view': self, 'data': {}, 'form': self.form}
         template_name = self.get_template_name(post_type)
         response = templates.TemplateResponse(template_name, context)
@@ -477,8 +474,6 @@ class BaseView():
       else:
         self.page_layout = await self.get_page_layout('get_update')
         context = {'request': request, 'view': self, 'data': {'_id': _id}, 'data_string': data_string, 'form': self.form, 'page_layout': self.page_layout}
-        # context = {'request': request, 'settings': settings, 'view': self, 'data': {'_id': _id}, 'data_string': data_string, 'form': self.form, 'page_layout': self.page_layout}
-        # context = {'request': request, 'settings': settings, 'view': self, 'data': {'_id': _id}, 'data_string': data_string, 'form': self.form}
         template_name = self.get_template_name(post_type)
         response = templates.TemplateResponse(template_name, context)
     elif post_type == 'post_delete':
