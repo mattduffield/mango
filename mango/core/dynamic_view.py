@@ -428,7 +428,8 @@ class BaseDynamicView():
         "$toString": "$_id"
       }
     }
-    project = project | projection
+    # project = project | projection
+    project = dict(list(project.items()) + list(projection.item()))
     pipeline_list = [
       {
         "$search": {
