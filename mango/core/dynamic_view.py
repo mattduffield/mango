@@ -27,6 +27,7 @@ TEMPLATE_DIRECTORY = os.environ.get('TEMPLATE_DIRECTORY')
 templates = configure_templates(directory=TEMPLATE_DIRECTORY)
 action_map = {
   'get_list': 'view',
+  'get_list_related': 'view',
   'get_create': 'add',
   'post_create': 'add',
   'get_update': 'edit',
@@ -264,6 +265,115 @@ class BaseDynamicView():
     response = templates.TemplateResponse(template_name, context)
     return response
 
+  async def get_list_related(self, request: Request, model: str, _id: str = '', related_model: str = '', search: str = '', is_modal: bool = False, user = None):
+    self.get_type = 'get_list_related'
+    self.request = request
+    # self.model_name = model
+    self.model_name = related_model
+    self.related_model_name = related_model
+    self.model_class = self.get_model_class(related_model)
+    self.form_class = self.get_form_class(related_model)
+    self._id = _id
+    self.search = search
+    self.is_modal = is_modal
+    self.initialize_route_urls(_id)
+
+    self.related_query = self.build_related_query(model=model, _id=_id, related_model=related_model)
+
+    action_permission = action_map.get(self.get_type, None)
+    if not can(current_user=user, role='', action=f'{model}/{action_permission}'):
+      context = {'request': request, 'model': model}
+      template_name = f'partials/not-authorized.html'
+      response = templates.TemplateResponse(template_name, context)
+      return response      
+
+    if is_modal and request.state.redirect_url:
+      redirect_url_parsed = urlparse(request.state.redirect_url)
+      redirect_url_parts = redirect_url_parsed.path.split('/')
+      self.filter_model_name, self.filter_model_id = redirect_url_parts[2::1]
+      self.redirect_url = request.state.redirect_url
+
+    if search:
+      context = await self.get_search_context_data(request, search)
+    else:
+      context = await self.get_context_data(request, get_type=self.get_type, _id=_id)
+    
+    if self.page_designer:
+      import os
+      from jinja2 import Environment, BaseLoader, DictLoader
+      from mango.template_utils.utils import (
+        is_datetime,
+        is_fieldlist,
+        is_list,
+        is_form_field,
+        is_lookup_select_field,
+        is_query_select_field,
+        is_key_value_form,
+        contains,
+        endswith,
+        startswith,
+        to_field_list_label,
+        to_proper_case,
+        to_string,
+        to_date,
+        db_lookup,        
+      )
+      path = 'templates/macros/macros.html'
+      full_path = os.path.join(Path.cwd(), path)
+      page_markup = self.page_designer['transform']
+      with open(full_path, 'r') as f:
+        macro = f.read()
+      markup = f'''{macro}
+        {page_markup}
+      '''
+      env = Environment(loader=BaseLoader())
+
+      env.filters.update({
+        'is_datetime': is_datetime,
+        'is_fieldlist': is_fieldlist,
+        'is_list': is_list,
+        'is_form_field': is_form_field,
+        'is_lookup_select_field': is_lookup_select_field,
+        'is_query_select_field': is_query_select_field,
+        'is_key_value_form': is_key_value_form,
+        'contains': contains,
+        'endswith': endswith,
+        'startswith': startswith,
+        'to_field_list_label': to_field_list_label,
+        'to_proper_case': to_proper_case,
+        'to_string': to_string,
+        'to_date': to_date,
+        'db_lookup': db_lookup,
+      })
+      env.tests['is_datetime'] = is_datetime
+      env.tests['is_fieldlist'] = is_fieldlist
+      env.tests['is_list'] = is_list
+      env.tests['is_form_field'] = is_form_field
+      env.tests['is_lookup_select_field'] = is_lookup_select_field
+      env.tests['is_query_select_field'] = is_query_select_field
+      env.tests['is_key_value_form'] = is_key_value_form
+      env.tests['contains'] = contains
+      env.tests['endswith'] = endswith
+      env.tests['startswith'] = startswith
+      env.tests['to_field_list_label'] = to_field_list_label
+      env.tests['to_proper_case'] = to_proper_case
+      env.tests['to_string'] = to_string
+      env.tests['to_date'] = to_date
+      env.tests['db_lookup'] = db_lookup
+
+      tmpl = env.from_string(markup)
+
+      self.page_designer['rendered'] = tmpl.render(**context)
+
+    template_name = self.get_template_name(self.get_type)
+    response = templates.TemplateResponse(template_name, context)
+    return response
+
+  def build_related_query(self, model: str, _id: str, related_model: str):
+    criteria = {f'{model}_id': _id}
+    query = self.get_query('find', collection=related_model, query=criteria)
+    return query
+
   async def get_search_context_data(self, request: Request, search: str):
     form = self.form_class(request)
     self.list_layout = await self.get_list_layout(get_type='get_list')
@@ -276,7 +386,6 @@ class BaseDynamicView():
       pipeline = self.get_pipeline(field_list=field_list)
     batch = await run_pipeline(pipeline)
     data = batch['cursor']['firstBatch']
-    # context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'form': form, 'search': search}
     context = {'request': request, 'view': self, 'data': data, 'form': form, 'search': search}
     return context
 
@@ -301,7 +410,6 @@ class BaseDynamicView():
       data = await self.get_data(get_type)
 
     self.organization = await self.get_default_organization()
-    # self.page_layout = await self.get_page_layout(get_type)
     self.page_designer = await self.get_page_designer(get_type)
     self.list_layout = await self.get_list_layout(get_type)
 
@@ -314,7 +422,7 @@ class BaseDynamicView():
       # self.main_data = quote(raw_data)
       self.main_form = f'{self.form_class.__module__}.{self.form_class.__name__}'
 
-    if _id or get_type in ['get_create']:
+    if get_type in ['get_create', 'get_update']:
       if  hasattr(self, 'form_class'):
         if issubclass(self.form_class, StarletteForm):
           form = self.form_class(request, data=data)
@@ -340,17 +448,8 @@ class BaseDynamicView():
               elif isinstance(sub_field, LookupSelectField) or isinstance(sub_field, PicklistSelectField) or isinstance(sub_field, QuerySelectField) or isinstance(sub_field, QuerySelectMultipleField):
                 sub_field.choices = sub_field.get_choices(data=data)
 
-    # context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form, 'page_layout': self.page_layout}
-    # context = {'request': request, 'settings': settings, 'view': self, 'data': data, 'data_string': data_string, 'form': form}
     context = {'request': request, 'view': self, 'data': data, 'data_string': data_string, 'form': form}
     return context
-
-  # async def get_page_layout(self, get_type: str):
-  #   data = None
-  #   if get_type in ['get_create', 'get_update']:
-  #     query = self.get_query('find_one', collection='page_layout', query={'model_name': self.model_name})
-  #     data = await find_one(query)
-  #   return data
 
   async def get_default_organization(self):
     query = self.get_query('find_one', collection='organization', query={'is_default': True})
@@ -384,10 +483,16 @@ class BaseDynamicView():
         query = self.get_query('find', collection=self.model_name, query=criteria)
       else:
         query = self.get_query('find', collection=self.model_name)
-      # model_query = self.get_query('find_one', collection='model', query={'name': self.model_name})
-      # model_data = await find_one(model_query)
       if self.model_data:
-        # model = Model(**model_data)
+        if self.model_data.order_by:
+          sort = {}
+          for item in self.model_data.order_by:
+            sort[item] = 1
+          query.sort = sort      
+      data = await find(query)
+    elif get_type in ['get_list_related']:
+      query = self.related_query
+      if self.model_data:
         if self.model_data.order_by:
           sort = {}
           for item in self.model_data.order_by:
@@ -398,19 +503,19 @@ class BaseDynamicView():
 
   def get_query(self, query_type: str, collection: str, query: dict = {}, sort: dict = {}, data: dict = None):
     if query_type == 'find_one':
-      query = QueryOne(
+      query_def = QueryOne(
         database=DATABASE_NAME,
         collection=collection,
         query=query  # {'_id': self._id}
       )
     elif query_type == 'find':
-      query = Query(
+      query_def = Query(
         database=DATABASE_NAME,
         collection=collection,
         query=query,  # {'_id': self._id}
         sort=sort  # {'name': 1}
       )
-    return query
+    return query_def
 
   def get_pipeline(self, field_list:List[str] = []):
     search_index_name = self.model_class.Meta.search_index_name
@@ -579,7 +684,7 @@ class BaseDynamicView():
 
   def get_template_name(self, http_type: str):
     template_type = ''
-    if http_type in ['get_list']:
+    if http_type in ['get_list', 'get_list_related']:
       template_type = 'list'
     elif http_type in ['get_create', 'post_create']:
       template_type = 'create'
