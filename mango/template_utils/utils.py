@@ -118,6 +118,9 @@ def load_sync(query):
 
 def db_lookup(value, data = []):
   if isinstance(value, (LookupSelectField)):
+    for prop in value.query:
+      if callable(value.query[prop]):
+        value.query[prop] = value.query[prop](data)
     query = QueryOne(
       database=DATABASE_NAME,
       collection=value.collection,
@@ -130,6 +133,9 @@ def db_lookup(value, data = []):
     found = next((display_member(x) for x in lookup if value_member(x) == data), None)
     return found
   elif isinstance(value, (QuerySelectField)):
+    for prop in value.query:
+      if callable(value.query[prop]):
+        value.query[prop] = value.query[prop](data)
     query = Query(
       database=DATABASE_NAME,
       collection=value.collection,
@@ -142,6 +148,9 @@ def db_lookup(value, data = []):
     found = next((display_member(x) for x in lookup if value_member(x) == data), None)
     return found
   elif isinstance(value, (QuerySelectMultipleField)):
+    for prop in value.query:
+      if callable(value.query[prop]):
+        value.query[prop] = value.query[prop](data)
     query = Query(
       database=DATABASE_NAME,
       collection=value.collection,
