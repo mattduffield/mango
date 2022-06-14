@@ -139,23 +139,25 @@ async def bulk_insert_ship_to_customers(file_name: str, database: str, collectio
       bulk_insert = models.BulkInsert(**{
         "bulk_type": "insert_one",
         "data": {
-          'business_key': row['CustomerID'],
-          'name': row['DisplayName'],
-          'ship_to_first_name': row['FirstName'],
-          'ship_to_last_name': row['LastName'],
-          'ship_to_street': row['Street'],
-          'ship_to_city': row['City'],
-          'ship_to_region': row['Region'],
-          'ship_to_state': row['Region'],
+          'business_key': str(row['CustomerID']).strip(),
+          'name': str(row['DisplayName']).strip(),
+          'ship_to_first_name': str(row['FirstName']).strip(),
+          'ship_to_last_name': str(row['LastName']).strip(),
+          'ship_to_street': str(row['Street']).strip(),
+          'ship_to_city': str(row['City']).strip(),
+          'ship_to_region': str(row['Region']).strip(),
+          'ship_to_state': str(row['Region']).strip(),
           'ship_to_postal_code': str(row['PostalCode'])
-            .replace('-', ''),
+            .replace('-', '')
+            .strip(),
           'ship_to_country': 'United States',
-          'ship_to_email': row['Email'],
+          'ship_to_email': str(row['Email']).strip(),
           'ship_to_phone_number': str(row['Telephone'])
             .replace('(', '')
             .replace(')', '')
             .replace('-', '')
-            .replace(' ', ''),
+            .replace(' ', '')
+            .strip(),
           'penn_alliance_vendor': True if str(row['OnOffLogistics']).upper() == 'TRUE' else False,
           'is_active': True,
         }
@@ -190,41 +192,45 @@ async def bulk_insert_bill_to_customers(file_name: str, database: str, collectio
         },
         'data': {
           '$set': {
-            'bill_to_first_name': row['FirstName'],
-            'bill_to_last_name': row['LastName'],
-            'bill_to_street': row['dbo_Users.Street'],
-            'bill_to_unit': row['dbo_Users.Unit'],
-            'bill_to_city': row['dbo_Users.City'],
-            'bill_to_region': row['dbo_Users.Region'],
-            'bill_to_state': row['dbo_Users.Region'],
+            'bill_to_first_name': str(row['FirstName']).strip(),
+            'bill_to_last_name': str(row['LastName']).strip(),
+            'bill_to_street': str(row['dbo_Users.Street']).strip(),
+            'bill_to_unit': str(row['dbo_Users.Unit']).strip(),
+            'bill_to_city': str(row['dbo_Users.City']).strip(),
+            'bill_to_region': str(row['dbo_Users.Region']).strip(),
+            'bill_to_state': str(row['dbo_Users.Region']).strip(),
             'bill_to_postal_code': str(row['dbo_Users.PostalCode'])
-              .replace('-', ''),
-            'bill_to_country': row['dbo_Users.Country'],
-            'bill_to_email': row['Email'],
+              .replace('-', '')
+              .strip(),
+            'bill_to_country': str(row['dbo_Users.Country']).strip(),
+            'bill_to_email': str(row['Email']).strip(),
             'bill_to_phone_number': str(row['FALMCustomer.Telephone'])
               .replace('(', '')
               .replace(')', '')
               .replace('-', '')
-              .replace(' ', ''),
+              .replace(' ', '')
+              .strip(),
             'bill_to_mobile_number': str(row['MobilePhone'])
               .replace('(', '')
               .replace(')', '')
               .replace('-', '')
-              .replace(' ', ''),
+              .replace(' ', '')
+              .strip(),
             'bill_to_fax_number': str(row['Fax'])
               .replace('(', '')
               .replace(')', '')
               .replace('-', '')
-              .replace(' ', ''),
-            'customer_name': row['CustomerName'],
-            'qb_class': row['QBClass'],
-            'qb_invoice_terms': row['QBInvoiceTerms'],
-            'qb_customer_name': row['QBCustomerName'],
-            'qb_vendor_name': row['QBVendorName'],
-            'rename_consignee_labels': row['RenameCustomerLabels'],
-            'tracking_number_prefix': row['TrackingNumPrefix'],
-            'tracking_number': row['TrackingNum'],
-            'parent_customer_key': row['ParentCustomerID'],
+              .replace(' ', '')
+              .strip(),
+            'customer_name': str(row['CustomerName']).strip(),
+            'qb_class': str(row['QBClass']).strip(),
+            'qb_invoice_terms': str(row['QBInvoiceTerms']).strip(),
+            'qb_customer_name': str(row['QBCustomerName']).strip(),
+            'qb_vendor_name': str(row['QBVendorName']).strip(),
+            'rename_consignee_labels': str(row['RenameCustomerLabels']).strip(),
+            'tracking_number_prefix': str(row['TrackingNumPrefix']).strip(),
+            'tracking_number': str(row['TrackingNum']).strip(),
+            'parent_customer_key': str(row['ParentCustomerID']).strip(),
             'tracks_product_quantity': True if str(row['TracksProductQuantity']).upper() == 'TRUE' else False,
             'auto_receive_shipment': True if str(row['AutoReceiveShipment']).upper() == 'TRUE' else False,
             'is_pa_accounting': True if str(row['IsPAAccounting']).upper() == 'TRUE' else False,
