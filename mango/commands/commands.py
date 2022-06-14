@@ -246,6 +246,40 @@ async def bulk_insert_bill_to_customers(file_name: str, database: str, collectio
 @click.argument('file_name')
 @click.argument('database')
 @click.argument('collection')
+async def bulk_update_active_customers(file_name: str, database: str, collection: str):
+  """This uploads a CSV file into a given collection"""
+  click.echo(f'You are attempting to upload the file: {file_name} into the collection: {collection} of the database: {database}')
+
+  data = {
+    "database": database,
+    "collection": collection,
+    "batch": []
+  }
+  batch = models.BulkWrite(**data)
+  with open(file_name, 'r') as csv_file:
+    csv_reader = DictReader(csv_file)
+    for row in csv_reader:
+
+      bulk_update = models.BulkUpdate(**{
+        'bulk_type': 'update_one',
+        'query': {
+          'business_key': row['CustomerID']
+        },
+        'data': {
+          '$set': {            
+            'is_active': True if str(row['Active']).upper() == 'TRUE' else False,
+          }
+        }
+      })
+      batch.batch.append(bulk_update)
+
+  await api.bulk_write(batch)
+
+@main.command()
+@coro
+@click.argument('file_name')
+@click.argument('database')
+@click.argument('collection')
 async def bulk_insert_ship_to_recyclers(file_name: str, database: str, collection: str):
   """This uploads a CSV file into a given collection"""
   click.echo(f'You are attempting to upload the file: {file_name} into the collection: {collection} of the database: {database}')
