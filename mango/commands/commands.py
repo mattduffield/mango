@@ -146,11 +146,17 @@ async def bulk_insert_ship_to_customers(file_name: str, database: str, collectio
           'ship_to_street': row['Street'],
           'ship_to_city': row['City'],
           'ship_to_region': row['Region'],
-          'ship_to_postal_code': row['PostalCode'],
+          'ship_to_state': row['Region'],
+          'ship_to_postal_code': str(row['PostalCode'])
+            .replace('-', ''),
+          'ship_to_country': 'United States',
           'ship_to_email': row['Email'],
-          'ship_to_phone_number': row['Phone #'],
-          'ship_to_telephone': row['Telephone'],
-          'penn_alliance_vendor': bool(row['OnOffLogistics']),
+          'ship_to_phone_number': str(row['Telephone'])
+            .replace('(', '')
+            .replace(')', '')
+            .replace('-', '')
+            .replace(' ', ''),
+          'penn_alliance_vendor': True if str(row['OnOffLogistics']).upper() == 'TRUE' else False,
           'is_active': True,
         }
       })
@@ -190,13 +196,26 @@ async def bulk_insert_bill_to_customers(file_name: str, database: str, collectio
             'bill_to_unit': row['dbo_Users.Unit'],
             'bill_to_city': row['dbo_Users.City'],
             'bill_to_region': row['dbo_Users.Region'],
-            'bill_to_postal_code': row['dbo_Users.PostalCode'],
+            'bill_to_state': row['dbo_Users.Region'],
+            'bill_to_postal_code': str(row['dbo_Users.PostalCode'])
+              .replace('-', ''),
             'bill_to_country': row['dbo_Users.Country'],
-            'bill_to_telephone': row['dbo_Users.Telephone'],
             'bill_to_email': row['Email'],
-            'bill_to_phone_number': row['Phone#'],
-            'bill_to_mobile_phone': row['MobilePhone'],
-            'bill_to_fax': row['Fax'],
+            'bill_to_phone_number': str(row['FALMCustomer.Telephone'])
+              .replace('(', '')
+              .replace(')', '')
+              .replace('-', '')
+              .replace(' ', ''),
+            'bill_to_mobile_number': str(row['MobilePhone'])
+              .replace('(', '')
+              .replace(')', '')
+              .replace('-', '')
+              .replace(' ', ''),
+            'bill_to_fax_number': str(row['Fax'])
+              .replace('(', '')
+              .replace(')', '')
+              .replace('-', '')
+              .replace(' ', ''),
             'customer_name': row['CustomerName'],
             'qb_class': row['QBClass'],
             'qb_invoice_terms': row['QBInvoiceTerms'],
@@ -206,9 +225,9 @@ async def bulk_insert_bill_to_customers(file_name: str, database: str, collectio
             'tracking_number_prefix': row['TrackingNumPrefix'],
             'tracking_number': row['TrackingNum'],
             'parent_customer_key': row['ParentCustomerID'],
-            'tracks_product_quantity': True if row['TracksProductQuantity'] == 'TRUE' else False,
-            'auto_receive_shipment': True if row['AutoReceiveShipment'] == 'TRUE' else False,
-            'is_pa_accounting': True if row['IsPAAccounting'] == 'TRUE' else False,
+            'tracks_product_quantity': True if str(row['TracksProductQuantity']).upper() == 'TRUE' else False,
+            'auto_receive_shipment': True if str(row['AutoReceiveShipment']).upper() == 'TRUE' else False,
+            'is_pa_accounting': True if str(row['IsPAAccounting']).upper() == 'TRUE' else False,
           }
         }
       })
