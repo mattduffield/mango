@@ -56,6 +56,389 @@ def get(id):
   click.echo(response.json())
 
 @main.command()
+@coro
+@click.argument('file_name')
+@click.argument('database')
+@click.argument('collection')
+async def bulk_insert_customers(file_name: str, database: str, collection: str):
+  """This uploads a CSV file into a given collection"""
+  click.echo(f'You are attempting to upload the file: {file_name} into the collection: {collection} of the database: {database}')
+
+  data = {
+    "database": database,
+    "collection": collection,
+    "batch": []
+  }
+  batch = models.BulkWrite(**data)
+  with open(file_name, 'r') as csv_file:
+    csv_reader = DictReader(csv_file)
+    for row in csv_reader:
+      bulk_insert = models.BulkInsert(**{
+        "bulk_type": "insert_one",
+        "data": {
+          'business_key': row['CustomerID'],
+          'name': row['DisplayName'],
+          'first_name': row['FirstName'],
+          'last_name': row['LastName'],
+          'street': row['dbo_Users.Street'],
+          'unit': row['dbo_Users.Unit'],
+          'city': row['dbo_Users.City'],
+          'region': row['dbo_Users.Region'],
+          'postal_code': row['dbo_Users.PostalCode'],
+          'country': row['dbo_Users.Country'],
+          'telephone': row['dbo_Users.Telephone'],
+          'customer_name': row['CustomerName'],
+          'email': row['Email'],
+          'qb_class': row['QBClass'],
+          'qb_invoice_terms': row['QBInvoiceTerms'],
+          'qb_customer_name': row['QBCustomerName'],
+          'qb_vendor_name': row['QBVendorName'],
+          'rename_consignee_labels': row['RenameCustomerLabels'],
+          'tracking_number_prefix': row['TrackingNumPrefix'],
+          'tracking_number': row['TrackingNum'],
+          'parent_customer_key': row['ParentCustomerID'],
+          'tracks_product_quantity': row['TracksProductQuantity'],
+          'auto_receive_shipment': row['AutoReceiveShipment'],
+          'penn_alliance_vendor': row['PennAllianceVendor (OOL)'],
+          'customer_street': row['FALMCustomer.Street'],
+          'customer_unit': row['FALMCustomer.Unit'],
+          'customer_city': row['FALMCustomer.City'],
+          'customer_region': row['FALMCustomer.Region'],
+          'customer_postal_code': row['FALMCustomer.PostalCode'],
+          'customer_country': row['FALMCustomer.Country'],          
+          'customer_telephone': row['FALMCustomer.Telephone'],
+          'mobile_phone': row['MobilePhone'],
+          'fax': row['Fax'],
+          'is_pa_accounting': row['IsPAAccounting'],
+          'phone_number': row['Phone#'],
+          'is_active': row['Active'],
+        }
+      })
+      batch.batch.append(bulk_insert)
+
+  await api.bulk_write(batch)
+
+@main.command()
+@coro
+@click.argument('file_name')
+@click.argument('database')
+@click.argument('collection')
+async def bulk_insert_ship_to_customers(file_name: str, database: str, collection: str):
+  """This uploads a CSV file into a given collection"""
+  click.echo(f'You are attempting to upload the file: {file_name} into the collection: {collection} of the database: {database}')
+
+  data = {
+    "database": database,
+    "collection": collection,
+    "batch": []
+  }
+  batch = models.BulkWrite(**data)
+  with open(file_name, 'r') as csv_file:
+    csv_reader = DictReader(csv_file)
+    for row in csv_reader:
+      bulk_insert = models.BulkInsert(**{
+        "bulk_type": "insert_one",
+        "data": {
+          'business_key': str(row['CustomerID']).strip(),
+          'name': str(row['DisplayName']).strip(),
+          'ship_to_first_name': str(row['FirstName']).strip(),
+          'ship_to_last_name': str(row['LastName']).strip(),
+          'ship_to_street': str(row['Street']).strip(),
+          'ship_to_city': str(row['City']).strip(),
+          'ship_to_region': str(row['Region']).strip(),
+          'ship_to_state': str(row['Region']).strip(),
+          'ship_to_postal_code': str(row['PostalCode'])
+            .replace('-', '')
+            .strip(),
+          'ship_to_country': 'United States',
+          'ship_to_email': str(row['Email']).strip(),
+          'ship_to_phone_number': str(row['Telephone'])
+            .replace('(', '')
+            .replace(')', '')
+            .replace('-', '')
+            .replace(' ', '')
+            .strip(),
+          'penn_alliance_vendor': True if str(row['OnOffLogistics']).upper() == 'TRUE' else False,
+          'is_active': True,
+        }
+      })
+      batch.batch.append(bulk_insert)
+
+  await api.bulk_write(batch)
+
+@main.command()
+@coro
+@click.argument('file_name')
+@click.argument('database')
+@click.argument('collection')
+async def bulk_insert_bill_to_customers(file_name: str, database: str, collection: str):
+  """This uploads a CSV file into a given collection"""
+  click.echo(f'You are attempting to upload the file: {file_name} into the collection: {collection} of the database: {database}')
+
+  data = {
+    "database": database,
+    "collection": collection,
+    "batch": []
+  }
+  batch = models.BulkWrite(**data)
+  with open(file_name, 'r') as csv_file:
+    csv_reader = DictReader(csv_file)
+    for row in csv_reader:
+
+      bulk_update = models.BulkUpdate(**{
+        'bulk_type': 'update_one',
+        'query': {
+          'business_key': row['CustomerID']
+        },
+        'data': {
+          '$set': {
+            'bill_to_first_name': str(row['FirstName']).strip(),
+            'bill_to_last_name': str(row['LastName']).strip(),
+            'bill_to_street': str(row['dbo_Users.Street']).strip(),
+            'bill_to_unit': str(row['dbo_Users.Unit']).strip(),
+            'bill_to_city': str(row['dbo_Users.City']).strip(),
+            'bill_to_region': str(row['dbo_Users.Region']).strip(),
+            'bill_to_state': str(row['dbo_Users.Region']).strip(),
+            'bill_to_postal_code': str(row['dbo_Users.PostalCode'])
+              .replace('-', '')
+              .strip(),
+            'bill_to_country': str(row['dbo_Users.Country']).strip(),
+            'bill_to_email': str(row['Email']).strip(),
+            'bill_to_phone_number': str(row['FALMCustomer.Telephone'])
+              .replace('(', '')
+              .replace(')', '')
+              .replace('-', '')
+              .replace(' ', '')
+              .strip(),
+            'bill_to_mobile_number': str(row['MobilePhone'])
+              .replace('(', '')
+              .replace(')', '')
+              .replace('-', '')
+              .replace(' ', '')
+              .strip(),
+            'bill_to_fax_number': str(row['Fax'])
+              .replace('(', '')
+              .replace(')', '')
+              .replace('-', '')
+              .replace(' ', '')
+              .strip(),
+            'customer_name': str(row['CustomerName']).strip(),
+            'qb_class': str(row['QBClass']).strip(),
+            'qb_invoice_terms': str(row['QBInvoiceTerms']).strip(),
+            'qb_customer_name': str(row['QBCustomerName']).strip(),
+            'qb_vendor_name': str(row['QBVendorName']).strip(),
+            'rename_consignee_labels': str(row['RenameCustomerLabels']).strip(),
+            'tracking_number_prefix': str(row['TrackingNumPrefix']).strip(),
+            'tracking_number': str(row['TrackingNum']).strip(),
+            'parent_customer_key': str(row['ParentCustomerID']).strip(),
+            'tracks_product_quantity': True if str(row['TracksProductQuantity']).upper() == 'TRUE' else False,
+            'auto_receive_shipment': True if str(row['AutoReceiveShipment']).upper() == 'TRUE' else False,
+            'is_pa_accounting': True if str(row['IsPAAccounting']).upper() == 'TRUE' else False,
+          }
+        }
+      })
+      batch.batch.append(bulk_update)
+
+  await api.bulk_write(batch)
+
+@main.command()
+@coro
+@click.argument('file_name')
+@click.argument('database')
+@click.argument('collection')
+async def bulk_update_active_customers(file_name: str, database: str, collection: str):
+  """This uploads a CSV file into a given collection"""
+  click.echo(f'You are attempting to upload the file: {file_name} into the collection: {collection} of the database: {database}')
+
+  data = {
+    "database": database,
+    "collection": collection,
+    "batch": []
+  }
+  batch = models.BulkWrite(**data)
+  with open(file_name, 'r') as csv_file:
+    csv_reader = DictReader(csv_file)
+    for row in csv_reader:
+
+      bulk_update = models.BulkUpdate(**{
+        'bulk_type': 'update_one',
+        'query': {
+          'business_key': row['CustomerID']
+        },
+        'data': {
+          '$set': {            
+            'is_active': True if str(row['Active']).upper() == 'TRUE' else False,
+          }
+        }
+      })
+      batch.batch.append(bulk_update)
+
+  await api.bulk_write(batch)
+
+@main.command()
+@coro
+@click.argument('file_name')
+@click.argument('database')
+@click.argument('collection')
+async def bulk_insert_ship_to_recyclers(file_name: str, database: str, collection: str):
+  """This uploads a CSV file into a given collection"""
+  click.echo(f'You are attempting to upload the file: {file_name} into the collection: {collection} of the database: {database}')
+
+  data = {
+    "database": database,
+    "collection": collection,
+    "batch": []
+  }
+  batch = models.BulkWrite(**data)
+  with open(file_name, 'r') as csv_file:
+    csv_reader = DictReader(csv_file)
+    for row in csv_reader:
+      bulk_insert = models.BulkInsert(**{
+        "bulk_type": "insert_one",
+        "data": {
+          'business_key': row['RecyclerID'],
+          'name': row['DisplayName'], 
+          'ship_to_first_name': row['FirstName'],
+          'ship_to_last_name': row['LastName'],
+          'ship_to_street': row['Street'], 
+          'ship_to_city': row['City'], 
+          'ship_to_state': row['Region'], 
+          'ship_to_postal_code': row['PostalCode'], 
+          'ship_to_country': 'United States',
+          'ship_to_email': row['Email'],
+          'ship_to_telephone': row['Telephone'],
+        }
+      })
+      batch.batch.append(bulk_insert)
+
+  await api.bulk_write(batch)
+
+@main.command()
+@coro
+@click.argument('file_name')
+@click.argument('database')
+@click.argument('collection')
+async def bulk_insert_bill_to_recyclers(file_name: str, database: str, collection: str):
+  """This uploads a CSV file into a given collection"""
+  click.echo(f'You are attempting to upload the file: {file_name} into the collection: {collection} of the database: {database}')
+
+  data = {
+    "database": database,
+    "collection": collection,
+    "batch": []
+  }
+  batch = models.BulkWrite(**data)
+  with open(file_name, 'r') as csv_file:
+    csv_reader = DictReader(csv_file)
+    for row in csv_reader:
+
+      bulk_update = models.BulkUpdate(**{
+        'bulk_type': 'update_one',
+        'query': {
+          'business_key': row['RecyclerID']
+        },
+        'data': {
+          '$set': {
+            'bill_to_first_name': row['FirstName'],
+            'bill_to_last_name': row['LastName'],
+            'bill_to_street': row['Street'],
+            'bill_to_unit': '',
+            'bill_to_city': row['City'],
+            'bill_to_state': row['Region'],
+            'bill_to_postal_code': row['PostalCode'],
+            'bill_to_country': row['Country'],
+            'bill_to_telephone': row['Telephone'],
+            'bill_to_email': row['Email'],
+            'is_pa_accounting': True if row['PennAllianceRecycler'] == 'TRUE' else False,
+          }
+        }
+      })
+      batch.batch.append(bulk_update)
+
+  await api.bulk_write(batch)
+
+@main.command()
+@coro
+@click.argument('file_name')
+@click.argument('database')
+@click.argument('collection')
+async def bulk_insert_recyclers(file_name: str, database: str, collection: str):
+  """This uploads a CSV file into a given collection"""
+  click.echo(f'You are attempting to upload the file: {file_name} into the collection: {collection} of the database: {database}')
+
+  data = {
+    "database": database,
+    "collection": collection,
+    "batch": []
+  }
+  batch = models.BulkWrite(**data)
+  with open(file_name, 'r') as csv_file:
+    csv_reader = DictReader(csv_file)
+    for row in csv_reader:
+      bulk_insert = models.BulkInsert(**{
+        "bulk_type": "insert_one",
+        "data": {
+          'name': row['display_name'], 
+          'entity_type': 'recycler', 
+          'ship_to_street': row['ship_to_street'], 
+          'ship_to_city': row['ship_to_city'], 
+          'ship_to_state': row['ship_to_state'], 
+          'ship_to_region': row['ship_to_region'], 
+          'ship_to_postal_code': row['ship_to_postal_code'], 
+          'ship_to_first_name': row['ship_to_first_name'],
+          'ship_to_last_name': row['ship_to_last_name'],
+          'ship_to_office_number': row['ship_to_office_number'],
+          'ship_to_mobile_number': row['ship_to_mobile_number'],
+        }
+      })
+      batch.batch.append(bulk_insert)
+
+  await api.bulk_write(batch)
+
+@main.command()
+@coro
+@click.argument('file_name')
+@click.argument('database')
+@click.argument('collection')
+async def bulk_insert_products(file_name: str, database: str, collection: str):
+  """This uploads a CSV file into a given collection"""
+  click.echo(f'You are attempting to upload the file: {file_name} into the collection: {collection} of the database: {database}')
+
+  data = {
+    "database": database,
+    "collection": collection,
+    "batch": []
+  }
+  batch = models.BulkWrite(**data)
+  with open(file_name, 'r') as csv_file:
+    csv_reader = DictReader(csv_file)
+    for row in csv_reader:
+      bulk_insert = models.BulkInsert(**{
+        "bulk_type": "insert_one",
+        "data": {
+          'business_key': row['ProductID'],
+          'name': row['ProductName'],
+          'penn_alliance_product': row['PennAllianceProduct'],
+          'kit_assembled_at_recycler': row['KitAssembledAtRecycler'],
+          'qb_picked_up_item': row['QBPickedUpItem'],
+          'qb_picked_up_income_account': row['QBPickedUpIncomeAccount'],
+          'qb_picked_up_cogs_account': row['QBPickedUpCOGSAccount'],
+          'qb_scrap_item': row['QBScrapItem'],
+          'qb_scrap_income_account': row['QBScrapIncomeAccount'],
+          'qb_scrap_cogs_account': row['QBScrapCOGSAccount'],
+          'qb_returned_item': row['QBReturnedItem'],
+          'qb_returned_income_account': row['QBReturnedIncomeAccount'],
+          'qb_returned_cogs_account': row['QBReturnedCOGSAccount'],
+          'classify_upon_receipt': row['ClassifyUponReceipt'],
+          'falm_sort_product': row['FALMSortProduct'],
+          'is_active': row['Active'],
+        }
+      })
+      batch.batch.append(bulk_insert)
+
+  await api.bulk_write(batch)
+
+@main.command()
 @click.argument('app_name')
 def start_app(app_name: str):
   """This creates a new app folder"""

@@ -136,8 +136,11 @@ async def bulk_read(batch: List[Union[Query, QueryOne]]):
     expr = query.buildExpression()
     entity = db[query.collection]
     cursor = eval(expr)
-    results = list(cursor)
-    data = json.loads(json.dumps(results, default=json_from_mongo))
+    if isinstance(query, Query):
+      results = list(cursor)
+      data = json.loads(json.dumps(results, default=json_from_mongo))
+    else:
+      data = json.loads(json.dumps(cursor, default=json_from_mongo))
     payload.append(data)
   return payload
 
