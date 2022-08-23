@@ -12,7 +12,7 @@ DATABASE_USERNAME = os.environ.get('DATABASE_USERNAME')
 DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD')
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
-from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
+from mango.db.models import datetime_parser, mongo_to_json, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 
 uri = f'mongodb+srv://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_CLUSTER}.mongodb.net/{DATABASE_NAME}?retryWrites=true&w=majority'
 client = MongoClient(uri)
@@ -227,7 +227,9 @@ async def run_pipeline(ap: AggregatePipeline):
   db = client[database]
   command = {"aggregate": ap.aggregate, "pipeline": ap.pipeline, "cursor": ap.cursor}
   result = db.command(command)  
-  return result
+  # return result
+  data = json.loads(json.dumps(result, default=mongo_to_json))
+  return data
   # data = json.loads(json_util.dumps(result), object_hook=json_from_mongo)
   # data = json.loads(json.dumps(result, default=json_from_mongo), object_hook=json_from_mongo)
   # return data

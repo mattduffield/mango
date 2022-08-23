@@ -106,6 +106,12 @@ class EmailField2(EmailField):
     self.wrapper_class = wrapper_class
 
 
+class HiddenField2(HiddenField):
+  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+    super(HiddenField2, self).__init__(label, validators, **kwargs)    
+    self.wrapper_class = wrapper_class
+
+
 class StringField2(StringField):
   def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
     super(StringField2, self).__init__(label, validators, **kwargs)    
@@ -500,3 +506,5 @@ class CodeMirrorField(TextAreaField):
     super(CodeMirrorField, self).__init__(label=label, validators=validators, widget=widget, **kwargs)
     self.config = config
     self.wrapper_class = wrapper_class
+
+    

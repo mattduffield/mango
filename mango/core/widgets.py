@@ -120,6 +120,10 @@ class CodeMirrorWidget(TextArea):
         document.getElementById('codemirror-{0}'),
         {1}
       );
+      //var txt = document.getElementById('codemirror-{0}');
+      //console.log(txt);
+      //if (txt.form) txt.form.addEventListener('submit', () => txt.value = editor_for_{0}.getValue())
+      //editor_for_{0}.on('change', editor => editor.save());
       //editor_for_{0}.foldCode(CodeMirror.Pos(0, 0));
     </script>
   '''

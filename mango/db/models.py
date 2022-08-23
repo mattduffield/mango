@@ -1,4 +1,5 @@
 import inspect
+import bson.timestamp
 import bson.objectid
 import json, re
 from typing import (
@@ -37,8 +38,17 @@ def json_from_mongo(x):
     return x
 
 def json_to_mongo(dct):
-  if '_id' in dct and type(dct['_id']) is str:
-    dct['_id'] = ObjectId(dct['_id'])
+  # if '_id' in dct and type(dct['_id']) is str:
+  #   dct['_id'] = ObjectId(dct['_id'])
+  ids = [key for (key,value) in dct.items() if key.endswith('_id')]
+  for key in ids:
+    if type(dct[key]) is str:
+      dct[key] = ObjectId(dct[key])
+  if dct.get('$set'):
+    set_ids = [key for (key,value) in dct['$set'].items() if key.endswith('_id')]
+    for key in set_ids:
+      if dct['$set'][key] and type(dct['$set'][key]) is str:
+        dct['$set'][key] = ObjectId(dct['$set'][key])
   return dct
 
 def datetime_parser(dct):
@@ -60,6 +70,22 @@ def datetime_parser(dct):
 #   # if isinstance(dct['$date'], (datetime)):
 #   #   dct['$date'] = dct['$date'].isoformat()
 #   return dct
+
+def mongo_to_json(dct):
+  if isinstance(dct, bson.objectid.ObjectId):
+    return str(dct)
+  elif isinstance(dct, bson.timestamp.Timestamp):
+    return str(dct)
+  elif isinstance(dct, bytes):
+    return str(dct)
+  elif isinstance(dct, datetime):
+    return dct.isoformat()
+  elif '_id' in dct and '$oid' in dct['_id']:
+    dct['_id'] = dct['_id']['$oid']
+  elif '$date' in dct and isinstance(dct['$date'], datetime):
+    return dct['$date'].__str__()
+  return dct
+
 
 def as_form(cls: Type[BaseModel]):
     """
@@ -193,7 +219,8 @@ class UpdateOne(BaseMongo):
       self.query = json_to_mongo(self.query)
     else:
       self.query = {}
-    if self.data:
+    if self.data and any(self.data):
+      self.data = json_to_mongo(self.data)
       expr = f'entity.{self.update_type}({self.query}, {self.data})'
       return expr
     return None

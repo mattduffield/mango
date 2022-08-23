@@ -139,47 +139,47 @@ end
 hs_data_type = f'''
 on load
   if me.value == 'bool'
-    filterSelectOptionsByValues(me, "#field_type", ["BooleanField", "ToggleSwitchField"])
+    filterSelectOptionsByValues(me, "#field_type", ["BooleanField", "ToggleSwitchField", "HiddenField"])
   end
   if me.value == 'datetime'
-    filterSelectOptionsByValues(me, "#field_type", ["DateField"])
+    filterSelectOptionsByValues(me, "#field_type", ["DateField", "HiddenField"])
   end
   if me.value == 'Dict'
     filterSelectOptionsByValues(me, "#field_type", ["FormField"])
   end
   if me.value == 'int'
-    filterSelectOptionsByValues(me, "#field_type", ["IntegerField"])
+    filterSelectOptionsByValues(me, "#field_type", ["IntegerField", "HiddenField"])
   end
   if me.value == 'List'
     filterSelectOptionsByValues(me, "#field_type", ["FieldList", "QuerySelectMultipleField"])
   end
   if me.value == 'PositiveInt'
-    filterSelectOptionsByValues(me, "#field_type", ["IntegerField"])
+    filterSelectOptionsByValues(me, "#field_type", ["IntegerField", "HiddenField"])
   end
   if me.value == 'str'
-    filterSelectOptionsByValues(me, "#field_type", ["CodeMirrorField", "ColorField", "CurrencyField", "DatalistField", "EmailField", "LookupSelectField", "PicklistSelectField", "QuerySelectField", "StringField", "TextAreaField"])
+    filterSelectOptionsByValues(me, "#field_type", ["CodeMirrorField", "ColorField", "CurrencyField", "DatalistField", "EmailField", "LookupSelectField", "PicklistSelectField", "QuerySelectField", "StringField", "TextAreaField", "HiddenField"])
   end
 on change 
   if me.value == 'bool'
-    filterSelectOptionsByValues(me, "#field_type", ["BooleanField", "ToggleSwitchField"])
+    filterSelectOptionsByValues(me, "#field_type", ["BooleanField", "ToggleSwitchField", "HiddenField"])
   end
   if me.value == 'datetime'
-    filterSelectOptionsByValues(me, "#field_type", ["DateField"])
+    filterSelectOptionsByValues(me, "#field_type", ["DateField", "HiddenField"])
   end
   if me.value == 'Dict'
     filterSelectOptionsByValues(me, "#field_type", ["FormField"])
   end
   if me.value == 'int'
-    filterSelectOptionsByValues(me, "#field_type", ["IntegerField"])
+    filterSelectOptionsByValues(me, "#field_type", ["IntegerField", "HiddenField"])
   end
   if me.value == 'List'
     filterSelectOptionsByValues(me, "#field_type", ["FieldList", "QuerySelectMultipleField"])
   end
   if me.value == 'PositiveInt'
-    filterSelectOptionsByValues(me, "#field_type", ["IntegerField"])
+    filterSelectOptionsByValues(me, "#field_type", ["IntegerField", "HiddenField"])
   end
   if me.value == 'str'
-    filterSelectOptionsByValues(me, "#field_type", ["CodeMirrorField", "ColorField", "CurrencyField", "DatalistField", "EmailField", "LookupSelectField", "PicklistSelectField", "QuerySelectField", "StringField", "TextAreaField"])
+    filterSelectOptionsByValues(me, "#field_type", ["CodeMirrorField", "ColorField", "CurrencyField", "DatalistField", "EmailField", "LookupSelectField", "PicklistSelectField", "QuerySelectField", "StringField", "TextAreaField", "HiddenField"])
   end
 '''
 

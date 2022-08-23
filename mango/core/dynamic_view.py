@@ -18,7 +18,8 @@ from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, 
 from mango.core.fields import LookupSelectField, PicklistSelectField, QuerySelectField, QuerySelectMultipleField, StringField2, FloatField2
 from mango.core.forms import get_string_form, ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm, LookupForm
 from mango.db.models import DateTimeAwareEncoder, datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
-from mango.db.api import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
+# from mango.db.api import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
+from mango.db.rest import find, find_one, run_pipeline, delete, delete_one, update_one, insert_one
 from mango.template_utils.utils import configure_templates
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
@@ -59,6 +60,8 @@ def get_class(class_str: str):
 
 
 class StaticView():
+  lookups = {'organization': {'title': 'TEST'}}
+
   def __init__(self):
     self.can = can
     self.can_can = can_can
@@ -140,6 +143,7 @@ class BaseDynamicView():
   page_designer = None
   filter_model_name = ''
   filter_model_id = ''
+  lookups = {'organization': {'title': 'TEST'}}
 
   def __init__(self):
     self.can = can
@@ -386,6 +390,7 @@ class BaseDynamicView():
       pipeline = self.get_pipeline(field_list=field_list)
     batch = await run_pipeline(pipeline)
     data = batch['cursor']['firstBatch']
+    self.organization = await self.get_default_organization()
     context = {'request': request, 'view': self, 'data': data, 'form': form, 'search': search}
     return context
 
@@ -519,45 +524,55 @@ class BaseDynamicView():
 
   def get_pipeline(self, field_list:List[str] = []):
     search_index_name = self.model_class.Meta.search_index_name
+    # search_index_name = 'customer_search_standard'
     sort = {}
     if self.model_data:
       for item in self.model_data.order_by:
         sort[item] = 1
     page_size = self.model_class.Meta.page_size
     if page_size == 0:
-      page_size = 100
+      page_size = 30
     keys = [x for x in field_list]
     projection = {keys[i]: 1 for i in range(0, len(keys), 1)}
     project = {
       "_id": {
         "$toString": "$_id"
+      },
+      "score": { 
+        "$meta": "searchScore" 
       }
     }
     # project = project | projection
-    project = dict(list(project.items()) + list(projection.item()))
+    project = dict(list(project.items()) + list(projection.items()))
     pipeline_list = [
       {
         "$search": {
           "index": search_index_name,
           "text": {
             "query": self.search,
-            "path": {
-              "wildcard": "*"
-            },
-            "fuzzy": {}
+            "path": field_list,
+            # "path": {
+            #   "wildcard": "*"
+            # },
+            "fuzzy": {
+              "maxEdits": 1,
+              "prefixLength": 1,
+              "maxExpansions": 5,
+            }
           }
         }
       },
       {
         "$project": project
       },
-      {
-        "$sort": sort
-      },
+      # {
+      #   "$sort": sort
+      # },
       {
         "$limit": page_size
       }
     ]
+    print(pipeline_list)
     pipeline = AggregatePipeline(
       database=DATABASE_NAME,
       aggregate=self.model_class.Meta.name,

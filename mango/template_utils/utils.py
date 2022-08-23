@@ -11,7 +11,7 @@ from jinja2_simple_tags import StandaloneTag
 from wtforms import fields, FormField
 from mango.db.rest import find_sync, find_one_sync
 from mango.db.models import Query, QueryOne
-from mango.core.fields import CurrencyField, LookupSelectField, QuerySelectField, QuerySelectMultipleField
+from mango.core.fields import CurrencyField, LookupSelectField, QuerySelectField, QuerySelectMultipleField, HiddenField2
 from mango.core.forms import KeyValueForm
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
@@ -39,6 +39,9 @@ def is_datetime(value, *args, **kwargs):
 
 def is_fieldlist(value, *args, **kwargs):
   return isinstance(value, fields.FieldList)
+
+def is_hiddenfield(value, *args, **kwargs):
+  return isinstance(value, HiddenField2)
 
 def is_list(value, *args, **kwargs):
   return isinstance(value, list)
@@ -177,6 +180,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.filters.update({
       'is_datetime': is_datetime,
       'is_fieldlist': is_fieldlist,
+      'is_hiddenfield': is_hiddenfield,
       'is_list': is_list,
       'is_currency_field': is_currency_field,
       'is_form_field': is_form_field,
@@ -195,6 +199,7 @@ class CustomJinja2Templates(Jinja2Templates):
     })
     self.env.tests['is_datetime'] = is_datetime
     self.env.tests['is_fieldlist'] = is_fieldlist
+    self.env.tests['is_hiddenfield'] = is_hiddenfield
     self.env.tests['is_list'] = is_list    
     self.env.tests['is_currency_field'] = is_currency_field
     self.env.tests['is_form_field'] = is_form_field
