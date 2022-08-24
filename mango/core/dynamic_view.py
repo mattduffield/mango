@@ -60,7 +60,7 @@ def get_class(class_str: str):
 
 
 class StaticView():
-  lookups = {'organization': {'title': 'TEST'}}
+  lookups = {'organization': {'title': 'FA'}}
 
   def __init__(self):
     self.can = can
