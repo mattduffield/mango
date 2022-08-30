@@ -35,39 +35,75 @@ router = APIRouter(
   tags = ['Hooks']
 )
 
+async def get_pipeline_resources(database: str, workflow_run_id: str):
+  pipeline = [
+    { 
+      '$match': {
+        '$expr': { '$eq': [ '$is_default', True ] }
+      },
+    },
+    { 
+      '$lookup': {
+        'from': 'organization',
+        'pipeline': [
+          { 
+            '$match': { 
+              '$expr': { '$eq': [ '$is_default', True ] }
+            }
+          }
+        ],
+        'as': 'organization'
+      }
+    },
+    { '$unwind': '$organization' },
+    { 
+      '$lookup': {
+        'let': {'wfr_id': { '$toObjectId': workflow_run_id }},
+        'from': 'workflow_run',
+        'pipeline': [
+          { 
+            '$match': { 
+              '$expr': { '$eq': [ '$_id', '$$wfr_id' ] }
+            }
+          }
+        ],
+        'as': 'workflow_run'
+      }
+    },
+    { '$unwind': '$workflow_run' }
+  ]
+
+  ap = AggregatePipeline(
+    database=database,
+    aggregate='xtra',
+    pipeline=pipeline,
+    cursor={},
+  )
+  pipeline_result = await run_pipeline(ap)
+  result = pipeline_result['cursor']['firstBatch']
+  return result
+
 @router.get('/approve-user/{database}/{workflow_run_id}', response_class=HTMLResponse)
 async def approve_user(request: Request, database: str, workflow_run_id: str):
   if not database:
     database = DATABASE_NAME
-
-  payload = {
-    'database': database,
-    'collection': 'workflow_run',
-    'query_type': 'find_one',
-    'projection': {},
-    'query': {'_id': workflow_run_id}
-  }
-  query = Query(**payload)
-  res = await find_one(query)
-  wfr = WorkflowRun(**res)
-  return templates.TemplateResponse('hooks/approve_user.html', {'request': request, 'database': database, 'id': workflow_run_id, 'wfr': wfr})
+  view = {}
+  [res] = await get_pipeline_resources(database=database, workflow_run_id=workflow_run_id)
+  view['organization'] = res.get('organization', None)
+  view['workflow_run'] = res.get('workflow_run', None)
+  wfr = WorkflowRun(**view['workflow_run'])
+  return templates.TemplateResponse('hooks/approve_user.html', {'request': request, 'database': database, 'id': workflow_run_id, 'wfr': wfr, 'view': view})
 
 @router.get('/reset-password/{database}/{workflow_run_id}', response_class=HTMLResponse)
 async def reset_password(request: Request, database: str, workflow_run_id: str):
   if not database:
     database = DATABASE_NAME
-
-  payload = {
-    'database': database,
-    'collection': 'workflow_run',
-    'query_type': 'find_one',
-    'projection': {},
-    'query': {'_id': workflow_run_id}
-  }
-  query = Query(**payload)
-  res = await find_one(query)
-  wfr = WorkflowRun(**res)
-  return templates.TemplateResponse('hooks/reset_password.html', {'request': request, 'database': database, 'id': workflow_run_id, 'wfr': wfr})
+  view = {}
+  [res] = await get_pipeline_resources(database=database, workflow_run_id=workflow_run_id)
+  view['organization'] = res.get('organization', None)
+  view['workflow_run'] = res.get('workflow_run', None)
+  wfr = WorkflowRun(**view['workflow_run'])
+  return templates.TemplateResponse('hooks/reset_password.html', {'request': request, 'database': database, 'id': workflow_run_id, 'wfr': wfr, 'view': view})
 
 @router.get('/asana/callback', response_class=HTMLResponse)
 async def asana_callback(request: Request):
