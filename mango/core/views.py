@@ -12,7 +12,7 @@ from starlette.datastructures import MultiDict
 from wtforms import Form, FormField, FieldList
 from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 from mango.auth.models import Credentials
-from mango.auth.auth import can, manager
+from mango.auth.auth import can, can_can, manager
 from mango.core.models import Action, Role, Model, ModelRecordType, ModelField, PageLayout, ListLayout, Tab, App, Lookup, PageElement
 from mango.core.fields import LookupSelectField, QuerySelectField, QuerySelectMultipleField, StringField2
 from mango.core.forms import get_dynamic_form, get_string_form, ActionForm, RoleForm, ModelForm, ModelRecordTypeForm, ModelFieldForm, PageLayoutForm, ListLayoutForm, TabForm, AppForm, KeyValueForm, LookupForm, PageElementForm
@@ -83,6 +83,7 @@ def get_field_choices(form, parent_data):
 class StaticView():
   def __init__(self):
     self.can = can
+    self.can_can = can_can
 
   async def get(self, request: Request):
     self.request = request

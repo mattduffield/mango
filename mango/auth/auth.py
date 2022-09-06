@@ -87,6 +87,26 @@ def load_user(email:str, database):
           'foreignField': 'name',
           'as': 'user_roles'
         }
+      },
+      {
+        '$lookup': {
+          'from': 'profile_maker',
+          'localField': 'profile_id',
+          'foreignField': '_id',
+          'as': 'user_profile'
+        }
+      },
+      {
+        "$unwind": "$user_profile"
+      },
+      {
+        "$lookup": { 
+          "from": "menu_maker", 
+          "pipeline": [ 
+            { "$match": { "$expr": { "$eq": [ "$is_active", True ] }}},
+            { "$project": { "label": 1, "page_list": 1 } }
+          ], "as": "menus" 
+        } 
       }
     ],
     cursor={},
@@ -96,6 +116,11 @@ def load_user(email:str, database):
   if user:
     for role in user['user_roles']:
       user['action_list'] = user['action_list'] + role['action_list']
+    for menu in user['user_profile']['menu_list']:
+      m = next((x for x in user['menus'] if x['_id'] == menu['menu_id']), None)
+      if m:
+        menu['label'] = m['label']
+        menu['page_list'] = m['page_list']
   return user
 
 def authenticate_user(email:str, database):

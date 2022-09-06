@@ -34,6 +34,8 @@ def json_from_mongo(x):
     return x.isoformat()
   elif isinstance(x, bson.objectid.ObjectId):
     return str(x)
+  elif isinstance(x, dict) and '$oid' in x:
+    return x['$oid']
   else:
     return x
 
