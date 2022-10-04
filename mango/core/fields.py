@@ -40,9 +40,10 @@ DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
 
 class ColorField2(ColorField):
-  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+  def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
     super(ColorField2, self).__init__(label, validators, **kwargs)    
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
   def process_formdata(self, valuelist):
     if valuelist:
@@ -53,9 +54,10 @@ class ColorField2(ColorField):
 
 
 # class CurrencyField(DecimalField):
-#   def __init__(self, label=None, validators=None, places=unset_value, rounding=None, wrapper_class='', **kwargs):
+#   def __init__(self, label=None, validators=None, places=unset_value, rounding=None, wrapper_class='', render_in_table=True, **kwargs):
 #     super(CurrencyField, self).__init__(label, validators, **kwargs)    
 #     self.wrapper_class = wrapper_class
+#     self.render_in_table = render_in_table
 
 #   def process_formdata(self, valuelist):
 #     if len(valuelist) == 1:
@@ -68,60 +70,76 @@ class ColorField2(ColorField):
 #     super(CurrencyField).process_formdata(self.data)
 
 
+class BooleanField2(BooleanField):
+  def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
+    super(BooleanField2, self).__init__(label, validators, **kwargs)    
+    self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
+
+
 class IntegerField2(IntegerField):
-  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+  def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
     super(IntegerField2, self).__init__(label, validators, **kwargs)    
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
 
 class CurrencyField(FloatField):
   widget = CurrencyWidget()
 
-  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+  def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
     super(CurrencyField, self).__init__(label, validators, **kwargs)    
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
 
 class FloatField2(FloatField):
-  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+  def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
     super(FloatField2, self).__init__(label, validators, **kwargs)    
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
 
 class DateField2(DateField):
-  def __init__(self, label='', validators=None, format="%Y-%m-%d", wrapper_class='', **kwargs):
+  def __init__(self, label='', validators=None, format="%Y-%m-%d", wrapper_class='', render_in_table=True, **kwargs):
     super(DateField2, self).__init__(label, validators, format="%Y-%m-%d", **kwargs)    
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
 
 class DateTimeField2(DateTimeField):
-  def __init__(self, label='', validators=None, format="%Y-%m-%d", wrapper_class='', **kwargs):
+  def __init__(self, label='', validators=None, format="%Y-%m-%d", wrapper_class='', render_in_table=True, **kwargs):
     super(DateTimeField2, self).__init__(label, validators, format="%Y-%m-%d", **kwargs)    
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
 
 class EmailField2(EmailField):
-  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+  def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
     super(EmailField2, self).__init__(label, validators, **kwargs)    
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
 
 class HiddenField2(HiddenField):
-  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+  def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
     super(HiddenField2, self).__init__(label, validators, **kwargs)    
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
 
 class StringField2(StringField):
-  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+  def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
     super(StringField2, self).__init__(label, validators, **kwargs)    
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
 
 class TextAreaField2(TextAreaField):
-  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+  def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
     super(TextAreaField2, self).__init__(label, validators, **kwargs)    
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
 
 class FieldList2(FieldList):
@@ -135,10 +153,12 @@ class FieldList2(FieldList):
     separator='-',
     default=(),
     wrapper_class='',
+    render_in_table=True,
     **kwargs,
   ):
     super().__init__(unbound_field, label, validators, min_entries=min_entries, max_entries=max_entries, separator=separator, default=default, **kwargs)
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
   def get_form_name(self):
     if issubclass(self.unbound_field.field_class, FormField):
@@ -239,9 +259,10 @@ class DatalistField(StringField):
   """
   widget = DatalistWidget()
 
-  def __init__(self, label='', validators=None, wrapper_class='', datalist=[], **kwargs):
+  def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, datalist=[], **kwargs):
     super(DatalistField, self).__init__(label, validators, **kwargs)
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
     self.datalist = datalist
 
   def _value(self):
@@ -270,6 +291,7 @@ class LookupSelectField(SelectField):
     display_member=lambda data: f'{data.get("key")}', 
     value_member=lambda data: f'{data.get("value")}',
     wrapper_class='',
+    render_in_table=True,
     **kwargs,
   ):
     super().__init__(label, validators, **kwargs)
@@ -291,6 +313,7 @@ class LookupSelectField(SelectField):
     self.value_member = value_member
     self.validate_choice = validate_choice
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
   def get_choices(self, data):
     for prop in self.query:
@@ -325,6 +348,7 @@ class PicklistSelectField(SelectField):
     allow_blank=False,
     blank_text='Choose...',
     wrapper_class='',
+    render_in_table=True,
     **kwargs,
   ):
     super().__init__(label, validators, **kwargs)
@@ -334,6 +358,7 @@ class PicklistSelectField(SelectField):
     self.blank_text = blank_text
     self.validate_choice = validate_choice
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
   def get_choices(self, data):
     blank_choice = None
@@ -368,6 +393,7 @@ class QuerySelectField(SelectField):
     display_member=lambda data: f'{data.get("name")}', 
     value_member=lambda data: f'{data.get("value")}',
     wrapper_class='',
+    render_in_table=True,
     **kwargs,
   ):
     super().__init__(label, validators, **kwargs)
@@ -389,6 +415,7 @@ class QuerySelectField(SelectField):
     self.value_member = value_member
     self.validate_choice = validate_choice
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
   def get_choices(self, data):
     for prop in self.query:
@@ -426,6 +453,7 @@ class QuerySelectMultipleField(SelectMultipleField):
     display_member=lambda data: f'{data.get("name")}', 
     value_member=lambda data: f'{data.get("value")}',     
     wrapper_class='',
+    render_in_table=True,
     **kwargs,
   ):
     super().__init__(label, validators, **kwargs)
@@ -445,6 +473,7 @@ class QuerySelectMultipleField(SelectMultipleField):
     self.value_member = value_member
     self.validate_choice = validate_choice
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
   def get_choices(self, data):
     choices = []
@@ -467,17 +496,19 @@ class QuerySelectMultipleField(SelectMultipleField):
 class ToggleRadioField(RadioField):
   widget = ToggleRadioWidget()
 
-  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+  def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
     super(ToggleRadioField, self).__init__(label, validators, **kwargs)
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
 
 class ToggleSwitchField(BooleanField):
   widget = ToggleSwitchWidget()
 
-  def __init__(self, label='', validators=None, wrapper_class='', **kwargs):
+  def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
     super(ToggleSwitchField, self).__init__(label, validators, **kwargs)    
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
 
 class WeeklyHoursField(Field):
@@ -501,10 +532,11 @@ class CodeMirrorField(TextAreaField):
   :param language: CodeMirror mode
   :param config: CodeMirror config
   """
-  def __init__(self, label='', validators=None, config=None, wrapper_class='', **kwargs):
+  def __init__(self, label='', validators=None, config=None, wrapper_class='', render_in_table=True, **kwargs):
     widget = CodeMirrorWidget(config)
     super(CodeMirrorField, self).__init__(label=label, validators=validators, widget=widget, **kwargs)
     self.config = config
     self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
 
     

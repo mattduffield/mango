@@ -1,6 +1,6 @@
 from starlette_wtf import StarletteForm, CSRFProtectMiddleware, csrf_protect
 from wtforms import (
-  BooleanField,
+  # BooleanField,
   DateField,
   DateTimeField,
   DecimalField,
@@ -24,6 +24,7 @@ from wtforms import (
 from wtforms.validators	import DataRequired, AnyOf, NoneOf
 from mango.core.fields import DatalistField, LookupSelectField, QuerySelectField, QuerySelectMultipleField, ToggleSwitchField
 from mango.core.fields import (
+  BooleanField2 as BooleanField,
   IntegerField2 as IntegerField,
   StringField2 as StringField,
   TextAreaField2 as TextAreaField,
