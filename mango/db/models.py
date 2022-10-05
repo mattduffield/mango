@@ -36,6 +36,8 @@ def json_from_mongo(x):
     return str(x)
   elif isinstance(x, dict) and '$oid' in x:
     return x['$oid']
+  elif isinstance(x, dict) and '$date' in x:
+    return x['$date']
   else:
     return x
 
