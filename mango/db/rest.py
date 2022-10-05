@@ -12,7 +12,7 @@ DATABASE_USERNAME = os.environ.get('DATABASE_USERNAME')
 DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD')
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
-from mango.db.models import datetime_parser, json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
+from mango.db.models import datetime_parser, json_from_mongo, mongo_to_json, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 
 uri = f'mongodb+srv://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_CLUSTER}.mongodb.net/{DATABASE_NAME}?retryWrites=true&w=majority'
 client = MongoClient(uri)
@@ -26,7 +26,7 @@ router = APIRouter(
 )
 
 @router.post('/find')
-async def find(query: Query):
+async def find(query: Query, keep_native:bool = False):
   database = query.database
   if not database:
     database = DATABASE_NAME
@@ -35,7 +35,10 @@ async def find(query: Query):
   entity = db[query.collection]
   cursor = eval(expr)
   results = list(cursor)
-  data = json.loads(json.dumps(results, default=json_from_mongo))
+  if keep_native:
+    data = results
+  else:
+    data = json.loads(json.dumps(results, default=json_from_mongo))
   return data
 
 def find_sync(query: Query):
@@ -102,7 +105,7 @@ def run_pipeline_sync(ap: AggregatePipeline):
   return data
 
 @router.post('/findOne')
-async def find_one(query: QueryOne):
+async def find_one(query: QueryOne, keep_native:bool = False):
   database = query.database
   if not database:
     database = DATABASE_NAME
@@ -110,7 +113,10 @@ async def find_one(query: QueryOne):
   expr = query.buildExpression()
   entity = db[query.collection]
   result = eval(expr)
-  data = json.loads(json.dumps(result, default=json_from_mongo))
+  if keep_native:
+    data = result
+  else:
+    data = json.loads(json.dumps(result, default=json_from_mongo))
   return data
 
 @router.post('/count')
