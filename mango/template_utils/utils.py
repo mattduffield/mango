@@ -5,6 +5,7 @@
 '''
 import os
 import datetime
+import json
 from urllib.parse import quote
 from fastapi.templating import Jinja2Templates
 from jinja2_simple_tags import StandaloneTag
@@ -33,6 +34,9 @@ lookup_cache = {}
   https://gist.github.com/jb-l/466eb6a96e39bf2d92500fe8d6909b14
   https://stackoverflow.com/questions/54715768/how-to-enter-a-list-in-wtforms
 '''
+
+def from_json(value, *args, **kwargs):
+  return json.loads(value)
 
 def is_datetime(value, *args, **kwargs):
   return isinstance(value, datetime.datetime)
@@ -178,6 +182,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.add_extension(RenderColTag)
     self.env.add_extension(RenderTableTag)
     self.env.filters.update({
+      'from_json': from_json,
       'is_datetime': is_datetime,
       'is_fieldlist': is_fieldlist,
       'is_hiddenfield': is_hiddenfield,
@@ -197,6 +202,7 @@ class CustomJinja2Templates(Jinja2Templates):
       'to_date': to_date,
       'db_lookup': db_lookup,
     })
+    self.env.tests['from_json'] = from_json
     self.env.tests['is_datetime'] = is_datetime
     self.env.tests['is_fieldlist'] = is_fieldlist
     self.env.tests['is_hiddenfield'] = is_hiddenfield
