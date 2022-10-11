@@ -35,14 +35,13 @@ lookup_cache = {}
   https://stackoverflow.com/questions/54715768/how-to-enter-a-list-in-wtforms
 '''
 
-def find_in(value, source_field_name:str = None, target = None, target_field_name:str = None):
-  if not source_field_name:
-    raise Exception('source_field_name is required!')
-  if not target:
-    raise Exception('target is required!')
-  if not target_field_name:
-    raise Exception('target_field_name is required!')
-  found = next((x for x in value if x[source_field_name] == target[target_field_name]), None)
+# {% set found_field = fields|find_in('name', 'product_id') %}
+def find_in(value, property_name:str = None, property_value:str = None):
+  if not property_name:
+    raise Exception('property_name is required!')
+  if not property_value:
+    raise Exception('property_value is required!')
+  found = next((x for x in value if x[property_name] == property_value), None)
   return found
 
 def from_json(value, *args, **kwargs):
