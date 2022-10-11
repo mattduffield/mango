@@ -35,6 +35,16 @@ lookup_cache = {}
   https://stackoverflow.com/questions/54715768/how-to-enter-a-list-in-wtforms
 '''
 
+def find_in(value, source_field_name:str = None, target = None, target_field_name:str = None):
+  if not source_field_name:
+    raise Exception('source_field_name is required!')
+  if not target:
+    raise Exception('target is required!')
+  if not target_field_name:
+    raise Exception('target_field_name is required!')
+  found = next((x for x in value if x[source_field_name] == target[target_field_name]), None)
+  return found
+
 def from_json(value, *args, **kwargs):
   return json.loads(value)
 
@@ -182,6 +192,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.add_extension(RenderColTag)
     self.env.add_extension(RenderTableTag)
     self.env.filters.update({
+      'find_in': find_in,
       'from_json': from_json,
       'is_datetime': is_datetime,
       'is_fieldlist': is_fieldlist,
@@ -202,6 +213,7 @@ class CustomJinja2Templates(Jinja2Templates):
       'to_date': to_date,
       'db_lookup': db_lookup,
     })
+    self.env.tests['find_in'] = find_in
     self.env.tests['from_json'] = from_json
     self.env.tests['is_datetime'] = is_datetime
     self.env.tests['is_fieldlist'] = is_fieldlist
