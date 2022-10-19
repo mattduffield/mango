@@ -114,6 +114,14 @@ class DateTimeField2(DateTimeField):
     self.render_in_table = render_in_table
 
 
+class DecimalField2(DecimalField):
+  def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
+    super(DecimalField2, self).__init__(label, validators, **kwargs)    
+    self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
+
+
+
 class EmailField2(EmailField):
   def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
     super(EmailField2, self).__init__(label, validators, **kwargs)    

@@ -47,6 +47,9 @@ def find_in(value, property_name:str = None, property_value:str = None):
 def from_json(value, *args, **kwargs):
   return json.loads(value)
 
+def has_attr(value, attribute_name:str = '', *args, **kwargs):
+  return hasattr(value, attribute_name)
+
 def is_datetime(value, *args, **kwargs):
   return isinstance(value, datetime.datetime)
 
@@ -193,6 +196,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.filters.update({
       'find_in': find_in,
       'from_json': from_json,
+      'has_attr': has_attr,
       'is_datetime': is_datetime,
       'is_fieldlist': is_fieldlist,
       'is_hiddenfield': is_hiddenfield,
@@ -214,6 +218,7 @@ class CustomJinja2Templates(Jinja2Templates):
     })
     self.env.tests['find_in'] = find_in
     self.env.tests['from_json'] = from_json
+    self.env.tests['has_attr'] = has_attr
     self.env.tests['is_datetime'] = is_datetime
     self.env.tests['is_fieldlist'] = is_fieldlist
     self.env.tests['is_hiddenfield'] = is_hiddenfield

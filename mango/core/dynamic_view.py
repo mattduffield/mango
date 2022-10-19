@@ -202,6 +202,8 @@ class BaseDynamicView():
       import os
       from jinja2 import Environment, BaseLoader, DictLoader
       from mango.template_utils.utils import (
+        find_in,
+        from_json,
         is_datetime,
         is_fieldlist,
         is_list,
@@ -229,6 +231,8 @@ class BaseDynamicView():
       env = Environment(loader=BaseLoader())
 
       env.filters.update({
+        'find_in': find_in,
+        'from_json': from_json,
         'is_datetime': is_datetime,
         'is_fieldlist': is_fieldlist,
         'is_list': is_list,
@@ -245,6 +249,8 @@ class BaseDynamicView():
         'to_date': to_date,
         'db_lookup': db_lookup,
       })
+      env.tests['find_in'] = find_in
+      env.tests['from_json'] = from_json
       env.tests['is_datetime'] = is_datetime
       env.tests['is_fieldlist'] = is_fieldlist
       env.tests['is_list'] = is_list
