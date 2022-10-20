@@ -290,6 +290,7 @@ class LookupSelectField(SelectField):
     coerce=str,
     choices=None,
     validate_choice=True,
+    serialize_choices=False,
     allow_blank=False,
     blank_text='Choose...',
     collection='lookup', 
@@ -304,6 +305,7 @@ class LookupSelectField(SelectField):
   ):
     super().__init__(label, validators, **kwargs)
     self.coerce = coerce
+    self.serialize_choices = serialize_choices
     self.allow_blank = allow_blank
     self.blank_text = blank_text
     self.collection = collection
@@ -392,6 +394,7 @@ class QuerySelectField(SelectField):
     coerce=str,
     choices=None,
     validate_choice=True,
+    serialize_choices=False,
     allow_blank=False,
     blank_text='Choose...',
     collection=None, 
@@ -406,6 +409,7 @@ class QuerySelectField(SelectField):
   ):
     super().__init__(label, validators, **kwargs)
     self.coerce = coerce
+    self.serialize_choices = serialize_choices
     self.allow_blank = allow_blank
     self.blank_text = blank_text
     self.collection = collection
@@ -454,6 +458,7 @@ class QuerySelectMultipleField(SelectMultipleField):
     coerce=str,
     choices=None,
     validate_choice=True,
+    serialize_choices=False,
     collection=None, 
     query={}, 
     projection={'name': 1, 'value': 1}, 
@@ -465,7 +470,8 @@ class QuerySelectMultipleField(SelectMultipleField):
     **kwargs,
   ):
     super().__init__(label, validators, **kwargs)
-    self.coerce = coerce
+    self.coerce = coerce    
+    self.serialize_choices = serialize_choices
     self.collection = collection
     self.query = query
     self.db_query = Query(
