@@ -1,11 +1,12 @@
 import datetime
 import json, os
+from decimal import *
 from typing import (
     Deque, Dict, FrozenSet, List, Optional, Sequence, Set, Tuple, Union
 )
 from fastapi import APIRouter, Depends, HTTPException
 from pymongo import MongoClient
-from bson import json_util, ObjectId
+from bson import json_util, ObjectId, Decimal128
 
 DATABASE_CLUSTER = os.environ.get('DATABASE_CLUSTER')
 DATABASE_USERNAME = os.environ.get('DATABASE_USERNAME')

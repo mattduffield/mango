@@ -1,7 +1,9 @@
 import inspect
+from bson import Decimal128
 import bson.timestamp
 import bson.objectid
 import json, re
+from decimal import *
 from typing import (
     Deque, Dict, FrozenSet, List, Literal, Optional, Sequence, Set, Tuple, Type, Union
 )
@@ -33,6 +35,8 @@ def json_from_mongo(x):
   if isinstance(x, datetime):
     return x.isoformat()
   elif isinstance(x, bson.objectid.ObjectId):
+    return str(x)
+  elif isinstance(x, Decimal128):
     return str(x)
   elif isinstance(x, dict) and '$oid' in x:
     return x['$oid']
@@ -84,6 +88,8 @@ def mongo_to_json(dct):
     return str(dct)
   elif isinstance(dct, datetime):
     return dct.isoformat()
+  elif isinstance(dct, Decimal128):
+    return Decimal(dct)
   elif '_id' in dct and '$oid' in dct['_id']:
     dct['_id'] = dct['_id']['$oid']
   elif '$date' in dct and isinstance(dct['$date'], datetime):
