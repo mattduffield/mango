@@ -104,7 +104,7 @@ def load_user(email:str, database):
           "from": "menu_maker", 
           "pipeline": [ 
             { "$match": { "$expr": { "$eq": [ "$is_active", True ] }}},
-            { "$project": { "label": 1, "screen_list": 1, "page_list": 1 } }
+            { "$project": { "label": 1, "is_top_level": 1, "role_list": 1, "screen_list": 1 } }
           ], "as": "menus" 
         } 
       }
@@ -120,8 +120,8 @@ def load_user(email:str, database):
       m = next((x for x in user['menus'] if x['_id'] == menu['menu_id']), None)
       if m:
         menu['label'] = m.get('label', 'UNKNOWN')
+        menu['is_top_level'] = m.get('is_top_level', False)
         menu['screen_list'] = m.get('screen_list', [])
-        menu['page_list'] = m.get('page_list', [])
   return user
 
 def authenticate_user(email:str, database):
