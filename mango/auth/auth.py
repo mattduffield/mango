@@ -122,6 +122,18 @@ def load_user(email:str, database):
         menu['label'] = m.get('label', 'UNKNOWN')
         menu['is_top_level'] = m.get('is_top_level', False)
         menu['screen_list'] = m.get('screen_list', [])
+  # Find all top-level
+  top_level_list = [x for x in user['user_profile']['menu_list'] if x.get('is_top_level', False) == True]
+  default_screen = None
+  for entry in top_level_list:
+    if default_screen:
+      break
+    for screen in entry['screen_list']:
+      is_default_route = screen.get('screen_is_default_route', False)
+      if is_default_route:
+        default_screen = screen
+        break
+  user['user_profile']['default_screen'] = default_screen
   return user
 
 def authenticate_user(email:str, database):
