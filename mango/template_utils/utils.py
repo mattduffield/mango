@@ -6,7 +6,7 @@
 import os
 import datetime
 import json
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 from fastapi.templating import Jinja2Templates
 from jinja2_simple_tags import StandaloneTag
 from wtforms import fields, FormField
@@ -44,7 +44,10 @@ def find_in(value, property_name:str = None, property_value:str = None):
   found = next((x for x in value if x[property_name] == property_value), None)
   return found
 
-def from_json(value, *args, **kwargs):
+def from_json(value, escape_newline:bool = False, *args, **kwargs):
+  if escape_newline:
+    value = unquote(value)
+    value = value.replace('\n', '\\n')
   return json.loads(value)
 
 def has_attr(value, attribute_name:str = '', *args, **kwargs):
