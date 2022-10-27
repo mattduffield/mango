@@ -178,7 +178,7 @@ class FieldList2(FieldList):
     return f'{module_name}.{name}'
 
 
-class DivField(Field):
+class OperatingHoursField(Field):
 
   def __call__(self, **kwargs):
     return markupsafe.Markup(f'''
@@ -539,6 +539,7 @@ class WeeklyHoursField(Field):
           self.data = [x.strip() for x in valuelist[0].split(',')]
       else:
           self.data = []
+
 
 class CodeMirrorField(TextAreaField):
   """Code Mirror Field
