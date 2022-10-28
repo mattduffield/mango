@@ -259,6 +259,18 @@ async def bulk_write(batch: BulkWrite):
   data = json.loads(json_util.dumps({'acknowledged': result.acknowledged, 'deleted_count': result.deleted_count, 'inserted_count': result.inserted_count, 'matched_count': result.matched_count, 'modified_count': result.modified_count, 'upserted_count': result.upserted_count, 'upserted_ids': result.upserted_ids}))
   return data
 
+# @router.post('/runPipeline')
+# async def run_pipeline(ap: AggregatePipeline):
+#   ap.pipeline = json.loads(json_util.dumps(ap.pipeline), object_hook=datetime_parser)
+#   database = ap.database
+#   if not database:
+#     database = DATABASE_NAME
+#   db = client[database]
+#   command = {"aggregate": ap.aggregate, "pipeline": ap.pipeline, "cursor": ap.cursor}
+#   result = db.command(command)
+#   data = json.loads(json_util.dumps(result), object_hook=json_from_mongo)
+#   return data
+
 @router.post('/runPipeline')
 async def run_pipeline(ap: AggregatePipeline):
   ap.pipeline = json.loads(json_util.dumps(ap.pipeline), object_hook=datetime_parser)
@@ -266,7 +278,8 @@ async def run_pipeline(ap: AggregatePipeline):
   if not database:
     database = DATABASE_NAME
   db = client[database]
-  command = {"aggregate": ap.aggregate, "pipeline": ap.pipeline, "cursor": ap.cursor}
-  result = db.command(command)  
+  entity = db[ap.aggregate]
+  cursor = entity.aggregate(ap.pipeline)
+  result = list(cursor)
   data = json.loads(json_util.dumps(result), object_hook=json_from_mongo)
   return data
