@@ -37,9 +37,10 @@ class KeyValue(BaseModel):
   key: str
   value: str
   use_quotes: bool = True
+  form_mode: str = 'both'
 
   def new_dict():
-    return {'key': '', 'value': '', 'use_quotes': True}
+    return {'key': '', 'value': '', 'use_quotes': True, 'form_mode': 'both'}
 
 
 '''

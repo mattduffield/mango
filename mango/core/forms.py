@@ -1,3 +1,4 @@
+from email.policy import default
 from starlette_wtf import StarletteForm, CSRFProtectMiddleware, csrf_protect
 from wtforms import (
   # BooleanField,
@@ -84,15 +85,25 @@ class KeyValueForm(Form):
     'Key',
     # validators= [DataRequired()],
     render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
+    default = '',
   )
   value = StringField(
     'Value',
     # validators= [DataRequired()],
     render_kw = { 'class': input_class, 'data-script': 'install HandleValidity end' },
+    default = '',
   )
   use_quotes = BooleanField(
     'Use Quotes?',
     render_kw = { 'class': chk_class, 'data-script': 'install HandleValidity end' },
+    default = True,
+  )
+  form_mode = LookupSelectField(
+    'Form Mode',
+    collection = 'lookup',
+    query = { 'name': 'form_mode' },
+    render_kw = {},
+    default = 'both',    
   )
 
 
