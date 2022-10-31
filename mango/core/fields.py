@@ -184,7 +184,9 @@ class OperatingHoursField(Field):
     return markupsafe.Markup(f'''
 <div class="mt-2">
   <div class="mt-2 flex gap-4">
-    <select class="flex-1 {select_class}">
+    <select id="{self.name}-0-start_time"
+      name="{self.name}-0-start_time"
+      class="flex-1 {select_class}">
       <option value="12am">12:00 AM</option>
       <option value="1am">1:00 AM</option>
       <option value="2am">2:00 AM</option>
@@ -199,7 +201,9 @@ class OperatingHoursField(Field):
       <option value="10am">10:00 AM</option>
       <option value="11am">11:00 AM</option>
     </select>
-    <select class="flex-1 {select_class}">
+    <select id="{self.name}-0-end_time"
+      name="{self.name}-0-end_time"
+      class="flex-1 {select_class}">
       <option value="12pm">12:00 PM</option>
       <option value="1pm">1:00 PM</option>
       <option value="2pm">2:00 PM</option>
@@ -216,32 +220,60 @@ class OperatingHoursField(Field):
     </select>
   </div>
   <div class="mt-2">
-    <label class="inline-flex items-center">
-      <input type="checkbox" class="form-checkbox {chk_class}" name="sun" value="">
+    <label for="{self.name}-0-sunday"
+      class="inline-flex items-center">
+      <input type="checkbox" 
+        id="{self.name}-0-sunday"
+        name="{self.name}-0-sunday"
+        class="form-checkbox {chk_class}">
       <span class="xml-2">Sun</span>
     </label>
-    <label class="inline-flex items-center ml-4">
-      <input type="checkbox" class="form-checkbox {chk_class}" name="mon" value="">
+    <label for="{self.name}-0-monday"
+      class="inline-flex items-center ml-4">
+      <input type="checkbox"
+        id="{self.name}-0-monday"
+        name="{self.name}-0-monday"
+        class="form-checkbox {chk_class}">
       <span class="xml-2">Mon</span>
     </label>
-    <label class="inline-flex items-center ml-4">
-      <input type="checkbox" class="form-checkbox {chk_class}" name="tue" value="">
+    <label for="{self.name}-0-tuesday"
+      class="inline-flex items-center ml-4">
+      <input type="checkbox"
+        id="{self.name}-0-tuesday"
+        name="{self.name}-0-tuesday"
+        class="form-checkbox {chk_class}">
       <span class="xml-2">Tue</span>
     </label>
-    <label class="inline-flex items-center ml-4">
-      <input type="checkbox" class="form-checkbox {chk_class}" name="wed" value="">
+    <label for="{self.name}-0-wednesday"
+      class="inline-flex items-center ml-4">
+      <input type="checkbox"
+        id="{self.name}-0-wednesday"
+        name="{self.name}-0-wednesday"
+        class="form-checkbox {chk_class}">
       <span class="xml-2">Wed</span>
     </label>
-    <label class="inline-flex items-center ml-4">
-      <input type="checkbox" class="form-checkbox {chk_class}" name="thu" value="">
+    <label for="{self.name}-0-thursday"
+      class="inline-flex items-center ml-4">
+      <input type="checkbox"
+        id="{self.name}-0-thursday"
+        name="{self.name}-0-thursday"
+        class="form-checkbox {chk_class}">
       <span class="xml-2">Thu</span>
     </label>
-    <label class="inline-flex items-center ml-4">
-      <input type="checkbox" class="form-checkbox {chk_class}" name="fri" value="">
+    <label for="{self.name}-0-friday"
+      class="inline-flex items-center ml-4">
+      <input type="checkbox"
+        id="{self.name}-0-friday"
+        name="{self.name}-0-friday"
+        class="form-checkbox {chk_class}">
       <span class="xml-2">Fri</span>
     </label>
-    <label class="inline-flex items-center ml-4">
-      <input type="checkbox" class="form-checkbox {chk_class}" name="sat" value="">
+    <label for="{self.name}-0-Saturday"
+      class="inline-flex items-center ml-4">
+      <input type="checkbox"
+        id="{self.name}-0-Saturday"
+        name="{self.name}-0-Saturday"
+        class="form-checkbox {chk_class}">
       <span class="xml-2">Sat</span>
     </label>
   </div>
