@@ -116,6 +116,12 @@ def to_string(value, *args, **kwargs):
 def to_date(value, *args, **kwargs):
   if isinstance(value, (datetime.datetime)):
     return value.strftime('%m/%d/%Y')
+  else:
+    try:
+      dt = datetime.datetime.fromisoformat(value.replace('Z', ''))
+      return dt.strftime('%m/%d/%Y')
+    except:
+      pass
 
 def to_field_list_label(value, *args, **kwargs):
   if not value:

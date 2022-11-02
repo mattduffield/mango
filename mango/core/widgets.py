@@ -70,7 +70,6 @@ class ToggleSwitchWidget:
     if "required" not in kwargs and "required" in getattr(field, "flags", []):
       kwargs["required"] = True
 
-    # html = ['<span class="toggle-switch-container" %s>' % html_params(**kwargs)]
     html = ['<span class="toggle-switch-container" %s>']
     html.append(f'<label for="{field.id}" class="toggle-switch">')
     if field.data:
