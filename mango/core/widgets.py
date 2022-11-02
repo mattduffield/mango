@@ -24,15 +24,15 @@ class CurrencyWidget:
     if "required" not in kwargs and "required" in getattr(field, "flags", []):
       kwargs["required"] = True
 
-    html = ['<div class="mt-1 relative rounded-md shadow-sm" %s>' % html_params(**kwargs)]
+    html = ['<div class="mt-1 relative rounded-md shadow-sm" %s>']
     html.append(f'<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">')
     html.append('<span class="text-gray-500 sm:text-sm"> $ </span>')
     html.append('</div>')
 
     if field.data:
-      html.append(f'<input type="text" id="{field.id}" name="{field.id}" class="focus:ring-emerald-500 focus:border-emerald-500 block w-full pl-7 pr-12 text-gray-700 border-gray-300 rounded" value="{field.data}">')
+      html.append(f'<input type="text" id="{field.id}" name="{field.id}" class="focus:ring-emerald-500 focus:border-emerald-500 block w-full pl-7 pr-12 text-gray-700 border-gray-300 rounded" value="{field.data}" {html_params(**kwargs)}>')
     else:
-      html.append(f'<input type="text" id="{field.id}" name="{field.id}" class="focus:ring-emerald-500 focus:border-emerald-500 block w-full pl-7 pr-12 text-gray-700 border-gray-300 rounded">')
+      html.append(f'<input type="text" id="{field.id}" name="{field.id}" class="focus:ring-emerald-500 focus:border-emerald-500 block w-full pl-7 pr-12 text-gray-700 border-gray-300 rounded" {html_params(**kwargs)}>')
     html.append('</div>')
     return Markup(''.join(html))
 

@@ -84,11 +84,11 @@ class IntegerField2(IntegerField):
     self.render_in_table = render_in_table
 
 
-class CurrencyField(FloatField):
+class CurrencyField2(FloatField):
   widget = CurrencyWidget()
 
   def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
-    super(CurrencyField, self).__init__(label, validators, **kwargs)    
+    super(CurrencyField2, self).__init__(label, validators, **kwargs)    
     self.wrapper_class = wrapper_class
     self.render_in_table = render_in_table
 
