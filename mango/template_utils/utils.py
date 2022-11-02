@@ -12,7 +12,21 @@ from jinja2_simple_tags import StandaloneTag
 from wtforms import fields, FormField
 from mango.db.rest import find_sync, find_one_sync
 from mango.db.models import Query, QueryOne
-from mango.core.fields import CurrencyField, LookupSelectField, QuerySelectField, QuerySelectMultipleField, HiddenField2
+from mango.core.fields import LookupSelectField, QuerySelectField, QuerySelectMultipleField, HiddenField2
+from mango.core.fields import (
+  ColorField2 as ColorField,
+  CurrencyField2 as CurrencyField,
+  DateField2 as DateField,
+  DateTimeField2 as DateTimeField,
+  DecimalField2 as DecimalField,
+  EmailField2 as EmailField,
+  FloatField2 as FloatField,
+  HiddenField2 as HiddenField,
+  IntegerField2 as IntegerField,
+  StringField2 as StringField,
+  TextAreaField2 as TextAreaField,
+  FieldList2 as FieldList
+)
 from mango.core.forms import KeyValueForm
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
