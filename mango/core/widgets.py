@@ -30,9 +30,9 @@ class CurrencyWidget:
     html.append('</div>')
 
     if field.data:
-      html.append(f'<input type="text" id="{field.id}" name="{field.id}" class="focus:ring-emerald-500 focus:border-emerald-500 block w-full pl-7 pr-12 text-gray-700 border-gray-300 rounded" value="{field.data}" {html_params(**kwargs)}>')
+      html.append(f'<input type="text" id="{field.id}" name="{field.id}" value="{field.data}" {html_params(**kwargs)}>')
     else:
-      html.append(f'<input type="text" id="{field.id}" name="{field.id}" class="focus:ring-emerald-500 focus:border-emerald-500 block w-full pl-7 pr-12 text-gray-700 border-gray-300 rounded" {html_params(**kwargs)}>')
+      html.append(f'<input type="text" id="{field.id}" name="{field.id}" {html_params(**kwargs)}>')
     html.append('</div>')
     return Markup(''.join(html))
 

@@ -18,6 +18,26 @@ input_class = '''
   m-0
   focus:text-gray-700 focus:bg-white focus:outline-none
   ring-primary
+  read-only:opacity-70 read-only:text-gray-500
+'''
+currency_class = '''
+  form-control
+  block
+  w-full
+  pl-7 pr-12
+  py-1.5
+  text-base
+  font-normal
+  text-gray-700
+  bg-white bg-clip-padding
+  border border-solid border-gray-300
+  rounded
+  transition
+  ease-in-out
+  m-0
+  focus:text-gray-700 focus:bg-white focus:outline-none
+  ring-primary
+  read-only:opacity-70 read-only:text-gray-500
 '''
 textarea_class = '''
   form-control
@@ -37,6 +57,7 @@ textarea_class = '''
   h-48
   focus:text-gray-700 focus:bg-white focus:outline-none
   ring-primary
+  read-only:opacity-70 read-only:text-gray-500
 '''
 textarea_small_class = '''
   form-control
@@ -56,6 +77,7 @@ textarea_small_class = '''
   h-24
   focus:text-gray-700 focus:bg-white focus:outline-none
   ring-primary
+  read-only:opacity-70 read-only:text-gray-500
 '''
 chk_class = '''
   form-check-input
