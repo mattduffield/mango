@@ -100,6 +100,13 @@ def load_user(email:str, database):
         "$unwind": "$user_profile"
       },
       {
+        '$lookup': {
+          'from': 'role',
+          'pipeline': [],
+          'as': 'roles'
+        }
+      },
+      {
         "$lookup": { 
           "from": "menu_maker", 
           "pipeline": [ 
@@ -116,6 +123,9 @@ def load_user(email:str, database):
   if user:
     for role in user['user_roles']:
       user['action_list'] = user['action_list'] + role['action_list']
+    for role in user['user_profile']['role_list']:
+      role_item = next((x for x in user['roles'] if x['name'] == role['role_id']), None)
+      user['action_list'] = user['action_list'] + role_item['action_list']
     for menu in user['user_profile']['menu_list']:
       m = next((x for x in user['menus'] if x['_id'] == menu['menu_id']), None)
       if m:
