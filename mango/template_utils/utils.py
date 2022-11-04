@@ -103,6 +103,17 @@ def endswith(value:str, pattern:str, *args, **kwargs):
 def startswith(value:str, pattern:str, *args, **kwargs):
   return value.startswith(pattern)
 
+def to_phone_number(value, *args, **kwargs):
+  if not value:
+    return value
+  clean = value.replace(' ', '').replace('(', '').replace(')', '').replace('-', '')
+  if len(clean) != 10:
+    return value
+  area = clean[:3]
+  first = clean[4:3]
+  second = clean[7:4]
+  return f'({area}) {first}-{second}'
+
 def to_proper_case(value, *args, **kwargs):
   if not value:
     return value
@@ -234,6 +245,7 @@ class CustomJinja2Templates(Jinja2Templates):
       'startswith': startswith,
       'to_field_list_label': to_field_list_label,
       'to_number_format': to_number_format,
+      'to_phone_number': to_phone_number,
       'to_proper_case': to_proper_case,
       'to_string': to_string,
       'to_date': to_date,
@@ -256,6 +268,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['startswith'] = startswith
     self.env.tests['to_field_list_label'] = to_field_list_label
     self.env.tests['to_number_format'] = to_number_format
+    self.env.tests['to_phone_number'] = to_phone_number
     self.env.tests['to_proper_case'] = to_proper_case
     self.env.tests['to_string'] = to_string
     self.env.tests['to_date'] = to_date
