@@ -110,8 +110,8 @@ def to_phone_number(value, *args, **kwargs):
   if len(clean) != 10:
     return value
   area = clean[:3]
-  first = clean[4:3]
-  second = clean[7:4]
+  first = clean[3:6]
+  second = clean[6:10]
   return f'({area}) {first}-{second}'
 
 def to_proper_case(value, *args, **kwargs):
