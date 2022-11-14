@@ -120,17 +120,11 @@ class CodeMirrorWidget(TextArea):
         document.getElementById('codemirror-{0}'),
         {1}
       );
-      //var txt = document.getElementById('codemirror-{0}');
-      //console.log(txt);
-      //if (txt.form) txt.form.addEventListener('submit', () => txt.value = editor_for_{0}.getValue())
-      //editor_for_{0}.on('change', editor => editor.save());
-      //editor_for_{0}.foldCode(CodeMirror.Pos(0, 0));
     </script>
   '''
 
   def __init__(self, config=None):
     super(CodeMirrorWidget, self).__init__()
-    self.theme = 'monokai'
     self.config = config or {}
 
   def __call__(self, field, **kwargs):
@@ -143,12 +137,6 @@ class CodeMirrorWidget(TextArea):
 
   def _generate_content(self):
     """Dumps content using JSON to send to CodeMirror"""
-    # concat into a dict
-    dic = self.config
-    # dic['mode'] = self.language
-    if self.theme:
-        dic['theme'] = self.theme
-    # dumps with json
-    return json.dumps(dic, indent=2, separators=(',', ': '))
+    return json.dumps(self.config, separators=(',', ': '))
 
 
