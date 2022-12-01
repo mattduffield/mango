@@ -34,7 +34,7 @@ from wtforms.utils import unset_value
 from mango.db.rest import find, find_one, run_pipeline, find_sync, find_one_sync
 from mango.db.models import Query, QueryOne
 from mango.core.constants import label_class, input_class, textarea_class, chk_class, select_class, select_multiple_class, toggle_radio_class, toggle_switch_class
-from mango.core.widgets import CodeMirrorWidget, DatalistWidget, ToggleRadioWidget, ToggleSwitchWidget, CurrencyWidget
+from mango.core.widgets import CodeMirrorWidget, DatalistWidget, FileUploadWidget, ToggleRadioWidget, ToggleSwitchWidget, CurrencyWidget
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
@@ -93,6 +93,15 @@ class CurrencyField2(FloatField):
     self.render_in_table = render_in_table
 
 
+class FileField2(FileField):
+  widget = FileUploadWidget()
+
+  def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
+    super(FileField2, self).__init__(label, validators, **kwargs)    
+    self.wrapper_class = wrapper_class
+    self.render_in_table = render_in_table
+
+
 class FloatField2(FloatField):
   def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
     super(FloatField2, self).__init__(label, validators, **kwargs)    
@@ -119,7 +128,6 @@ class DecimalField2(DecimalField):
     super(DecimalField2, self).__init__(label, validators, **kwargs)    
     self.wrapper_class = wrapper_class
     self.render_in_table = render_in_table
-
 
 
 class EmailField2(EmailField):
