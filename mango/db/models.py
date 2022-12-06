@@ -48,12 +48,12 @@ def json_from_mongo(x):
 def json_to_mongo(dct):
   # if '_id' in dct and type(dct['_id']) is str:
   #   dct['_id'] = ObjectId(dct['_id'])
-  ids = [key for (key,value) in dct.items() if key.endswith('_id')]
+  ids = [key for (key,value) in dct.items() if key.endswith('_id') and value]
   for key in ids:
     if type(dct[key]) is str:
       dct[key] = ObjectId(dct[key])
   if dct.get('$set'):
-    set_ids = [key for (key,value) in dct['$set'].items() if key.endswith('_id')]
+    set_ids = [key for (key,value) in dct['$set'].items() if key.endswith('_id') and value]
     for key in set_ids:
       if dct['$set'][key] and type(dct['$set'][key]) is str:
         dct['$set'][key] = ObjectId(dct['$set'][key])
