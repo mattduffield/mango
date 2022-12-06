@@ -12,6 +12,7 @@ import json
 from markupsafe import Markup
 from wtforms.widgets.core import html_params
 from wtforms.widgets import TextInput, TextArea
+from wtforms import widgets
 
 
 class CurrencyWidget:
@@ -172,3 +173,18 @@ class FileUploadWidget:
 
     return Markup(html.strip())
 
+
+class TomSelectWidget(widgets.Select):
+  """
+    `TomSelect <https://tom-select.js.org/docs/>`_ styled select widget.
+    You must include tom-select.complete.js,and tom-select stylesheet for it to
+    work.
+  """
+  def __call__(self, field, **kwargs):
+    kwargs.setdefault('data-role', u'tom-select')
+
+    allow_blank = getattr(field, 'allow_blank', False)
+    if allow_blank and not self.multiple:
+      kwargs['data-allow-blank'] = u'1'
+
+    return super(TomSelectWidget, self).__call__(field, **kwargs)

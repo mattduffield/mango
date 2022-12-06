@@ -204,7 +204,8 @@ class InsertOne(BaseMongo):
   insert_type: Literal['insert_one', 'insert_many'] = 'insert_one'
   data: dict
   def buildExpression(self):
-    if (self.data):
+    if self.data and any(self.data):
+      self.data = json_to_mongo(self.data)
       expr = f'entity.{self.insert_type}({self.data})'
       return expr
     return None

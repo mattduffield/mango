@@ -34,7 +34,7 @@ from wtforms.utils import unset_value
 from mango.db.rest import find, find_one, run_pipeline, find_sync, find_one_sync
 from mango.db.models import Query, QueryOne
 from mango.core.constants import label_class, input_class, textarea_class, chk_class, select_class, select_multiple_class, toggle_radio_class, toggle_switch_class
-from mango.core.widgets import CodeMirrorWidget, DatalistWidget, FileUploadWidget, ToggleRadioWidget, ToggleSwitchWidget, CurrencyWidget
+from mango.core.widgets import CodeMirrorWidget, DatalistWidget, FileUploadWidget, ToggleRadioWidget, ToggleSwitchWidget, CurrencyWidget, TomSelectWidget
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
@@ -425,7 +425,8 @@ class PicklistSelectField(SelectField):
 
 
 class QuerySelectField(SelectField):
-  widget = widgets.Select()
+  # widget = widgets.Select()
+  widget = TomSelectWidget()
   
   def __init__(
     self,
