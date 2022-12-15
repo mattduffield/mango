@@ -119,11 +119,12 @@ async def init_workflow(request:Request):
       "database": "<database>",
       "name": "UserSignup",
       "trigger": "signup",
-      "data": {"username": "Matt", "email": "mattd@pegramins.com", "password": "wordpass1"},
+      "data": {"username": "Matt", "email": "mattd@pegramins.com", "password": "wordpass1"}
     }
   '''
   form_data = await request.form()
-  payload = json_util.loads(form_data._dict['payload'])
+  js = form_data._dict['payload']
+  payload = json_util.loads(js)
   if not 'database' in payload:
     payload['database'] = DATABASE_NAME
   print(payload)
