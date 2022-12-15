@@ -112,6 +112,25 @@ async def trigger_workflow_run_by_id(req:WorkflowTrigger):
   update_res = await update_workflow_run_state_by_id(database=req.database, id=req.id, state=run_state.current_state)
   return update_res, redirect_url
 
+@router.post('/init-workflow')
+async def init_workflow(request:Request):
+  '''
+    {
+      "database": "<database>",
+      "name": "UserSignup",
+      "trigger": "signup",
+      "data": {"username": "Matt", "email": "mattd@pegramins.com", "password": "wordpass1"},
+    }
+  '''
+  form_data = await request.form()
+  payload = json_util.loads(form_data._dict['payload'])
+  if not 'database' in payload:
+    payload['database'] = DATABASE_NAME
+  print(payload)
+  wfr = WorkflowRequest(**payload)
+  res = await init_workflow_run(wfr)
+  return res
+
 @router.post('/init-workflow-run')
 async def init_workflow_run_as_body(payload:WorkflowRequest):
   '''

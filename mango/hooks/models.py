@@ -25,6 +25,7 @@ MAILGUN_FROM_BLOCK = os.environ.get('MAILGUN_FROM_BLOCK')
 class Email(BaseModel):
   from_block:Optional[str] = MAILGUN_FROM_BLOCK
   to_block:Optional[str]
+  cc_block:Optional[str]
   subject:str
   text:Optional[str] = None
   html:Optional[str] = None
@@ -34,6 +35,7 @@ class Email(BaseModel):
       "example": {
         "from_block": MAILGUN_FROM_BLOCK,
         "to_block": "matt@falm.com",
+        "cc_block": "matt@falm.com",
         "subject": "FALM User Request",
         "text": "Please make the new user account active!"
       }
@@ -49,6 +51,7 @@ class Hook(BaseModel):
       "data": {
         "from_block": MAILGUN_FROM_BLOCK,
         "to_block": "john.doe@test.com",
+        "cc_block": "matt@falm.com",
         "subject": "Sample Subject",
         "text": "Sample text!",
         "permission": "approve_registration"

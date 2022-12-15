@@ -13,6 +13,7 @@ from mango.auth.models import AuthHandler
 from mango.db.api import find, find_one, count, bulk_read, insert_one, insert_many, update_one, delete, bulk_write, run_pipeline
 from mango.db.models import json_from_mongo, Query, QueryOne, Count, InsertOne, InsertMany, Update, Delete, BulkWrite, AggregatePipeline
 from mango.hooks.models import Email
+from mango.template_utils.utils import render_markup
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 ASANA_CLIENT_ID = os.environ.get('ASANA_CLIENT_ID')
@@ -137,6 +138,85 @@ async def send_email(database:str, id:str, hookData:dict, data:dict):
     return requests.post(
       MAILGUN_URL,
       auth=("api", MAILGUN_API_KEY),
+      data={"from": f"{from_block}",
+            "to": [f"{to_block}"],
+            "subject": f"{subject}",
+            "text": f"{text}"})
+
+async def send_mail(database:str, id:str, hookData:dict, data:dict):
+  email = Email(**hookData)
+  permission = hookData.get('permission', '')
+
+  if email.from_block:
+    from_block = render_markup(markup=email.from_block, context={'data': data})
+  else:
+    from_block = MAILGUN_FROM_BLOCK
+
+  if email.to_block:
+    to_block = render_markup(markup=email.to_block, context={'data': data})
+  else:
+    # Need to find all emails based on permission
+    payload = {
+      "database": database,
+      "collection": "user",
+      "query_type": "find",
+      "projection": {"email": 1},
+      "query": {
+        "$or": [          
+          {"roles": {"$in": [permission]}},
+          {"actions": {"$in": [permission]}}
+        ]
+      }
+    }
+    query = Query(**payload)
+    res = await find(query)
+    lst = [x['email'] for x in res]
+    to_block = ','.join(lst)
+
+  if email.subject:
+    try:
+      subject = render_markup(markup=email.subject, context={'data': data})
+    except (ValueError, SyntaxError):
+      subject = email.subject
+      pass
+  
+  if email.text:
+    try:
+      text = render_markup(markup=email.text, context={'data': data})
+    except (RuntimeError, TypeError, NameError, ValueError, SyntaxError) as err:
+      text = email.text
+      pass
+
+  if email.html:
+    try:
+      html = render_markup(markup=email.html, context={'data': data})
+    except Exception as err:
+      html = email.html
+      print(err)
+      pass
+
+  print(f'''
+    Sending the following email
+      to:       {to_block}
+      from:     {from_block}
+      subject:  {subject}
+  ''')
+
+  files = [('inline', open('static/images/dashboard-logo.png', 'rb'))]
+  if email.html:
+    return requests.post(
+      MAILGUN_URL,
+      auth=("api", MAILGUN_API_KEY),
+      files=files,
+      data={"from": f"{from_block}",
+            "to": [f"{to_block}"],
+            "subject": f"{subject}",
+            "html": f"{html}"})
+  else:
+    return requests.post(
+      MAILGUN_URL,
+      auth=("api", MAILGUN_API_KEY),
+      files=files,
       data={"from": f"{from_block}",
             "to": [f"{to_block}"],
             "subject": f"{subject}",
