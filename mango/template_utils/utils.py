@@ -490,3 +490,77 @@ def configure_templates(directory='templates'):
   register_tags(templates)
   return templates
 
+
+def render_markup(markup: str = '', context: dict = {}):
+  import os
+  from pathlib import Path
+  from jinja2 import Environment, BaseLoader, DictLoader
+  from urllib.parse import quote, unquote
+  from mango.template_utils.utils import (
+    find_in,
+    from_json,
+    has_attr,
+    is_datetime,
+    is_fieldlist,
+    is_list,
+    is_form_field,
+    is_lookup_select_field,
+    is_query_select_field,
+    is_key_value_form,
+    contains,
+    endswith,
+    startswith,
+    to_field_list_label,
+    to_proper_case,
+    to_string,
+    to_date,
+    db_lookup,        
+  )
+
+  # env = Environment(loader=DictLoader())
+  env = Environment(loader=BaseLoader())
+
+  env.filters.update({
+    'find_in': find_in,
+    'from_json': from_json,
+    'has_attr': has_attr,
+    'is_datetime': is_datetime,
+    'is_fieldlist': is_fieldlist,
+    'is_list': is_list,
+    'is_form_field': is_form_field,
+    'is_lookup_select_field': is_lookup_select_field,
+    'is_query_select_field': is_query_select_field,
+    'is_key_value_form': is_key_value_form,
+    'contains': contains,
+    'endswith': endswith,
+    'startswith': startswith,
+    'to_field_list_label': to_field_list_label,
+    'to_proper_case': to_proper_case,
+    'to_string': to_string,
+    'to_date': to_date,
+    'db_lookup': db_lookup,
+  })
+  env.tests['find_in'] = find_in
+  env.tests['from_json'] = from_json
+  env.tests['has_attr'] = has_attr
+  env.tests['is_datetime'] = is_datetime
+  env.tests['is_fieldlist'] = is_fieldlist
+  env.tests['is_list'] = is_list
+  env.tests['is_form_field'] = is_form_field
+  env.tests['is_lookup_select_field'] = is_lookup_select_field
+  env.tests['is_query_select_field'] = is_query_select_field
+  env.tests['is_key_value_form'] = is_key_value_form
+  env.tests['contains'] = contains
+  env.tests['endswith'] = endswith
+  env.tests['startswith'] = startswith
+  env.tests['to_field_list_label'] = to_field_list_label
+  env.tests['to_proper_case'] = to_proper_case
+  env.tests['to_string'] = to_string
+  env.tests['to_date'] = to_date
+  env.tests['db_lookup'] = db_lookup
+
+  markup = unquote(markup)
+  tmpl = env.from_string(markup)
+
+  content_rendered = tmpl.render(**context)
+  return content_rendered
