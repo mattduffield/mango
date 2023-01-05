@@ -264,3 +264,21 @@ hs_config_rome = f'''
 on load 
   configRome(me)
 '''
+
+
+toggle_field_type = f'''
+on load
+  if not (the closest <div.wrapper.hidden/>)
+    toggleElementVisibility(me, "wrapper-collection", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
+    toggleElementVisibility(me, "wrapper-display_member", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
+    toggleElementVisibility(me, "wrapper-value_member", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
+    toggleElementVisibility(me, "wrapper-allow_blank", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
+    toggleElementVisibility(me, "wrapper-blank_text", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
+  end
+on change 
+  toggleElementVisibility(me, "wrapper-collection", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper-display_member", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper-value_member", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper-allow_blank", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
+  toggleElementVisibility(me, "wrapper-blank_text", ["LookupSelectField", "QuerySelectField", "QuerySelectMultipleField"])
+'''

@@ -16,6 +16,7 @@ DATABASE_NAME = os.environ.get('DATABASE_NAME')
 from mango.db.models import datetime_parser, json_from_mongo, mongo_to_json, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 
 uri = f'mongodb+srv://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_CLUSTER}.mongodb.net/{DATABASE_NAME}?retryWrites=true&w=majority'
+# uri = f'mongodb://summit.local:27017/?serverSelectionTimeoutMS=5000&connectTimeoutMS=10000&3t.uriVersion=3&3t.connection.name=Local+Dev&3t.alwaysShowAuthDB=true&3t.alwaysShowDBFromUserRole=true'
 client = MongoClient(uri)
 db = client.test
 

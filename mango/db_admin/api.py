@@ -17,6 +17,7 @@ MONGODB_CLUSTER_NAME = os.environ.get('MONGODB_CLUSTER_NAME')
 HEADERS = {'Content-Type': 'application/json'}
 
 uri = f'mongodb+srv://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_CLUSTER}.mongodb.net/{DATABASE_NAME}?retryWrites=true&w=majority'
+# uri = f'mongodb://summit.local:27017/?serverSelectionTimeoutMS=5000&connectTimeoutMS=10000&3t.uriVersion=3&3t.connection.name=Local+Dev&3t.alwaysShowAuthDB=true&3t.alwaysShowDBFromUserRole=true'
 client = MongoClient(uri)
 db = client.test
 

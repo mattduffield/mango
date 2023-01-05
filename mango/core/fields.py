@@ -500,6 +500,7 @@ class QuerySelectMultipleField(SelectMultipleField):
     choices=None,
     validate_choice=True,
     serialize_choices=False,
+    choices_markup='',
     collection=None, 
     query={}, 
     projection={'name': 1, 'value': 1}, 
@@ -513,6 +514,7 @@ class QuerySelectMultipleField(SelectMultipleField):
     super().__init__(label, validators, **kwargs)
     self.coerce = coerce    
     self.serialize_choices = serialize_choices
+    self.choices_markup = choices_markup
     self.collection = collection
     self.query = query
     self.db_query = Query(

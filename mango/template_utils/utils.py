@@ -49,6 +49,23 @@ lookup_cache = {}
   https://stackoverflow.com/questions/54715768/how-to-enter-a-list-in-wtforms
 '''
 
+def walk_dot(value, expr:str = '', *args, **kwargs):
+  expr_parts = expr.replace('-', '.').split('.')
+  result = value
+  for part in expr_parts:
+    result = result.get(part, '')
+  return result
+
+def walk_dot_form(value, expr:str = '', *args, **kwargs):
+  expr_parts = expr.split('.')
+  result = value
+  for part in expr_parts:
+    if isinstance(result, fields.FormField):
+      result = result.form[part]
+    else:
+      result = result[part]
+  return result
+
 # {% set found_field = fields|find_in('name', 'product_id') %}
 def find_in(value, property_name:str = None, property_value:str = None):
   if not property_name:
@@ -169,22 +186,32 @@ def load_sync(query):
     lookup = lookup_cache[query.collection]
   return lookup
 
-def db_lookup(value, data = []):
+def db_lookup(value, data = [], lookups = {}):
   if isinstance(value, (LookupSelectField)):
-    for prop in value.query:
-      if callable(value.query[prop]):
-        value.query[prop] = value.query[prop](data)
-    query = QueryOne(
-      database=DATABASE_NAME,
-      collection=value.collection,
-      query=value.query,
-      projection=value.projection
-    )
-    display_member = value.display_member
-    value_member = value.value_member
-    lookup = load_sync(query)
-    found = next((display_member(x) for x in lookup if value_member(x) == data), None)
-    return found
+    if any(value.query):
+      for prop in value.query:
+        if callable(value.query[prop]):
+          value.query[prop] = value.query[prop](data)
+      query = QueryOne(
+        database=DATABASE_NAME,
+        collection=value.collection,
+        query=value.query,
+        projection=value.projection
+      )
+      display_member = value.display_member
+      value_member = value.value_member
+      lookup = load_sync(query)
+      found = next((display_member(x) for x in lookup if value_member(x) == data), None)
+      return found
+    else:
+      collection = value.collection
+      if any(lookups) and collection:
+        display_member = value.display_member
+        value_member = value.value_member
+        lookup = lookups[collection]['item_list']
+        found = next((display_member(x) for x in lookup if value_member(x) == data), None)
+        return found
+      return data
   elif isinstance(value, (QuerySelectField)):
     for prop in value.query:
       if callable(value.query[prop]):
@@ -250,6 +277,8 @@ class CustomJinja2Templates(Jinja2Templates):
       'to_string': to_string,
       'to_date': to_date,
       'db_lookup': db_lookup,
+      'walk_dot': walk_dot,
+      'walk_dot_form': walk_dot_form,
     })
     self.env.tests['find_in'] = find_in
     self.env.tests['from_json'] = from_json
@@ -273,6 +302,8 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['to_string'] = to_string
     self.env.tests['to_date'] = to_date
     self.env.tests['db_lookup'] = db_lookup
+    self.env.tests['walk_dot'] = walk_dot    
+    self.env.tests['walk_dot_form'] = walk_dot_form
 
 
 class RenderColTag(StandaloneTag):
@@ -514,7 +545,9 @@ def render_markup(markup: str = '', context: dict = {}):
     to_proper_case,
     to_string,
     to_date,
-    db_lookup,        
+    db_lookup,
+    walk_dot,
+    walk_dot_form
   )
 
   # env = Environment(loader=DictLoader())
@@ -539,6 +572,8 @@ def render_markup(markup: str = '', context: dict = {}):
     'to_string': to_string,
     'to_date': to_date,
     'db_lookup': db_lookup,
+    'walk_dot': walk_dot,
+    'walk_dot_form': walk_dot_form,
   })
   env.tests['find_in'] = find_in
   env.tests['from_json'] = from_json
@@ -558,6 +593,8 @@ def render_markup(markup: str = '', context: dict = {}):
   env.tests['to_string'] = to_string
   env.tests['to_date'] = to_date
   env.tests['db_lookup'] = db_lookup
+  env.tests['walk_dot'] = walk_dot    
+  env.tests['walk_dot_form'] = walk_dot_form
 
   markup = unquote(markup)
   tmpl = env.from_string(markup)
