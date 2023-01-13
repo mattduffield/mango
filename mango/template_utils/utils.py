@@ -131,6 +131,15 @@ def to_phone_number(value, *args, **kwargs):
   second = clean[6:10]
   return f'({area}) {first}-{second}'
 
+def to_params(value, *args, **kwargs):
+  if not value:
+    return value
+  result = []
+  parts = value.split(',')
+  for part in parts:
+    result.append(f'''{part}: getValueById('{part}')''')
+  return ', '.join(result)
+
 def to_proper_case(value, *args, **kwargs):
   if not value:
     return value
@@ -272,6 +281,7 @@ class CustomJinja2Templates(Jinja2Templates):
       'startswith': startswith,
       'to_field_list_label': to_field_list_label,
       'to_number_format': to_number_format,
+      'to_params': to_params,
       'to_phone_number': to_phone_number,
       'to_proper_case': to_proper_case,
       'to_string': to_string,
@@ -297,6 +307,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['startswith'] = startswith
     self.env.tests['to_field_list_label'] = to_field_list_label
     self.env.tests['to_number_format'] = to_number_format
+    self.env.tests['to_params'] = to_params
     self.env.tests['to_phone_number'] = to_phone_number
     self.env.tests['to_proper_case'] = to_proper_case
     self.env.tests['to_string'] = to_string
