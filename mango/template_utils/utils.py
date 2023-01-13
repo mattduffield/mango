@@ -138,7 +138,9 @@ def to_params(value, *args, **kwargs):
   parts = value.split(',')
   for part in parts:
     result.append(f'''{part}: getValueById('{part}')''')
-  return ', '.join(result)
+  if len(result) > 0:
+    return ', '.join(result)
+  return ''
 
 def to_proper_case(value, *args, **kwargs):
   if not value:
