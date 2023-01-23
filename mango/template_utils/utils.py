@@ -171,6 +171,10 @@ def to_field_list_label(value, *args, **kwargs):
 def to_number_format(value, *args, **kwargs):
   return format(int(value), ',')
 
+def to_currency(value, *args, **kwargs):
+  value = float(value)
+  return "${:,.2f}".format(value)
+
 def load_sync(query):
   if query.collection == 'lookup':
     lookup_name = query.query['name']
@@ -283,6 +287,7 @@ class CustomJinja2Templates(Jinja2Templates):
       'startswith': startswith,
       'to_field_list_label': to_field_list_label,
       'to_number_format': to_number_format,
+      'to_currency': to_currency,
       'to_params': to_params,
       'to_phone_number': to_phone_number,
       'to_proper_case': to_proper_case,
@@ -309,6 +314,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['startswith'] = startswith
     self.env.tests['to_field_list_label'] = to_field_list_label
     self.env.tests['to_number_format'] = to_number_format
+    self.env.tests['to_currency'] = to_currency
     self.env.tests['to_params'] = to_params
     self.env.tests['to_phone_number'] = to_phone_number
     self.env.tests['to_proper_case'] = to_proper_case
@@ -558,6 +564,7 @@ def render_markup(markup: str = '', context: dict = {}):
     to_proper_case,
     to_string,
     to_date,
+    to_currency,
     db_lookup,
     walk_dot,
     walk_dot_form
@@ -584,6 +591,7 @@ def render_markup(markup: str = '', context: dict = {}):
     'to_proper_case': to_proper_case,
     'to_string': to_string,
     'to_date': to_date,
+    'to_currency': to_currency,
     'db_lookup': db_lookup,
     'walk_dot': walk_dot,
     'walk_dot_form': walk_dot_form,
@@ -605,6 +613,7 @@ def render_markup(markup: str = '', context: dict = {}):
   env.tests['to_proper_case'] = to_proper_case
   env.tests['to_string'] = to_string
   env.tests['to_date'] = to_date
+  env.tests['to_currency'] = to_currency
   env.tests['db_lookup'] = db_lookup
   env.tests['walk_dot'] = walk_dot    
   env.tests['walk_dot_form'] = walk_dot_form
