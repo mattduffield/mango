@@ -125,7 +125,7 @@ class DateTimeField2(DateTimeField):
 
 
 class DecimalField2(DecimalField):
-  widget = CurrencyDecimalWidget()
+  widget = CurrencyDecimalWidget(step='any')
 
   def __init__(self, label='', validators=None, places=2, wrapper_class='', render_in_table=True, **kwargs):    
     super(DecimalField2, self).__init__(label, validators, places, **kwargs)
@@ -141,8 +141,6 @@ class DecimalField2(DecimalField):
       self.places = self.original_places
     return super()._value()
 
-  def process_formdata(self, valuelist):
-    super().process_formdata(self, valuelist)
 
 class EmailField2(EmailField):
   def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
