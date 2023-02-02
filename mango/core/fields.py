@@ -1,3 +1,4 @@
+import decimal
 from dotenv import load_dotenv
 load_dotenv()
 import json, os
@@ -34,7 +35,7 @@ from wtforms.utils import unset_value
 from mango.db.rest import find, find_one, run_pipeline, find_sync, find_one_sync
 from mango.db.models import Query, QueryOne
 from mango.core.constants import label_class, input_class, textarea_class, chk_class, select_class, select_multiple_class, toggle_radio_class, toggle_switch_class
-from mango.core.widgets import CodeMirrorWidget, DatalistWidget, FileUploadWidget, ToggleRadioWidget, ToggleSwitchWidget, CurrencyWidget, TomSelectWidget
+from mango.core.widgets import CodeMirrorWidget, DatalistWidget, FileUploadWidget, ToggleRadioWidget, ToggleSwitchWidget, CurrencyWidget, CurrencyDecimalWidget, TomSelectWidget
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
@@ -124,11 +125,24 @@ class DateTimeField2(DateTimeField):
 
 
 class DecimalField2(DecimalField):
-  def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):
-    super(DecimalField2, self).__init__(label, validators, **kwargs)    
+  widget = CurrencyDecimalWidget()
+
+  def __init__(self, label='', validators=None, places=2, wrapper_class='', render_in_table=True, **kwargs):    
+    super(DecimalField2, self).__init__(label, validators, places, **kwargs)
+    self.original_places = places
     self.wrapper_class = wrapper_class
     self.render_in_table = render_in_table
 
+  def _value(self):
+    actual_places = str(self.data)[::-1].find('.')
+    if actual_places > self.original_places:
+      self.places = actual_places
+    else:
+      self.places = self.original_places
+    return super()._value()
+
+  def process_formdata(self, valuelist):
+    super().process_formdata(self, valuelist)
 
 class EmailField2(EmailField):
   def __init__(self, label='', validators=None, wrapper_class='', render_in_table=True, **kwargs):

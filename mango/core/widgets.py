@@ -14,6 +14,42 @@ from wtforms.widgets.core import html_params
 from wtforms.widgets import TextInput, TextArea
 from wtforms import widgets
 
+class MangoInput:
+  """
+  Render a basic ``<input>`` field.
+
+  This is used as the basis for most of the other input fields.
+
+  By default, the `_value()` method will be called upon the associated field
+  to provide the ``value=`` HTML attribute.
+  """
+
+  html_params = staticmethod(html_params)
+  validation_attrs = ["required"]
+
+  def __init__(self, input_type=None):
+    if input_type is not None:
+      self.input_type = input_type
+
+  def __call__(self, field, **kwargs):
+    kwargs.setdefault("id", field.id)
+    kwargs.setdefault("type", self.input_type)
+    if "value" not in kwargs:
+      kwargs["value"] = field._value()
+    flags = getattr(field, "flags", {})
+    for k in dir(flags):
+      if k in self.validation_attrs and k not in kwargs:
+        kwargs[k] = getattr(flags, k)
+
+    html = ['<div class="mt-1 relative rounded-md shadow-sm">']
+    html.append(f'<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">')
+    html.append('<span class="text-gray-500 sm:text-sm"> $ </span>')
+    html.append('</div>')
+    html.append(f'<input %s>')
+    html.append('</div>')
+    return Markup(''.join(html) % self.html_params(name=field.name, **kwargs))
+
+
 
 class CurrencyWidget:
   def __init__(self):
@@ -36,6 +72,24 @@ class CurrencyWidget:
       html.append(f'<input type="text" id="{field.id}" name="{field.id}" {html_params(**kwargs)}>')
     html.append('</div>')
     return Markup(''.join(html))
+
+class CurrencyDecimalWidget(MangoInput):
+  input_type = "number"
+  validation_attrs = ["required", "max", "min", "step"]
+
+  def __init__(self, step=None, min=None, max=None):
+    self.step = step
+    self.min = min
+    self.max = max
+
+  def __call__(self, field, **kwargs):
+    if self.step is not None:
+        kwargs.setdefault("step", self.step)
+    if self.min is not None:
+        kwargs.setdefault("min", self.min)
+    if self.max is not None:
+        kwargs.setdefault("max", self.max)
+    return super().__call__(field, **kwargs)
 
 
 class ToggleRadioWidget:
