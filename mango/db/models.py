@@ -1,3 +1,4 @@
+import decimal
 import inspect
 from bson import Decimal128
 import bson.timestamp
@@ -42,6 +43,17 @@ def json_from_mongo(x):
     return x['$oid']
   elif isinstance(x, dict) and '$date' in x:
     return x['$date']
+  elif isinstance(x, dict) and '$numberDecimal' in x:
+    original_places = 2
+    actual_places = str(x['$numberDecimal'])[::-1].find('.')
+    if actual_places > original_places:
+      places = actual_places
+    else:
+      places = original_places
+    exp = decimal.Decimal(".1") ** places
+    raw = decimal.Decimal(x['$numberDecimal'])
+    quantized = raw.quantize(exp)
+    return str(quantized)
   else:
     return x
 

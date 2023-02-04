@@ -134,6 +134,7 @@ class DecimalField2(DecimalField):
     self.render_in_table = render_in_table
 
   def _value(self):
+    self.data = decimal.Decimal(self.data)
     actual_places = str(self.data)[::-1].find('.')
     if actual_places > self.original_places:
       self.places = actual_places
