@@ -49,6 +49,16 @@ lookup_cache = {}
   https://stackoverflow.com/questions/54715768/how-to-enter-a-list-in-wtforms
 '''
 
+def dot(value, expr:str = '', *args, **kwargs):
+  expr_parts = expr.split('.')
+  result = value
+  for part in expr_parts:
+    if part.isdigit():
+      result = result[int(part)]
+    else:
+      result = result.get(part, '')
+  return result
+
 def walk_dot(value, expr:str = '', *args, **kwargs):
   expr_parts = expr.replace('-', '.').split('.')
   result = value
@@ -294,6 +304,7 @@ class CustomJinja2Templates(Jinja2Templates):
       'to_string': to_string,
       'to_date': to_date,
       'db_lookup': db_lookup,
+      'dot': dot,
       'walk_dot': walk_dot,
       'walk_dot_form': walk_dot_form,
     })
@@ -321,6 +332,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['to_string'] = to_string
     self.env.tests['to_date'] = to_date
     self.env.tests['db_lookup'] = db_lookup
+    self.env.tests['dot'] = dot    
     self.env.tests['walk_dot'] = walk_dot    
     self.env.tests['walk_dot_form'] = walk_dot_form
 
@@ -566,6 +578,7 @@ def render_markup(markup: str = '', context: dict = {}):
     to_date,
     to_currency,
     db_lookup,
+    dot,
     walk_dot,
     walk_dot_form
   )
@@ -593,6 +606,7 @@ def render_markup(markup: str = '', context: dict = {}):
     'to_date': to_date,
     'to_currency': to_currency,
     'db_lookup': db_lookup,
+    'dot': dot,
     'walk_dot': walk_dot,
     'walk_dot_form': walk_dot_form,
   })
@@ -615,6 +629,7 @@ def render_markup(markup: str = '', context: dict = {}):
   env.tests['to_date'] = to_date
   env.tests['to_currency'] = to_currency
   env.tests['db_lookup'] = db_lookup
+  env.tests['dot'] = dot    
   env.tests['walk_dot'] = walk_dot    
   env.tests['walk_dot_form'] = walk_dot_form
 
