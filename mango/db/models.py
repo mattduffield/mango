@@ -1,6 +1,7 @@
 import decimal
 import inspect
 from bson import Decimal128
+from urllib.parse import unquote
 import bson.timestamp
 import bson.objectid
 import json, re
@@ -66,9 +67,19 @@ def json_to_mongo(dct):
       dct[key] = ObjectId(dct[key])
   if dct.get('$set'):
     set_ids = [key for (key,value) in dct['$set'].items() if key.endswith('_id') and value]
+    set_non_ids = [key for (key,value) in dct['$set'].items() if not key.endswith('_id') and value]
     for key in set_ids:
       if dct['$set'][key] and type(dct['$set'][key]) is str:
         dct['$set'][key] = ObjectId(dct['$set'][key])
+    for key in set_non_ids:
+      if dct['$set'][key] and type(dct['$set'][key]) is str:
+        dct['$set'][key] = unquote(dct['$set'][key])
+  elif dct.get('$push'):
+    set_non_ids = [key for (key,value) in dct['$set'].items() if not key.endswith('_id') and value]
+    for key in set_non_ids:
+      if dct['$push'][key] and type(dct['$push'][key]) is str:
+        dct['$push'][key] = unquote(dct['$push'][key])
+
   return dct
 
 def datetime_parser(dct):
