@@ -114,7 +114,16 @@ def load_user(email:str, database):
             { "$project": { "label": 1, "is_top_level": 1, "role_list": 1, "screen_list": 1 } }
           ], "as": "menus" 
         } 
-      }
+      },
+      {
+        "$lookup": { 
+          "from": "screen_maker", 
+          "pipeline": [ 
+            { "$match": { "$expr": { "$eq": [ "$is_active", True ] }}},
+            { "$project": { "name": 1, "route_prefix": 1 } }
+          ], "as": "screens" 
+        } 
+      },
     ],
     cursor={},
   )
@@ -132,6 +141,8 @@ def load_user(email:str, database):
         menu['label'] = m.get('label', 'UNKNOWN')
         menu['is_top_level'] = m.get('is_top_level', False)
         menu['screen_list'] = m.get('screen_list', [])
+        for scr in menu['screen_list']:
+          scr['route_prefix'] = next((x.get('route_prefix', 'screen') for x in user['screens'] if x['_id'] == scr['screen_id']), None)
   # Find all top-level
   top_level_list = [x for x in user['user_profile']['menu_list'] if x.get('is_top_level', False) == True]
   default_screen = None

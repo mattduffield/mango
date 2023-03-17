@@ -58,7 +58,7 @@ def json_from_mongo(x):
   else:
     return x
 
-def json_to_mongo(dct):
+def json_to_mongo2(dct):
   # if '_id' in dct and type(dct['_id']) is str:
   #   dct['_id'] = ObjectId(dct['_id'])
   ids = [key for (key,value) in dct.items() if key.endswith('_id') and value]
@@ -75,12 +75,33 @@ def json_to_mongo(dct):
       if dct['$set'][key] and type(dct['$set'][key]) is str:
         dct['$set'][key] = unquote(dct['$set'][key])
   elif dct.get('$push'):
-    set_non_ids = [key for (key,value) in dct['$set'].items() if not key.endswith('_id') and value]
+    set_non_ids = [key for (key,value) in dct['$push'].items() if not key.endswith('_id') and value]
     for key in set_non_ids:
       if dct['$push'][key] and type(dct['$push'][key]) is str:
         dct['$push'][key] = unquote(dct['$push'][key])
 
   return dct
+
+def json_to_mongo(d):
+  '''
+    This method needs to recursively walk the object graph and adjust accordingly.
+    We want to be sure that we support JSON Schema moving forward!!!
+  '''
+  for k, v in d.copy().items():
+    if isinstance(v, dict):
+      json_to_mongo(v)
+    else:
+      if k.endswith('_id') and v:
+        d[k] = ObjectId(v)
+      else:
+        if type(v) is str:
+          if v == 'true':
+            d[k] = True
+          elif v == 'false':
+            d[k] = False
+          else:
+            d[k] = unquote(v)
+  return d
 
 def datetime_parser(dct):
   for (k, v) in dct.items():
