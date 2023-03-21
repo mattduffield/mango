@@ -41,6 +41,7 @@ DATABASE_NAME = os.environ.get('DATABASE_NAME')
 QUICKBOOKS_CLIENT_ID = os.environ.get('QUICKBOOKS_CLIENT_ID')
 QUICKBOOKS_CLIENT_SECRET = os.environ.get('QUICKBOOKS_CLIENT_SECRET')
 QUICKBOOKS_REDIRECT_URI = os.environ.get('QUICKBOOKS_REDIRECT_URI')
+QUICKBOOKS_WEBHOOKS_VERIFIER_TOKEN = os.environ.get('QUICKBOOKS_WEBHOOKS_VERIFIER_TOKEN')
 QUICKBOOKS_ENVIRONMENT = os.environ.get('QUICKBOOKS_ENVIRONMENT')
 QBO_BASE_SANDBOX = os.environ.get('QBO_BASE_SANDBOX')
 QBO_BASE_PROD = os.environ.get('QBO_BASE_PROD')
@@ -355,7 +356,6 @@ async def quickbooks_update(request: Request, update: UpdateModel):
   
   return {"status": "OK"}
 
-
 @router.post('/add_note_attachment')
 async def quickbooks_company_info(request: Request, new_note: NewNoteAttachment):
   '''
@@ -427,6 +427,19 @@ async def quickbooks_add_attachment(request: Request, new_attachment: NewAttachm
   attachment.save(qb=client)
 
   return {"status": "OK"}
+
+@router.post('/webhooks')
+async def quickbooks_webhooks(request: Request):
+  auth_client = quickbooks_get_full_auth_client(request)
+  auth_client.refresh()
+  
+  client = QuickBooks(
+    auth_client=auth_client,
+    refresh_token=auth_client.refresh_token,
+    company_id=auth_client.realm_id,
+  )
+
+  return { 'webhooks': 'received'}
 
 def quickbooks_get(request: Request, query: QueryModel):
   headers = { 
