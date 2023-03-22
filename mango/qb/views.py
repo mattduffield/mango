@@ -32,6 +32,7 @@ from quickbooks.objects.payment import Payment
 from quickbooks.objects.preferences import Preferences
 from quickbooks.objects.invoice import Invoice
 from quickbooks.objects.vendor import Vendor
+from quickbooks.objects.item import Item
 from quickbooks.objects.attachable import Attachable, AttachableRef
 
 from bson import json_util, ObjectId
@@ -471,11 +472,12 @@ async def quickbooks_change_data_capture(request: Request, changed_since: str):
     company_id=auth_client.realm_id,
   )
 
-  cdc_response = change_data_capture([Customer, Vendor, Invoice], changed_since_date, qb=client)
+  cdc_response = change_data_capture([Customer, Vendor, Item, Invoice], changed_since_date, qb=client)
   response = {
     'changed_since_date': changed_since_date,
     'customer': [],
     'vendor': [],
+    'item': [],
     'invoice': [],
   }
   if hasattr(cdc_response, 'Customer'):
@@ -487,6 +489,11 @@ async def quickbooks_change_data_capture(request: Request, changed_since: str):
     for vendor in cdc_response.Vendor:
       # map changes to update...
       print(vendor)
+  if hasattr(cdc_response, 'Item'):
+    for item in cdc_response.Item:
+      # map changes to update...
+      response['item'].append({ 'Id': item.Id, 'Name': item.Name })
+      print(item)
   if hasattr(cdc_response, 'Invoice'):
     for invoice in cdc_response.Invoice:
       # map changes to update...
