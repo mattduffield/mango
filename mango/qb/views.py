@@ -488,6 +488,7 @@ async def quickbooks_change_data_capture(request: Request, changed_since: str):
   if hasattr(cdc_response, 'Vendor'):
     for vendor in cdc_response.Vendor:
       # map changes to update...
+      response['vendor'].append({ 'Id': vendor.Id, 'CompanyName': vendor.CompanyName })
       print(vendor)
   if hasattr(cdc_response, 'Item'):
     for item in cdc_response.Item:
