@@ -47,8 +47,7 @@ QUICKBOOKS_CLIENT_SECRET = os.environ.get('QUICKBOOKS_CLIENT_SECRET')
 QUICKBOOKS_REDIRECT_URI = os.environ.get('QUICKBOOKS_REDIRECT_URI')
 QUICKBOOKS_WEBHOOKS_VERIFIER_TOKEN = os.environ.get('QUICKBOOKS_WEBHOOKS_VERIFIER_TOKEN')
 QUICKBOOKS_ENVIRONMENT = os.environ.get('QUICKBOOKS_ENVIRONMENT')
-QBO_BASE_SANDBOX = os.environ.get('QBO_BASE_SANDBOX')
-QBO_BASE_PROD = os.environ.get('QBO_BASE_PROD')
+QBO_BASE_URL = os.environ.get('QBO_BASE_URL')
 
 router = APIRouter(
   prefix = '/qb',
@@ -99,6 +98,7 @@ def quickbooks_get_entity(entity_name:str):
   lookup = {
     'Customer': Customer,
     'Invoice': Invoice,
+    'Item': Item,
     'Payment': Payment,
     'Preferences': Preferences,
     'Vendor': Vendor,
@@ -136,23 +136,6 @@ def quickbooks_execute(entity, query:QueryModel, client:QuickBooks, data:dict = 
     result = entity.count(query.count, qb=client)
 
   return result
-
-def quickbooks_get(request: Request, query: QueryModel):
-  headers = { 
-    'Accept': "application/json"
-  }
-  meta_version = '/v3/company'
-  # base_url = f'https://sandbox-quickbooks.api.intuit.com{meta_version}'
-  base_url = f'https://quickbooks.api.intuit.com{meta_version}'
-  url = f"{base_url}/{request.session['realm_id']}/query?query={query.query}&minorversion=62"
-  print(url)
-  headers['Authorization'] = f"Bearer {request.session['access_token']}"
-  resp = requests.get(url, headers=headers)
-  # print(headers)
-  print(resp.content)
-  resp_object = json.loads(resp.content)
-  return resp_object['QueryResponse']
-
 
 @router.get('/authorize')
 def quickbooks_authorize(request: Request):
@@ -472,12 +455,13 @@ async def quickbooks_change_data_capture(request: Request, changed_since: str):
     company_id=auth_client.realm_id,
   )
 
-  cdc_response = change_data_capture([Customer, Vendor, Item, Invoice], changed_since_date, qb=client)
+  cdc_response = change_data_capture([Customer, Vendor, Item, Preferences, Invoice], changed_since_date, qb=client)
   response = {
     'changed_since_date': changed_since_date,
     'customer': [],
     'vendor': [],
     'item': [],
+    'preferences': [],
     'invoice': [],
   }
   if hasattr(cdc_response, 'Customer'):
@@ -495,9 +479,33 @@ async def quickbooks_change_data_capture(request: Request, changed_since: str):
       # map changes to update...
       response['item'].append({ 'Id': item.Id, 'Name': item.Name })
       print(item)
+  if hasattr(cdc_response, 'Preferences'):
+    for pref in cdc_response.Preferences:
+      # map changes to update...
+      response['pref'].append({ 'Id': pref.Id, 'Name': pref.Name })
+      print(pref)
   if hasattr(cdc_response, 'Invoice'):
     for invoice in cdc_response.Invoice:
       # map changes to update...
       print(invoice)
   
   return response
+
+@router.get('/get')
+def quickbooks_get(request: Request, query: str):
+  headers = { 
+    'Accept': "application/json"
+  }
+  minor_version = '65'
+  meta_version = '/v3/company'
+  realm_id = request.session['realm_id']
+  access_token = request.session['access_token']
+  base_url = f'{QBO_BASE_URL}{meta_version}'
+  url = f"{base_url}/{realm_id}/query?query={query}&minorversion={minor_version}"
+  print(url)
+  headers['Authorization'] = f"Bearer {access_token}"
+  resp = requests.get(url, headers=headers)
+  # print(headers)
+  print(resp.content)
+  resp_object = json.loads(resp.content)
+  return resp_object['QueryResponse']
