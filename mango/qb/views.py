@@ -455,14 +455,15 @@ async def quickbooks_change_data_capture(request: Request, changed_since: str):
     company_id=auth_client.realm_id,
   )
 
-  cdc_response = change_data_capture([Customer, Vendor, Item, Preferences, Invoice], changed_since_date, qb=client)
+  # cdc_response = change_data_capture([Customer, Vendor, Item, Preferences, Invoice], changed_since_date, qb=client)
+  cdc_response = change_data_capture([Customer, Vendor, Item], changed_since_date, qb=client)
   response = {
     'changed_since_date': changed_since_date,
     'customer': [],
     'vendor': [],
     'item': [],
-    'preferences': [],
-    'invoice': [],
+    # 'preferences': [],
+    # 'invoice': [],
   }
   if hasattr(cdc_response, 'Customer'):
     for customer in cdc_response.Customer:
@@ -479,15 +480,15 @@ async def quickbooks_change_data_capture(request: Request, changed_since: str):
       # map changes to update...
       response['item'].append({ 'Id': item.Id, 'Name': item.Name })
       print(item)
-  if hasattr(cdc_response, 'Preferences'):
-    for pref in cdc_response.Preferences:
-      # map changes to update...
-      response['pref'].append({ 'Id': pref.Id, 'Name': pref.Name })
-      print(pref)
-  if hasattr(cdc_response, 'Invoice'):
-    for invoice in cdc_response.Invoice:
-      # map changes to update...
-      print(invoice)
+  # if hasattr(cdc_response, 'Preferences'):
+  #   for pref in cdc_response.Preferences:
+  #     # map changes to update...
+  #     response['pref'].append({ 'Id': pref.Id, 'Name': pref.Name })
+  #     print(pref)
+  # if hasattr(cdc_response, 'Invoice'):
+  #   for invoice in cdc_response.Invoice:
+  #     # map changes to update...
+  #     print(invoice)
   
   return response
 
