@@ -172,6 +172,16 @@ def to_date(value, *args, **kwargs):
     except:
       pass
 
+def to_date_format(value, format='%m/%d/%Y', *args, **kwargs):
+  if isinstance(value, (datetime.datetime)):
+    return value.strftime(format)
+  else:
+    try:
+      dt = datetime.datetime.fromisoformat(value.replace('Z', ''))
+      return dt.strftime(format)
+    except:
+      pass
+
 def to_field_list_label(value, *args, **kwargs):
   if not value:
     return value
@@ -303,6 +313,7 @@ class CustomJinja2Templates(Jinja2Templates):
       'to_proper_case': to_proper_case,
       'to_string': to_string,
       'to_date': to_date,
+      'to_date_format': to_date_format,
       'db_lookup': db_lookup,
       'dot': dot,
       'walk_dot': walk_dot,
@@ -331,6 +342,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['to_proper_case'] = to_proper_case
     self.env.tests['to_string'] = to_string
     self.env.tests['to_date'] = to_date
+    self.env.tests['to_date_format'] = to_date_format
     self.env.tests['db_lookup'] = db_lookup
     self.env.tests['dot'] = dot    
     self.env.tests['walk_dot'] = walk_dot    
@@ -576,6 +588,7 @@ def render_markup(markup: str = '', context: dict = {}):
     to_proper_case,
     to_string,
     to_date,
+    to_date_format,
     to_currency,
     db_lookup,
     dot,
@@ -604,6 +617,7 @@ def render_markup(markup: str = '', context: dict = {}):
     'to_proper_case': to_proper_case,
     'to_string': to_string,
     'to_date': to_date,
+    'to_date_format': to_date_format,
     'to_currency': to_currency,
     'db_lookup': db_lookup,
     'dot': dot,
@@ -627,6 +641,7 @@ def render_markup(markup: str = '', context: dict = {}):
   env.tests['to_proper_case'] = to_proper_case
   env.tests['to_string'] = to_string
   env.tests['to_date'] = to_date
+  env.tests['to_date_format'] = to_date_format
   env.tests['to_currency'] = to_currency
   env.tests['db_lookup'] = db_lookup
   env.tests['dot'] = dot    
