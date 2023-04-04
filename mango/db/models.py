@@ -87,8 +87,13 @@ def json_to_mongo(d):
     This method needs to recursively walk the object graph and adjust accordingly.
     We want to be sure that we support JSON Schema moving forward!!!
   '''
+  if isinstance(d, ObjectId):
+    return d
   for k, v in d.copy().items():
-    if isinstance(v, dict):
+    if isinstance(v, list):
+      for sv in v:
+        json_to_mongo(sv)
+    elif isinstance(v, dict):
       json_to_mongo(v)
     else:
       if k.endswith('_id') and v:
