@@ -3,6 +3,7 @@
     https://github.com/dldevinc/jinja2-simple-tags
     https://michaelabrahamsen.com/posts/jinja2-custom-template-tags/
 '''
+import html
 import os
 import datetime
 import json
@@ -75,6 +76,12 @@ def walk_dot_form(value, expr:str = '', *args, **kwargs):
     else:
       result = result[part]
   return result
+
+def escape(value):
+  '''
+  Escapes special characters for rendering as HTML.
+  '''
+  return html.escape(str(value))
 
 # {% set found_field = fields|find_in('name', 'product_id') %}
 def find_in(value, property_name:str = None, property_value:str = None):
@@ -290,6 +297,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.add_extension(RenderColTag)
     self.env.add_extension(RenderTableTag)
     self.env.filters.update({
+      'escape': escape,
       'find_in': find_in,
       'from_json': from_json,
       'has_attr': has_attr,
@@ -319,6 +327,7 @@ class CustomJinja2Templates(Jinja2Templates):
       'walk_dot': walk_dot,
       'walk_dot_form': walk_dot_form,
     })
+    self.env.tests['escape'] = escape
     self.env.tests['find_in'] = find_in
     self.env.tests['from_json'] = from_json
     self.env.tests['has_attr'] = has_attr
