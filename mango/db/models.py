@@ -92,7 +92,8 @@ def json_to_mongo(d):
   for k, v in d.copy().items():
     if isinstance(v, list):
       for sv in v:
-        json_to_mongo(sv)
+        if type(sv) is dict:
+          json_to_mongo(sv)
     elif isinstance(v, dict):
       json_to_mongo(v)
     else:
