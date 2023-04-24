@@ -198,6 +198,9 @@ def to_field_list_label(value, *args, **kwargs):
 def to_number_format(value, *args, **kwargs):
   return format(int(value), ',')
 
+def to_float_format(value, *args, **kwargs):
+  return format(float(value), ',')
+
 def to_currency(value, *args, **kwargs):
   value = float(value)
   return "${:,.2f}".format(value)
@@ -315,6 +318,7 @@ class CustomJinja2Templates(Jinja2Templates):
       'startswith': startswith,
       'to_field_list_label': to_field_list_label,
       'to_number_format': to_number_format,
+      'to_float_format': to_float_format,
       'to_currency': to_currency,
       'to_params': to_params,
       'to_phone_number': to_phone_number,
@@ -345,6 +349,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['startswith'] = startswith
     self.env.tests['to_field_list_label'] = to_field_list_label
     self.env.tests['to_number_format'] = to_number_format
+    self.env.tests['to_float_format'] = to_float_format
     self.env.tests['to_currency'] = to_currency
     self.env.tests['to_params'] = to_params
     self.env.tests['to_phone_number'] = to_phone_number
@@ -627,6 +632,8 @@ def render_markup(markup: str = '', context: dict = {}):
     'to_string': to_string,
     'to_date': to_date,
     'to_date_format': to_date_format,
+    'to_number_format': to_number_format,
+    'to_float_format': to_float_format,
     'to_currency': to_currency,
     'db_lookup': db_lookup,
     'dot': dot,
@@ -651,6 +658,8 @@ def render_markup(markup: str = '', context: dict = {}):
   env.tests['to_string'] = to_string
   env.tests['to_date'] = to_date
   env.tests['to_date_format'] = to_date_format
+  env.tests['to_number_format'] = to_number_format
+  env.tests['to_float_format'] = to_float_format
   env.tests['to_currency'] = to_currency
   env.tests['db_lookup'] = db_lookup
   env.tests['dot'] = dot    
