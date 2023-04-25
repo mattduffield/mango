@@ -198,8 +198,8 @@ def to_field_list_label(value, *args, **kwargs):
 def to_number_format(value, *args, **kwargs):
   return format(int(value), ',')
 
-def to_float_format(value, *args, **kwargs):
-  return format(float(value), ',')
+def to_float_format(value, expr=',.2f', *args, **kwargs):
+  return format(float(value), expr)
 
 def to_currency(value, *args, **kwargs):
   value = float(value)
