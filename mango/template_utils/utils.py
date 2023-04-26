@@ -7,6 +7,7 @@ import html
 import os
 import datetime
 import json
+import pytz
 from urllib.parse import quote, unquote
 from fastapi.templating import Jinja2Templates
 from jinja2_simple_tags import StandaloneTag
@@ -179,13 +180,18 @@ def to_date(value, *args, **kwargs):
     except:
       pass
 
-def to_date_format(value, format='%m/%d/%Y', *args, **kwargs):
+def to_date_format(value, format='%m/%d/%Y', timezone='America/New_York', *args, **kwargs):
   if isinstance(value, (datetime.datetime)):
     return value.strftime(format)
   else:
     try:
-      dt = datetime.datetime.fromisoformat(value.replace('Z', ''))
-      return dt.strftime(format)
+      dt = datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
+      local_tz = pytz.timezone(timezone)
+      local_date = dt.astimezone(local_tz)
+      local_date_string = local_date.strftime(format)
+      return local_date_string
+      # dt = datetime.datetime.fromisoformat(value.replace('Z', ''))
+      # return dt.strftime(format)
     except:
       pass
 
