@@ -175,7 +175,7 @@ def to_date(value, *args, **kwargs):
     return value.strftime('%m/%d/%Y')
   else:
     try:
-      dt = datetime.datetime.fromisoformat(value.replace('Z', ''))
+      dt = datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
       return dt.strftime('%m/%d/%Y')
     except:
       pass
@@ -190,8 +190,6 @@ def to_date_format(value, format='%m/%d/%Y', timezone='America/New_York', *args,
       local_date = dt.astimezone(local_tz)
       local_date_string = local_date.strftime(format)
       return local_date_string
-      # dt = datetime.datetime.fromisoformat(value.replace('Z', ''))
-      # return dt.strftime(format)
     except:
       pass
 
