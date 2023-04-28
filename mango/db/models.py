@@ -275,6 +275,7 @@ class UpdateOne(BaseMongo):
   update_type: Literal['update_one', 'update_many'] = 'update_one'
   query: Optional[dict]
   data: dict
+  upsert: bool = False
   def buildExpression(self):
     if self.query and any(self.query):
       self.query = json_to_mongo(self.query)
@@ -282,7 +283,7 @@ class UpdateOne(BaseMongo):
       self.query = {}
     if self.data and any(self.data):
       self.data = json_to_mongo(self.data)
-      expr = f'entity.{self.update_type}({self.query}, {self.data})'
+      expr = f'entity.{self.update_type}({self.query}, {self.data}, upsert={self.upsert})'
       return expr
     return None
 
