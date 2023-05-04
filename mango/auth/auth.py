@@ -229,7 +229,7 @@ async def login(request: Request, next: Optional[str] = None):
     view = { 'organization': get_default_organization() }
     context = {'request': request, 'view': view}
     context['form'] = form
-    response = templates.TemplateResponse('auth/login.html', context)
+    response = templates.TemplateResponse('auth/login_invalid.html', context)
     return response
 
   if next is None:
