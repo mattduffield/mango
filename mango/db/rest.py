@@ -13,7 +13,7 @@ DATABASE_USERNAME = os.environ.get('DATABASE_USERNAME')
 DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD')
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
 
-from mango.db.models import datetime_parser, json_from_mongo, mongo_to_json, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
+from mango.db.models import convert_dates_to_datetime, datetime_parser, json_from_mongo, mongo_to_json, Query, QueryOne, Count, InsertOne, InsertMany, Update, UpdateOne, UpdateMany, Delete, DeleteOne, DeleteMany, BulkWrite, AggregatePipeline
 
 uri = f'mongodb+srv://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_CLUSTER}.mongodb.net/{DATABASE_NAME}?retryWrites=true&w=majority'
 # uri = f'mongodb://summit.local:27017/?serverSelectionTimeoutMS=5000&connectTimeoutMS=10000&3t.uriVersion=3&3t.connection.name=Local+Dev&3t.alwaysShowAuthDB=true&3t.alwaysShowDBFromUserRole=true'
@@ -29,6 +29,7 @@ router = APIRouter(
 
 @router.post('/find')
 async def find(query: Query, keep_native:bool = False):
+  query.query = convert_dates_to_datetime(query.query)
   database = query.database
   if not database:
     database = DATABASE_NAME
@@ -44,6 +45,7 @@ async def find(query: Query, keep_native:bool = False):
   return data
 
 def find_sync(query: Query):
+  query.query = convert_dates_to_datetime(query.query)
   database = query.database
   if not database:
     database = DATABASE_NAME
@@ -56,6 +58,7 @@ def find_sync(query: Query):
   return data
 
 def find_one_sync(query: Query):
+  query.query = convert_dates_to_datetime(query.query)
   database = query.database
   if not database:
     database = DATABASE_NAME
@@ -108,6 +111,7 @@ def run_pipeline_sync(ap: AggregatePipeline):
 
 @router.post('/findOne')
 async def find_one(query: QueryOne, keep_native:bool = False):
+  query.query = convert_dates_to_datetime(query.query)
   database = query.database
   if not database:
     database = DATABASE_NAME
@@ -178,6 +182,7 @@ async def insert_many(payload: InsertMany):
 
 @router.post('/update')
 async def update(payload: Update):
+  payload.query = convert_dates_to_datetime(payload.query)
   database = payload.database
   if not database:
     database = DATABASE_NAME
@@ -190,6 +195,7 @@ async def update(payload: Update):
 
 @router.post('/updateOne')
 async def update_one(payload: UpdateOne):
+  payload.query = convert_dates_to_datetime(payload.query)
   database = payload.database
   if not database:
     database = DATABASE_NAME
@@ -202,6 +208,7 @@ async def update_one(payload: UpdateOne):
 
 @router.post('/updateMany')
 async def update_many(payload: UpdateMany):
+  payload.query = convert_dates_to_datetime(payload.query)
   database = payload.database
   if not database:
     database = DATABASE_NAME
@@ -214,6 +221,7 @@ async def update_many(payload: UpdateMany):
 
 @router.post('/delete')
 async def delete(payload: Delete):
+  payload.query = convert_dates_to_datetime(payload.query)
   database = payload.database
   if not database:
     database = DATABASE_NAME
@@ -226,6 +234,7 @@ async def delete(payload: Delete):
 
 @router.post('/deleteOne')
 async def delete_one(payload: DeleteOne):
+  payload.query = convert_dates_to_datetime(payload.query)
   database = payload.database
   if not database:
     database = DATABASE_NAME
@@ -238,6 +247,7 @@ async def delete_one(payload: DeleteOne):
 
 @router.post('/deleteMany')
 async def delete_many(payload: DeleteMany):
+  payload.query = convert_dates_to_datetime(payload.query)
   database = payload.database
   if not database:
     database = DATABASE_NAME

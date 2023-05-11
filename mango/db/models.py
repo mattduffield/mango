@@ -109,6 +109,30 @@ def json_to_mongo(d):
             d[k] = unquote(v)
   return d
 
+def convert_dates_to_datetime(data):
+  if isinstance(data, dict):
+    new_data = {}
+    for key, value in data.items():
+      if isinstance(value, dict) or isinstance(value, list):
+        new_data[key] = convert_dates_to_datetime(value)
+      elif key == "$date" and isinstance(value, str):
+        new_data = datetime.fromisoformat(value)
+      elif key == "$date" and isinstance(value, (int, float)):
+        new_data = datetime.fromtimestamp(value / 1000.0)
+      elif isinstance(value, dict) and "$date" in value:
+        new_data[key] = datetime.fromtimestamp(value["$date"] / 1000.0)
+      else:
+        new_data[key] = value
+    return new_data
+  elif isinstance(data, list):
+    new_data = []
+    for item in data:
+      if isinstance(item, dict):
+        new_data.append(convert_dates_to_datetime(item))
+      else:
+        new_data.append(item)
+    return new_data
+
 def datetime_parser(dct):
   for (k, v) in dct.items():
     if type(v) is str and re.match('^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d*$', v):
