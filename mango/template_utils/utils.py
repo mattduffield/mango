@@ -209,6 +209,9 @@ def to_currency(value, *args, **kwargs):
   value = float(value)
   return "${:,.2f}".format(value)
 
+def to_current_date(value, *args, **kwargs):
+  return datetime.datetime.now().date()
+
 def load_sync(query):
   if query.collection == 'lookup':
     lookup_name = query.query['name']
@@ -324,6 +327,7 @@ class CustomJinja2Templates(Jinja2Templates):
       'to_number_format': to_number_format,
       'to_float_format': to_float_format,
       'to_currency': to_currency,
+      'to_current_date': to_current_date,
       'to_params': to_params,
       'to_phone_number': to_phone_number,
       'to_proper_case': to_proper_case,
@@ -355,6 +359,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['to_number_format'] = to_number_format
     self.env.tests['to_float_format'] = to_float_format
     self.env.tests['to_currency'] = to_currency
+    self.env.tests['to_current_date'] = to_current_date
     self.env.tests['to_params'] = to_params
     self.env.tests['to_phone_number'] = to_phone_number
     self.env.tests['to_proper_case'] = to_proper_case
@@ -608,6 +613,7 @@ def render_markup(markup: str = '', context: dict = {}):
     to_date,
     to_date_format,
     to_currency,
+    to_current_date,
     db_lookup,
     dot,
     walk_dot,
@@ -639,6 +645,7 @@ def render_markup(markup: str = '', context: dict = {}):
     'to_number_format': to_number_format,
     'to_float_format': to_float_format,
     'to_currency': to_currency,
+    'to_current_date': to_current_date,
     'db_lookup': db_lookup,
     'dot': dot,
     'walk_dot': walk_dot,
@@ -665,6 +672,7 @@ def render_markup(markup: str = '', context: dict = {}):
   env.tests['to_number_format'] = to_number_format
   env.tests['to_float_format'] = to_float_format
   env.tests['to_currency'] = to_currency
+  env.tests['to_current_date'] = to_current_date
   env.tests['db_lookup'] = db_lookup
   env.tests['dot'] = dot    
   env.tests['walk_dot'] = walk_dot    
