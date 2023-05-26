@@ -180,6 +180,16 @@ def to_date(value, *args, **kwargs):
     except:
       pass
 
+def to_date_time(value, *args, **kwargs):
+  if isinstance(value, (datetime.datetime)):
+    return value.strftime('%m/%d/%Y %H:%M%:%S')
+  else:
+    try:
+      dt = datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
+      return dt.strftime('%m/%d/%Y %H:%M%:%S')
+    except:
+      pass
+
 def to_date_format(value, format='%m/%d/%Y', timezone='America/New_York', *args, **kwargs):
   if isinstance(value, (datetime.datetime)):
     return value.strftime(format)
@@ -333,6 +343,7 @@ class CustomJinja2Templates(Jinja2Templates):
       'to_proper_case': to_proper_case,
       'to_string': to_string,
       'to_date': to_date,
+      'to_date_time': to_date_time,
       'to_date_format': to_date_format,
       'db_lookup': db_lookup,
       'dot': dot,
@@ -365,6 +376,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['to_proper_case'] = to_proper_case
     self.env.tests['to_string'] = to_string
     self.env.tests['to_date'] = to_date
+    self.env.tests['to_date_time'] = to_date_time
     self.env.tests['to_date_format'] = to_date_format
     self.env.tests['db_lookup'] = db_lookup
     self.env.tests['dot'] = dot    
@@ -611,6 +623,7 @@ def render_markup(markup: str = '', context: dict = {}):
     to_proper_case,
     to_string,
     to_date,
+    to_date_time,
     to_date_format,
     to_currency,
     to_current_date,
@@ -641,6 +654,7 @@ def render_markup(markup: str = '', context: dict = {}):
     'to_proper_case': to_proper_case,
     'to_string': to_string,
     'to_date': to_date,
+    'to_date_time': to_date_time,
     'to_date_format': to_date_format,
     'to_number_format': to_number_format,
     'to_float_format': to_float_format,
@@ -668,6 +682,7 @@ def render_markup(markup: str = '', context: dict = {}):
   env.tests['to_proper_case'] = to_proper_case
   env.tests['to_string'] = to_string
   env.tests['to_date'] = to_date
+  env.tests['to_date_time'] = to_date_time
   env.tests['to_date_format'] = to_date_format
   env.tests['to_number_format'] = to_number_format
   env.tests['to_float_format'] = to_float_format
