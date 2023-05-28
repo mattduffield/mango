@@ -213,7 +213,7 @@ def can_can(request:Request, role:str = '', action:str = ''):
 def login(request: Request, next: Optional[str] = None):
   global headers
   # headers = {'HX-Refresh': 'true'}
-  view = { 'organization': get_default_organization() }
+  view = { 'lookups': {'current_organization': get_default_organization() } }
   context = {'request': request, 'view': view}
   response = templates.TemplateResponse('auth/login.html', context, headers=headers)
   return response
@@ -226,7 +226,7 @@ async def login(request: Request, next: Optional[str] = None):
   credentials = Credentials(**form.data)
   user = authenticate_user(credentials.email, database=DATABASE_NAME)
   if not user or not auth_handler.verify_password(credentials.password, user['password']):
-    view = { 'organization': get_default_organization() }
+    view = { 'lookups': {'current_organization': get_default_organization() } }
     context = {'request': request, 'view': view}
     context['form'] = form
     response = templates.TemplateResponse('auth/login_invalid.html', context)
@@ -251,42 +251,42 @@ def logout(request: Request, next: Optional[str] = None):
 
 @router.get('/password-reset-complete', response_class=HTMLResponse, name='password-reset-complete')
 async def get_password_reset_complete(request: Request):
-  view = { 'organization': get_default_organization() }
+  view = { 'lookups': {'current_organization': get_default_organization() } }
   context = {'request': request, 'view': view}
   response = templates.TemplateResponse('auth/password_reset_complete.html', context)
   return response
 
 @router.get('/password-reset-done', response_class=HTMLResponse, name='password-reset-done')
 async def get_password_reset_done(request: Request):
-  view = { 'organization': get_default_organization() }
+  view = { 'lookups': {'current_organization': get_default_organization() } }
   context = {'request': request, 'view': view}
   response = templates.TemplateResponse('auth/password_reset_done.html', context)
   return response
 
 @router.get('/signup-confirmation', response_class=HTMLResponse, name='signup-confirmation')
 async def get_signup_confirmation(request: Request):
-  view = { 'organization': get_default_organization() }
+  view = { 'lookups': {'current_organization': get_default_organization() } }
   context = {'request': request, 'view': view}
   response = templates.TemplateResponse('auth/signup_confirmation.html', context)
   return response
 
 @router.get('/signup-approval-complete', response_class=HTMLResponse, name='signup-approval-complete')
 async def get_signup_confirmation(request: Request):
-  view = { 'organization': get_default_organization() }
+  view = { 'lookups': {'current_organization': get_default_organization() } }
   context = {'request': request, 'view': view}
   response = templates.TemplateResponse('auth/signup_approval_complete.html', context)
   return response
 
 @router.get('/signup-rejection-complete', response_class=HTMLResponse, name='signup-rejection-complete')
 async def get_signup_confirmation(request: Request):
-  view = { 'organization': get_default_organization() }
+  view = { 'lookups': {'current_organization': get_default_organization() } }
   context = {'request': request, 'view': view}
   response = templates.TemplateResponse('auth/signup_rejection_complete.html', context)
   return response
 
 @router.get('/signup', response_class=HTMLResponse, name='signup')
 async def get_signup(request: Request, next: Optional[str] = None):
-  view = { 'organization': get_default_organization() }
+  view = { 'lookups': {'current_organization': get_default_organization() } }
   context = {'request': request, 'view': view}
   form = await SignupForm.from_formdata(request)
   context['form'] = form
@@ -309,7 +309,7 @@ async def post_signup(request: Request, next: Optional[str] = None):
     resp = RedirectResponse(url='signup-confirmation', status_code=status.HTTP_302_FOUND)
     return resp
   else:
-    view = { 'organization': get_default_organization() }
+    view = { 'lookups': {'current_organization': get_default_organization() } }
     context = {'request': request, 'view': view}
     context['form'] = form
     response = templates.TemplateResponse('auth/signup.html', context)
@@ -317,7 +317,7 @@ async def post_signup(request: Request, next: Optional[str] = None):
 
 @router.get('/password-reset', response_class=HTMLResponse, name='password-reset')
 async def get_password_reset(request: Request, next: Optional[str] = None):
-  view = { 'organization': get_default_organization() }
+  view = { 'lookups': {'current_organization': get_default_organization() } }
   context = {'request': request, 'view': view}
   form = await PasswordResetForm.from_formdata(request)
   context['form'] = form
@@ -339,7 +339,7 @@ async def post_password_reset(request: Request, next: Optional[str] = None):
     resp = RedirectResponse(url='password-reset-done', status_code=status.HTTP_302_FOUND)
     return resp
   else:
-    view = { 'organization': get_default_organization() }
+    view = { 'lookups': {'current_organization': get_default_organization() } }
     context = {'request': request, 'view': view}
     context['form'] = form
     response = templates.TemplateResponse('auth/password_reset_form.html', context)
