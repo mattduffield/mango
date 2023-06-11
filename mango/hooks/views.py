@@ -52,10 +52,10 @@ async def get_pipeline_resources(database: str, workflow_run_id: str):
             }
           }
         ],
-        'as': 'organization'
+        'as': 'current_organization'
       }
     },
-    { '$unwind': '$organization' },
+    { '$unwind': '$current_organization' },
     { 
       '$lookup': {
         'let': {'wfr_id': { '$toObjectId': workflow_run_id }},
@@ -87,10 +87,15 @@ async def get_pipeline_resources(database: str, workflow_run_id: str):
 async def approve_user(request: Request, database: str, workflow_run_id: str):
   if not database:
     database = DATABASE_NAME
-  view = {}
   [res] = await get_pipeline_resources(database=database, workflow_run_id=workflow_run_id)
-  view['organization'] = res.get('organization', None)
-  view['workflow_run'] = res.get('workflow_run', None)
+  current_organization = res.get('current_organization', None)
+  workflow_run = res.get('workflow_run', None)
+  view = {
+    "lookups": {
+      "current_organization": current_organization
+    },
+    "workflow_run": workflow_run
+  }
   wfr = WorkflowRun(**view['workflow_run'])
   return templates.TemplateResponse('hooks/approve_user.html', {'request': request, 'database': database, 'id': workflow_run_id, 'wfr': wfr, 'view': view})
 
@@ -100,8 +105,14 @@ async def reset_password(request: Request, database: str, workflow_run_id: str):
     database = DATABASE_NAME
   view = {}
   [res] = await get_pipeline_resources(database=database, workflow_run_id=workflow_run_id)
-  view['organization'] = res.get('organization', None)
-  view['workflow_run'] = res.get('workflow_run', None)
+  current_organization = res.get('current_organization', None)
+  workflow_run = res.get('workflow_run', None)
+  view = {
+    "lookups": {
+      "current_organization": current_organization
+    },
+    "workflow_run": workflow_run
+  }
   wfr = WorkflowRun(**view['workflow_run'])
   return templates.TemplateResponse('hooks/reset_password.html', {'request': request, 'database': database, 'id': workflow_run_id, 'wfr': wfr, 'view': view})
 
