@@ -51,6 +51,25 @@ lookup_cache = {}
   https://stackoverflow.com/questions/54715768/how-to-enter-a-list-in-wtforms
 '''
 
+def get_value(data, field_name):
+  try:
+    # Split the field_name into individual parts
+    parts = field_name.split('.')
+    # Traverse the nested structure of data
+    for part in parts:
+      if part.endswith(']'):
+        # Handle list indexing
+        index = int(part.split('[')[1][:-1])
+        data = data[index]
+      elif part.isdigit():
+        index = int(part)
+        data = data[index]
+      else:
+        data = data[part]
+    return data
+  except (KeyError, IndexError, TypeError):
+    return None
+    
 def dot(value, expr:str = '', *args, **kwargs):
   expr_parts = expr.split('.')
   result = value
@@ -346,6 +365,7 @@ class CustomJinja2Templates(Jinja2Templates):
       'to_date_time': to_date_time,
       'to_date_format': to_date_format,
       'db_lookup': db_lookup,
+      'get_value': get_value,
       'dot': dot,
       'walk_dot': walk_dot,
       'walk_dot_form': walk_dot_form,
@@ -379,8 +399,9 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['to_date_time'] = to_date_time
     self.env.tests['to_date_format'] = to_date_format
     self.env.tests['db_lookup'] = db_lookup
-    self.env.tests['dot'] = dot    
-    self.env.tests['walk_dot'] = walk_dot    
+    self.env.tests['get_value'] = get_value
+    self.env.tests['dot'] = dot
+    self.env.tests['walk_dot'] = walk_dot
     self.env.tests['walk_dot_form'] = walk_dot_form
 
 
@@ -628,6 +649,7 @@ def render_markup(markup: str = '', context: dict = {}):
     to_currency,
     to_current_date,
     db_lookup,
+    get_value,
     dot,
     walk_dot,
     walk_dot_form
@@ -661,6 +683,7 @@ def render_markup(markup: str = '', context: dict = {}):
     'to_currency': to_currency,
     'to_current_date': to_current_date,
     'db_lookup': db_lookup,
+    'get_value': get_value,
     'dot': dot,
     'walk_dot': walk_dot,
     'walk_dot_form': walk_dot_form,
@@ -689,6 +712,7 @@ def render_markup(markup: str = '', context: dict = {}):
   env.tests['to_currency'] = to_currency
   env.tests['to_current_date'] = to_current_date
   env.tests['db_lookup'] = db_lookup
+  env.tests['get_value'] = get_value
   env.tests['dot'] = dot    
   env.tests['walk_dot'] = walk_dot    
   env.tests['walk_dot_form'] = walk_dot_form
