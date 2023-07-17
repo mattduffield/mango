@@ -232,7 +232,13 @@ def to_number_format(value, *args, **kwargs):
   return format(int(value), ',')
 
 def to_float_format(value, expr=',.2f', *args, **kwargs):
-  return format(float(value), expr)
+  if not value:
+    return value
+  if isinstance(value, object):
+    value = str(value)
+  result = format(float(value), expr)
+  return result
+
 
 def to_currency(value, *args, **kwargs):
   value = float(value)
