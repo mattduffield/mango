@@ -232,10 +232,10 @@ def to_number_format(value, *args, **kwargs):
   return format(int(value), ',')
 
 def to_float_format(value, expr=',.2f', *args, **kwargs):
-  if not value:
-    return value
   if isinstance(value, object):
     value = str(value)
+  if not value:
+    return value
   result = format(float(value), expr)
   return result
 
