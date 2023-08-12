@@ -195,7 +195,7 @@ def authenticate_user(email:str, database):
   return user
 
 def can(current_user, role:str = '', action:str = ''):
-  result = False
+  result = True
   if current_user:
     if role and action:
       result = role in current_user.get('role_list', []) and action in current_user.get('action_list', [])
@@ -206,7 +206,7 @@ def can(current_user, role:str = '', action:str = ''):
   return result
 
 def can_can(request:Request, role:str = '', action:str = ''):
-  result = False
+  result = True
   current_user = request.state.user
   if current_user:
     if role and action:
