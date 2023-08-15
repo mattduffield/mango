@@ -197,7 +197,7 @@ def to_date(value, *args, **kwargs):
       dt = datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
       return dt.strftime('%m/%d/%Y')
     except:
-      pass
+      return ""
 
 def to_date_time(value, *args, **kwargs):
   if isinstance(value, (datetime.datetime)):
@@ -207,7 +207,7 @@ def to_date_time(value, *args, **kwargs):
       dt = datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
       return dt.strftime('%m/%d/%Y %H:%M%:%S')
     except:
-      pass
+      return ""
 
 def to_date_format(value, format='%m/%d/%Y', timezone='America/New_York', *args, **kwargs):
   if isinstance(value, (datetime.datetime)):
@@ -220,7 +220,7 @@ def to_date_format(value, format='%m/%d/%Y', timezone='America/New_York', *args,
       local_date_string = local_date.strftime(format)
       return local_date_string
     except:
-      pass
+      return ""
 
 def to_field_list_label(value, *args, **kwargs):
   if not value:
