@@ -140,7 +140,7 @@ def load_user(email:str, database):
     for role in user['user_roles']:
       user['action_list'] = user['action_list'] + role['action_list']
     for role in user['user_profile']['role_list']:
-      role_item = next((x for x in user['roles'] if x['name'] == role['role_id']), None)
+      role_item = next((x for x in user['roles'] if x['name'] == role), None)
       user['action_list'] = user['action_list'] + role_item['action_list']
     user['action_list'] = user['action_list'] + user['user_profile']['action_list']
     for menu in user['user_profile']['menu_list']:
