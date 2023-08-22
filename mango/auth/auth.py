@@ -135,35 +135,37 @@ def load_user(email:str, database):
     cursor={},
   )
   role_list_result = run_pipeline_sync(ap)
-  [user] = role_list_result['cursor']['firstBatch']
-  if user:
-    for role in user['user_roles']:
-      user['action_list'] = user['action_list'] + role['action_list']
-    for role in user['user_profile']['role_list']:
-      role_item = next((x for x in user['roles'] if x['name'] == role), None)
-      user['action_list'] = user['action_list'] + role_item['action_list']
-    user['action_list'] = user['action_list'] + user['user_profile']['action_list']
-    for menu in user['user_profile']['menu_list']:
-      m = next((x for x in user['menus'] if x['_id'] == menu['menu_id']), None)
-      if m:
-        menu['label'] = m.get('label', 'UNKNOWN')
-        menu['is_top_level'] = m.get('is_top_level', False)
-        menu['screen_list'] = m.get('screen_list', [])
-        for scr in menu['screen_list']:
-          scr['route_prefix'] = next((x.get('route_prefix', 'screen') for x in user['screens'] if x['_id'] == scr['screen_id']), None)
-  # Find all top-level
-  top_level_list = [x for x in user['user_profile']['menu_list'] if x.get('is_top_level', False) == True]
-  default_screen = None
-  for entry in top_level_list:
-    if default_screen:
-      break
-    for screen in entry['screen_list']:
-      is_default_route = screen.get('screen_is_default_route', False)
-      if is_default_route:
-        default_screen = screen
+  if any(role_list_result['cursor']['firstBatch']):
+    [user] = role_list_result['cursor']['firstBatch']
+    if user:
+      for role in user['user_roles']:
+        user['action_list'] = user['action_list'] + role['action_list']
+      for role in user['user_profile']['role_list']:
+        role_item = next((x for x in user['roles'] if x['name'] == role), None)
+        user['action_list'] = user['action_list'] + role_item['action_list']
+      user['action_list'] = user['action_list'] + user['user_profile']['action_list']
+      for menu in user['user_profile']['menu_list']:
+        m = next((x for x in user['menus'] if x['_id'] == menu['menu_id']), None)
+        if m:
+          menu['label'] = m.get('label', 'UNKNOWN')
+          menu['is_top_level'] = m.get('is_top_level', False)
+          menu['screen_list'] = m.get('screen_list', [])
+          for scr in menu['screen_list']:
+            scr['route_prefix'] = next((x.get('route_prefix', 'screen') for x in user['screens'] if x['_id'] == scr['screen_id']), None)
+    # Find all top-level
+    top_level_list = [x for x in user['user_profile']['menu_list'] if x.get('is_top_level', False) == True]
+    default_screen = None
+    for entry in top_level_list:
+      if default_screen:
         break
-  user['user_profile']['default_screen'] = default_screen
-  return user
+      for screen in entry['screen_list']:
+        is_default_route = screen.get('screen_is_default_route', False)
+        if is_default_route:
+          default_screen = screen
+          break
+    user['user_profile']['default_screen'] = default_screen
+    return user
+  return None
 
 def authenticate_user(email:str, database):
   ap = AggregatePipeline(
