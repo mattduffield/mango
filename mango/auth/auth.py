@@ -188,11 +188,13 @@ def authenticate_user(email:str, database):
     cursor={},
   )
   role_list_result = run_pipeline_sync(ap)
-  [user] = role_list_result['cursor']['firstBatch']
-  if user:
-    for role in user['user_roles']:
-      user['action_list'] = user['action_list'] + role['action_list']
-  return user
+  if any(role_list_result['cursor']['firstBatch']):
+    [user] = role_list_result['cursor']['firstBatch']
+    if user:
+      for role in user['user_roles']:
+        user['action_list'] = user['action_list'] + role['action_list']
+    return user
+  return None
 
 def can(current_user, role:str = '', action:str = ''):
   result = True
