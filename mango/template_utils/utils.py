@@ -108,7 +108,8 @@ def find_in(value, property_name:str = None, property_value:str = None):
   if not property_name:
     raise Exception('property_name is required!')
   if not property_value:
-    raise Exception('property_value is required!')
+    # raise Exception(f'property_value is required!')
+    return {}
   found = next((x for x in value if x[property_name] == property_value), None)
   return found
 
@@ -206,6 +207,26 @@ def to_date_time(value, *args, **kwargs):
     try:
       dt = datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
       return dt.strftime('%m/%d/%Y %H:%M%:%S')
+    except:
+      return ""
+
+def to_date_time2(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_York', *args, **kwargs):
+  if isinstance(value, (datetime.datetime)):
+    new_value = value.isoformat()
+    dt = datetime.datetime.fromisoformat(new_value.replace('Z', '+00:00'))
+    local_tz = pytz.timezone(timezone)
+    local_date = dt.astimezone(local_tz)
+    local_date_string = local_date.strftime(format)
+    print('to_date_time', local_date_string)
+    return local_date_string
+    # return value.strftime(format)
+  else:
+    try:
+      dt = datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
+      local_tz = pytz.timezone(timezone)
+      local_date = dt.astimezone(local_tz)
+      local_date_string = local_date.strftime(format)
+      return local_date_string
     except:
       return ""
 
