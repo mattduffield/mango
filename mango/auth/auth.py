@@ -131,6 +131,15 @@ def load_user(email:str, database):
           ], "as": "screens" 
         } 
       },
+      {
+        "$lookup": { 
+          "from": "screen_builder", 
+          "pipeline": [ 
+            { "$match": { "$expr": { "$eq": [ "$is_active", True ] }}},
+            { "$project": { "name": 1, "route_prefix": 1 } }
+          ], "as": "screen_builder_list" 
+        } 
+      },
     ],
     cursor={},
   )
@@ -151,7 +160,14 @@ def load_user(email:str, database):
           menu['is_top_level'] = m.get('is_top_level', False)
           menu['screen_list'] = m.get('screen_list', [])
           for scr in menu['screen_list']:
-            scr['route_prefix'] = next((x.get('route_prefix', 'screen') for x in user['screens'] if x['_id'] == scr['screen_id']), None)
+            if 'screen_builder_list' in user and 'screen_builder_id' in scr:
+              sb_prefix = next((x.get('route_prefix', 'x') for x in user['screen_builder_list'] if x['_id'] == scr['screen_builder_id']), None)
+              if sb_prefix:
+                scr['route_prefix'] = sb_prefix
+              else:  
+                scr['route_prefix'] = next((x.get('route_prefix', 'screen') for x in user['screens'] if x['_id'] == scr['screen_id']), None)
+            else:  
+              scr['route_prefix'] = next((x.get('route_prefix', 'screen') for x in user['screens'] if x['_id'] == scr['screen_id']), None)
     # Find all top-level
     top_level_list = [x for x in user['user_profile']['menu_list'] if x.get('is_top_level', False) == True]
     default_screen = None
