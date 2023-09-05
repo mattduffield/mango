@@ -200,48 +200,29 @@ def to_date(value, *args, **kwargs):
     except:
       return ""
 
-def to_date_time(value, *args, **kwargs):
+def format_date(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_York'):
+  if not value:
+    return value
   if isinstance(value, (datetime.datetime)):
-    return value.strftime('%m/%d/%Y %H:%M%:%S')
+    new_value = value.isoformat() + "+00:00"
   else:
-    try:
-      dt = datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
-      return dt.strftime('%m/%d/%Y %H:%M%:%S')
-    except:
-      return ""
-
-def to_date_time2(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_York', *args, **kwargs):
-  if isinstance(value, (datetime.datetime)):
-    new_value = value.isoformat()
-    dt = datetime.datetime.fromisoformat(new_value.replace('Z', '+00:00'))
+    new_value = value.replace('Z', '+00:00')
+  try:
+    dt = datetime.datetime.fromisoformat(new_value)
     local_tz = pytz.timezone(timezone)
-    local_date = dt.astimezone(local_tz)
-    local_date_string = local_date.strftime(format)
-    print('to_date_time', local_date_string)
-    return local_date_string
-    # return value.strftime(format)
-  else:
-    try:
-      dt = datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
-      local_tz = pytz.timezone(timezone)
-      local_date = dt.astimezone(local_tz)
-      local_date_string = local_date.strftime(format)
-      return local_date_string
-    except:
-      return ""
+    localized_date = dt.astimezone(local_tz)
+    localized_date_str = localized_date.strftime(format)
+    return localized_date_str
+  except:
+    return ""
+
+def to_date_time(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_York', *args, **kwargs):
+  formatted = format_date(value=value, format=format, timezone=timezone)
+  return formatted
 
 def to_date_format(value, format='%m/%d/%Y', timezone='America/New_York', *args, **kwargs):
-  if isinstance(value, (datetime.datetime)):
-    return value.strftime(format)
-  else:
-    try:
-      dt = datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
-      local_tz = pytz.timezone(timezone)
-      local_date = dt.astimezone(local_tz)
-      local_date_string = local_date.strftime(format)
-      return local_date_string
-    except:
-      return ""
+  formatted = format_date(value=value, format=format, timezone=timezone)
+  return formatted
 
 def to_field_list_label(value, *args, **kwargs):
   if not value:
