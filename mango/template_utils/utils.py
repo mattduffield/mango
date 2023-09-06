@@ -205,6 +205,8 @@ def format_date(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_Yor
     return value
   if isinstance(value, (datetime.datetime)):
     new_value = value.isoformat() + "+00:00"
+  elif isinstance(value, (datetime.date)):
+    new_value = value.isoformat() + "+00:00"
   else:
     new_value = value.replace('Z', '+00:00')
   try:
