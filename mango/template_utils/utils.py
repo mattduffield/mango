@@ -190,17 +190,17 @@ def to_string(value, *args, **kwargs):
     return value
   return str(value)
 
-def to_date(value, *args, **kwargs):
+def to_date(value, format='%m/%d/%Y', *args, **kwargs):
   if isinstance(value, (datetime.datetime)):
-    return value.strftime('%m/%d/%Y')
+    return value.strftime(format)
   else:
     try:
       dt = datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
-      return dt.strftime('%m/%d/%Y')
+      return dt.strftime(format)
     except:
       return ""
 
-def format_date(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_York'):
+def to_date_time(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_York', *args, **kwargs):
   if not value:
     return value
   if isinstance(value, (datetime.datetime)):
@@ -217,14 +217,6 @@ def format_date(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_Yor
     return localized_date_str
   except:
     return ""
-
-def to_date_time(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_York', *args, **kwargs):
-  formatted = format_date(value=value, format=format, timezone=timezone)
-  return formatted
-
-def to_date_format(value, format='%m/%d/%Y', timezone='America/New_York', *args, **kwargs):
-  formatted = format_date(value=value, format=format, timezone=timezone)
-  return formatted
 
 def to_field_list_label(value, *args, **kwargs):
   if not value:
@@ -373,7 +365,6 @@ class CustomJinja2Templates(Jinja2Templates):
       'to_string': to_string,
       'to_date': to_date,
       'to_date_time': to_date_time,
-      'to_date_format': to_date_format,
       'db_lookup': db_lookup,
       'get_value': get_value,
       'dot': dot,
@@ -407,7 +398,6 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['to_string'] = to_string
     self.env.tests['to_date'] = to_date
     self.env.tests['to_date_time'] = to_date_time
-    self.env.tests['to_date_format'] = to_date_format
     self.env.tests['db_lookup'] = db_lookup
     self.env.tests['get_value'] = get_value
     self.env.tests['dot'] = dot
