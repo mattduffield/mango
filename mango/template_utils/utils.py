@@ -6,6 +6,7 @@
 import html
 import os
 import datetime
+import time
 import json
 import pytz
 from urllib.parse import quote, unquote
@@ -218,6 +219,14 @@ def to_date_time(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_Yo
   except:
     return ""
 
+def to_timestamp(value, *args, **kwargs):
+  """
+  Appends a timestamp to the provided value (expected to be a URL or file path).
+  """
+  timestamp = int(time.time())
+  separator = '&' if '?' in value else '?'
+  return f"{value}{separator}version={timestamp}"
+
 def to_field_list_label(value, *args, **kwargs):
   if not value:
     return value
@@ -365,6 +374,7 @@ class CustomJinja2Templates(Jinja2Templates):
       'to_string': to_string,
       'to_date': to_date,
       'to_date_time': to_date_time,
+      'to_timestamp': to_timestamp,
       'db_lookup': db_lookup,
       'get_value': get_value,
       'dot': dot,
@@ -398,6 +408,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['to_string'] = to_string
     self.env.tests['to_date'] = to_date
     self.env.tests['to_date_time'] = to_date_time
+    self.env.tests['to_timestamp'] = to_timestamp    
     self.env.tests['db_lookup'] = db_lookup
     self.env.tests['get_value'] = get_value
     self.env.tests['dot'] = dot
@@ -645,7 +656,7 @@ def render_markup(markup: str = '', context: dict = {}):
     to_string,
     to_date,
     to_date_time,
-    to_date_format,
+    to_timestamp,
     to_currency,
     to_current_date,
     db_lookup,
@@ -677,7 +688,7 @@ def render_markup(markup: str = '', context: dict = {}):
     'to_string': to_string,
     'to_date': to_date,
     'to_date_time': to_date_time,
-    'to_date_format': to_date_format,
+    'to_timestamp': to_timestamp,
     'to_number_format': to_number_format,
     'to_float_format': to_float_format,
     'to_currency': to_currency,
@@ -706,7 +717,7 @@ def render_markup(markup: str = '', context: dict = {}):
   env.tests['to_string'] = to_string
   env.tests['to_date'] = to_date
   env.tests['to_date_time'] = to_date_time
-  env.tests['to_date_format'] = to_date_format
+  env.tests['to_timestamp'] = to_timestamp
   env.tests['to_number_format'] = to_number_format
   env.tests['to_float_format'] = to_float_format
   env.tests['to_currency'] = to_currency
