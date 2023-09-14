@@ -205,9 +205,13 @@ def to_date_time(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_Yo
   if not value:
     return value
   if isinstance(value, (datetime.datetime)):
-    new_value = value.isoformat() + "+00:00"
+    # new_value = value.isoformat() + "+00:00"
+    utc_date = value.astimezone(datetime.timezone.utc)
+    new_value = utc_date.isoformat()
   elif isinstance(value, (datetime.date)):
-    new_value = value.isoformat() + "+00:00"
+    # new_value = value.isoformat() + "+00:00"
+    utc_date = value.astimezone(datetime.timezone.utc)
+    new_value = utc_date.isoformat()
   else:
     new_value = value.replace('Z', '+00:00')
   try:
