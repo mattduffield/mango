@@ -213,12 +213,15 @@ def to_date_time(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_Yo
     utc_date = value.astimezone(datetime.timezone.utc)
     new_value = utc_date.isoformat()
   else:
+    raise Exception("Invalid date format!!!")
     new_value = value.replace('Z', '+00:00')
   try:
-    dt = datetime.datetime.fromisoformat(new_value)
-    local_tz = pytz.timezone(timezone)
-    localized_date = dt.astimezone(local_tz)
-    localized_date_str = localized_date.strftime(format)
+    # dt = datetime.datetime.fromisoformat(new_value)
+    # local_tz = pytz.timezone(timezone)
+    # localized_date = dt.astimezone(local_tz)
+    # localized_date_str = localized_date.strftime(format)
+    # return localized_date_str
+    localized_date_str = utc_date.strftime(format)
     return localized_date_str
   except:
     return ""
