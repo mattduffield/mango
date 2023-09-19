@@ -202,29 +202,44 @@ def to_date(value, format='%m/%d/%Y', *args, **kwargs):
       return ""
 
 def to_date_time(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_York', *args, **kwargs):
+  '''
+  In order to construct the proper datetime, we need to build it using the basic elements. 
+  If we use the value directly from the database, it is not possible to force it to the
+  correct timezone. However, if we build the datetime directly, we can then force it to 
+  honor the correct timezone as desired.
+  NOTE: Only use to_date_time on a valid datetime. If it is simply a date, use to_date.
+  '''
   if not value:
     return value
   if isinstance(value, (datetime.datetime)):
-    # new_value = value.isoformat() + "+00:00"
-    utc_date = value.astimezone(datetime.timezone.utc)
-    new_value = utc_date.isoformat()
+    y = str(value.year)
+    m = str(value.month)
+    d = str(value.day)
+    h = str(value.hour)
+    min = str(value.minute)
+    sec = str(value.second)
+    ms = str(value.microsecond)
+
+    m = f'{value.month:02}'
+    d = f'{value.day:02}'
+    h = f'{value.hour:02}'
+    min = f'{value.minute:02}'
+    sec = f'{value.second:02}'
+    ms = f'{ms[:3]}'
+
+    dt_str = f'{y}-{m}-{d}T{h}:{min}:{sec}.{ms}+0000'
+    # Parse the MongoDB date into a Python datetime object.
+    dt = datetime.datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%S.%f%z')
+    # Set the timezone of the datetime object to the local timezone.
+    local_dt = dt.astimezone()
+    # Format the datetime object to get the desired output.
+    formatted = local_dt.strftime(format)
+    print(formatted)
+    return formatted  
   elif isinstance(value, (datetime.date)):
-    # new_value = value.isoformat() + "+00:00"
-    utc_date = value.astimezone(datetime.timezone.utc)
-    new_value = utc_date.isoformat()
+    raise Exception("Only datetime supported!!!")
   else:
     raise Exception("Invalid date format!!!")
-    new_value = value.replace('Z', '+00:00')
-  try:
-    # dt = datetime.datetime.fromisoformat(new_value)
-    # local_tz = pytz.timezone(timezone)
-    # localized_date = dt.astimezone(local_tz)
-    # localized_date_str = localized_date.strftime(format)
-    # return localized_date_str
-    localized_date_str = utc_date.strftime(format)
-    return localized_date_str
-  except:
-    return ""
 
 def to_timestamp(value, *args, **kwargs):
   """
