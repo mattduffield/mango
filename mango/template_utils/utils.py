@@ -227,13 +227,15 @@ def to_date_time(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_Yo
     sec = f'{value.second:02}'
     ms = f'{ms[:3]}'
 
+    server_timezone_str = datetime.datetime.now().astimezone().tzname()
+
     dt_str = f'{y}-{m}-{d}T{h}:{min}:{sec}.{ms}+0000'
     # Parse the MongoDB date into a Python datetime object.
     dt = datetime.datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%S.%f%z')
     # Set the timezone of the datetime object to the local timezone.
     local_dt = dt.astimezone()
     # Format the datetime object to get the desired output.
-    formatted = local_dt.strftime(format)
+    formatted = local_dt.strftime(format + ' ' + server_timezone_str)
     print(formatted)
     return formatted  
   elif isinstance(value, (datetime.date)):
