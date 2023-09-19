@@ -191,6 +191,19 @@ def to_string(value, *args, **kwargs):
     return value
   return str(value)
 
+def get_timezone_mapping():
+    timezone_mapping = {
+        "PST": "America/Los_Angeles",
+        "PDT": "America/Los_Angeles",
+        "MST": "America/Denver",
+        "MDT": "America/Denver",
+        "CST": "America/Chicago",
+        "CDT": "America/Chicago",
+        "EST": "America/New_York",
+        "EDT": "America/New_York"
+    }
+    return timezone_mapping
+
 def to_date(value, format='%m/%d/%Y', *args, **kwargs):
   if isinstance(value, (datetime.datetime)):
     return value.strftime(format)
@@ -201,7 +214,7 @@ def to_date(value, format='%m/%d/%Y', *args, **kwargs):
     except:
       return ""
 
-def to_date_time(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_York', *args, **kwargs):
+def to_date_time(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_York', display_timezone=True, *args, **kwargs):
   '''
   In order to construct the proper datetime, we need to build it using the basic elements. 
   If we use the value directly from the database, it is not possible to force it to the
@@ -227,15 +240,20 @@ def to_date_time(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_Yo
     sec = f'{value.second:02}'
     ms = f'{ms[:3]}'
 
-    server_timezone_str = datetime.datetime.now().astimezone().tzname()
+    tz_mapping = get_timezone_mapping()
+    tz = next((key for key, value in tz_mapping.items() if value == timezone), None)
 
     dt_str = f'{y}-{m}-{d}T{h}:{min}:{sec}.{ms}+0000'
     # Parse the MongoDB date into a Python datetime object.
     dt = datetime.datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%S.%f%z')
     # Set the timezone of the datetime object to the local timezone.
-    local_dt = dt.astimezone()
+    # local_dt = dt.astimezone()
+    timezone_obj = pytz.timezone(timezone)
+    local_dt = dt.astimezone(timezone_obj)
+    if display_timezone:
+      format = f"{format} {tz}"
     # Format the datetime object to get the desired output.
-    formatted = local_dt.strftime(format + ' ' + server_timezone_str)
+    formatted = local_dt.strftime(format)
     print(formatted)
     return formatted  
   elif isinstance(value, (datetime.date)):
