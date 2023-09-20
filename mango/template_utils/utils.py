@@ -214,7 +214,7 @@ def to_date(value, format='%m/%d/%Y', *args, **kwargs):
     except:
       return ""
 
-def to_date_time(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_York', display_timezone=True, *args, **kwargs):
+def to_date_time(value, format='%m/%d/%Y, %I:%M:%S %p', timezone='America/New_York', display_timezone=False, *args, **kwargs):
   '''
   In order to construct the proper datetime, we need to build it using the basic elements. 
   If we use the value directly from the database, it is not possible to force it to the
