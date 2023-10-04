@@ -33,6 +33,7 @@ from mango.core.fields import (
 from mango.core.forms import KeyValueForm
 
 DATABASE_NAME = os.environ.get('DATABASE_NAME')
+ALLOWED_OPERATIONS = {'==', '!=', '<', '<=', '>', '>='}
 
 templates = None
 lookup_cache = {}
@@ -51,6 +52,41 @@ lookup_cache = {}
   https://gist.github.com/jb-l/466eb6a96e39bf2d92500fe8d6909b14
   https://stackoverflow.com/questions/54715768/how-to-enter-a-list-in-wtforms
 '''
+
+def to_number(value):
+  try:
+    return int(value)
+  except ValueError:
+    try:
+      return float(value)
+    except ValueError:
+      return value
+
+def eval_cond(value, cond:dict = {'target_value': '', 'operation': '', 'ref_value': '', 'target_default_value': 0}, *args, **kwargs):
+  operation = cond.get('operation', None)
+  target_value = cond.get('target_value', '')
+  ref_value = cond.get('ref_value', None)
+  target_default_value = cond.get('target_default_value', 0)
+  tgt_value = get_value(value, target_value)  
+  tgt_value = str(tgt_value).split(',')[0]
+  if not tgt_value:
+    tgt_value = target_default_value
+  tgt_value = to_number(tgt_value)
+  if operation not in ALLOWED_OPERATIONS:
+    raise Exception('Invalid operation argument!')
+  if operation == '==':
+    return tgt_value == ref_value
+  elif operation == '!=':
+    return tgt_value != ref_value
+  elif operation == '<':
+    return tgt_value < ref_value
+  elif operation == '<=':
+    return tgt_value <= ref_value
+  elif operation == '>':
+    return tgt_value > ref_value
+  elif operation == '>=':
+    return tgt_value >= ref_value
+
 
 def get_value(data, field_name):
   try:
@@ -422,6 +458,7 @@ class CustomJinja2Templates(Jinja2Templates):
       'dot': dot,
       'walk_dot': walk_dot,
       'walk_dot_form': walk_dot_form,
+      'eval_cond': eval_cond,
     })
     self.env.tests['escape'] = escape
     self.env.tests['find_in'] = find_in
@@ -456,6 +493,7 @@ class CustomJinja2Templates(Jinja2Templates):
     self.env.tests['dot'] = dot
     self.env.tests['walk_dot'] = walk_dot
     self.env.tests['walk_dot_form'] = walk_dot_form
+    self.env.tests['eval_cond'] = eval_cond
 
 
 class RenderColTag(StandaloneTag):
@@ -705,7 +743,8 @@ def render_markup(markup: str = '', context: dict = {}):
     get_value,
     dot,
     walk_dot,
-    walk_dot_form
+    walk_dot_form,
+    eval_cond
   )
 
   # env = Environment(loader=DictLoader())
@@ -740,6 +779,7 @@ def render_markup(markup: str = '', context: dict = {}):
     'dot': dot,
     'walk_dot': walk_dot,
     'walk_dot_form': walk_dot_form,
+    'eval_cond': eval_cond,
   })
   env.tests['find_in'] = find_in
   env.tests['from_json'] = from_json
@@ -769,6 +809,7 @@ def render_markup(markup: str = '', context: dict = {}):
   env.tests['dot'] = dot    
   env.tests['walk_dot'] = walk_dot    
   env.tests['walk_dot_form'] = walk_dot_form
+  env.tests['eval_cond'] = eval_cond
 
   markup = unquote(markup)
   tmpl = env.from_string(markup)
