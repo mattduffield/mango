@@ -62,31 +62,41 @@ def to_number(value):
     except ValueError:
       return value
 
-def eval_cond(value, cond:dict = {'target_value': '', 'operation': '', 'ref_value': '', 'target_default_value': 0}, *args, **kwargs):
+def eval_cond(value, cond:dict = {'target_value': '', 'operation': '', 'ref_value': ''}, *args, **kwargs):
   operation = cond.get('operation', None)
-  target_value = cond.get('target_value', '')
-  ref_value = cond.get('ref_value', None)
-  target_default_value = cond.get('target_default_value', 0)
-  tgt_value = get_value(value, target_value)  
-  tgt_value = str(tgt_value).split(',')[0]
-  if not tgt_value:
-    tgt_value = target_default_value
-  tgt_value = to_number(tgt_value)
   if operation not in ALLOWED_OPERATIONS:
     raise Exception('Invalid operation argument!')
-  if operation == '==':
-    return tgt_value == ref_value
-  elif operation == '!=':
-    return tgt_value != ref_value
-  elif operation == '<':
-    return tgt_value < ref_value
-  elif operation == '<=':
-    return tgt_value <= ref_value
-  elif operation == '>':
-    return tgt_value > ref_value
-  elif operation == '>=':
-    return tgt_value >= ref_value
-
+  target_value = cond.get('target_value', '')
+  if ',' in target_value:
+    tgt_value = str(tgt_value).split(',')[0]
+  tgt_value = get_value(value, target_value)  
+  ref_value = cond.get('ref_value', None)
+  if isinstance(ref_value, bool):
+    if operation == '==':
+      return tgt_value == ref_value
+    elif operation == '!=':
+      return tgt_value != ref_value
+  elif isinstance(ref_value, str):
+    if operation == '==':
+      return str(tgt_value) == str(ref_value)
+    elif operation == '!=':
+      return str(tgt_value) != str(ref_value)
+  elif isinstance(ref_value, int) or isinstance(ref_value, float):
+    tgt_value = to_number(tgt_value)
+    if not tgt_value:
+      return False
+    if operation == '==':
+      return tgt_value == ref_value
+    elif operation == '!=':
+      return tgt_value != ref_value
+    elif operation == '<':
+      return tgt_value < ref_value
+    elif operation == '<=':
+      return tgt_value <= ref_value
+    elif operation == '>':
+      return tgt_value > ref_value
+    elif operation == '>=':
+      return tgt_value >= ref_value
 
 def get_value(data, field_name):
   try:
