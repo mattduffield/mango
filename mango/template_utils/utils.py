@@ -67,9 +67,9 @@ def eval_cond(value, cond:dict = {'target_value': '', 'operation': '', 'ref_valu
   if operation not in ALLOWED_OPERATIONS:
     raise Exception('Invalid operation argument!')
   target_value = cond.get('target_value', '')
-  if ',' in target_value:
-    tgt_value = str(tgt_value).split(',')[0]
   tgt_value = get_value(value, target_value)  
+  if ',' in str(tgt_value):
+    tgt_value = str(tgt_value).split(',')[0]
   ref_value = cond.get('ref_value', None)
   if isinstance(ref_value, bool):
     if operation == '==':
