@@ -334,6 +334,8 @@ def to_float_format(value, expr=',.2f', *args, **kwargs):
 
 
 def to_currency(value, *args, **kwargs):
+  if not value:
+    return value
   value = float(value)
   return "${:,.2f}".format(value)
 
