@@ -61,13 +61,29 @@ class LoginForm(StarletteForm):
 
 
 class SignupForm(StarletteForm):
+  first_name = StringField(
+    'First Name', 
+    validators=[
+      DataRequired('First Name is required.')
+    ], 
+    render_kw={"autofocus": "true", "class": input_class},
+    description='Required. 25 characters or fewer.',
+  )
+  last_name = StringField(
+    'Last Name', 
+    validators=[
+      DataRequired('Last Name is required.')
+    ], 
+    render_kw={"class": input_class},
+    description='Required. 25 characters or fewer.',
+  )
   username = StringField(
     'Username', 
     validators=[
       DataRequired('Username is required.'),
       unique_username_validator,
     ], 
-    render_kw={"autofocus": "true", "class": input_class},
+    render_kw={"class": input_class},
     description='Required. 25 characters or fewer.',
   )
   email = StringField(
@@ -84,7 +100,8 @@ class SignupForm(StarletteForm):
     'Password', 
     validators=[DataRequired()],
     render_kw={"class": input_class},
-    description=markupsafe.Markup(f'Your password can’t be too similar to your other personal information.<br>Your password must contain at least 8 characters.<br>Your password can’t be a commonly used password.<br>Your password can’t be entirely numeric.'),
+    # description=markupsafe.Markup(f'Your password can’t be too similar to your other personal information.<br>Your password must contain at least 8 characters.<br>Your password can’t be a commonly used password.<br>Your password can’t be entirely numeric.'),
+    description=markupsafe.Markup(f'Required.'),
   )
   password_confirmation = PasswordField(
     'Password confirmation', 
